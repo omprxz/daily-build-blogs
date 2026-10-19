@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--ssr-head-->
+  <title>Daily Build — News, Software &amp; Technology</title>
+  <meta name="description"
+    content="Daily Build delivers daily news, software updates, developer insights, and technology breakthroughs." />
+  <!-- Google Fonts - Asynchronous non-render-blocking loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  </noscript>
+
+  <!-- Google tag (gtag.js) - Defer to window load to unblock FCP, LCP & TBT -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-4NWNVQ4KGG');
+
+    function loadGtag() {
+      const s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=G-4NWNVQ4KGG';
+      document.head.appendChild(s);
+    }
+    if (document.readyState === 'complete') {
+      loadGtag();
+    } else {
+      window.addEventListener('load', loadGtag, { once: true });
+    }
+  </script>
+</head>
+
+<body
+  class="bg-gray-50 text-gray-900 dark:bg-[#090d16] dark:text-gray-100 antialiased min-h-screen selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+  <div id="root"><!--ssr-outlet--></div>
+  <script type="module" src="/src/entry-client.tsx"></script>
+</body>
+
+</html>

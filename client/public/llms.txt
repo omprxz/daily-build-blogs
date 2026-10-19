@@ -1,0 +1,23 @@
+# Daily Build
+
+> Daily Build is an independent technology publication reporting on the vanguard of artificial intelligence models, cloud runtime architectures, and developer productivity tooling.
+
+## Editorial Focus
+- In-depth system architecture investigations and benchmark evaluations
+- Autonomous AI agent frameworks, Model Context Protocol (MCP), and LLM runtimes
+- Cloud infrastructure, containerization, eBPF security, and Linux systems
+- Developer tooling, modern compiler design, and programming language evolutions
+
+## Topics & Channels
+- [Latest Technology Stories](https://blogs.dailybuild.tech/)
+- [Artificial Intelligence & LLMs](https://blogs.dailybuild.tech/category/ai-llms)
+- [Technology News](https://blogs.dailybuild.tech/category/technology-news)
+- [Developer Tools & Infrastructure](https://blogs.dailybuild.tech/category/software-developer-tools)
+- [Cybersecurity & Privacy](https://blogs.dailybuild.tech/category/cybersecurity-privacy)
+
+## Machine Feeds & APIs
+- [RSS Feed](https://blogs.dailybuild.tech/rss.xml)
+- [Sitemap](https://blogs.dailybuild.tech/sitemap.xml)
+- [Published Articles API](https://blogs.dailybuild.tech/api/articles?status=published)
+- [Topic Categories API](https://blogs.dailybuild.tech/api/categories)
+- [Agentic Discovery Catalog](https://blogs.dailybuild.tech/ai-catalog.json)

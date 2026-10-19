@@ -1,0 +1,64 @@
+name: Bug Report
+description: Create a report to help us improve Daily Build Blogs
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug. Please ensure no private API keys, passwords, or secrets are shared in this issue.
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Start server with '...'
+        2. Navigate to '...'
+        3. Click on '...'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs or Screenshots
+      description: Paste any relevant terminal or browser console logs here.
+      render: shell
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      options:
+        - Server (Express.js / Drizzle ORM)
+        - Client (React / Vite / SSR)
+        - Visual Workflow Builder (@xyflow/react)
+        - AI Providers / Adapters
+        - Featured Image Generation / Sharp
+        - Local Agent (Playwright / Webhook)
+        - RSS Research & Polling
+        - Production (Nginx / PM2)
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment Info
+      description: OS version, Node.js version, and PostgreSQL version.
+      placeholder: "Ubuntu 22.04 LTS, Node.js v22.13.0, PostgreSQL 16"
+    validations:
+      required: true

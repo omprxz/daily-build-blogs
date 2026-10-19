@@ -1,0 +1,32 @@
+{
+  "@context": "https://agenticresourcediscovery.org/context/v1",
+  "entries": [
+    {
+      "identifier": "urn:air:blogs.dailybuild.tech:news:articles-api",
+      "displayName": "Daily Build Published Articles API",
+      "type": "application/json",
+      "description": "Public REST API providing access to technology news, developer guides, and published editorial dispatches.",
+      "representativeQueries": [
+        "Fetch the latest technology news and developer articles",
+        "Search articles about AI, DevOps, and web development",
+        "Retrieve technical tutorials on Docker, LLMs, and Linux"
+      ],
+      "url": "https://blogs.dailybuild.tech/api/articles?status=published",
+      "tags": ["news", "technology", "developer", "ai", "cloud"],
+      "version": "1.0.0"
+    },
+    {
+      "identifier": "urn:air:blogs.dailybuild.tech:news:categories-api",
+      "displayName": "Daily Build Topic Categories API",
+      "type": "application/json",
+      "description": "List of editorial technical topic categories and taxonomy channels.",
+      "representativeQueries": [
+        "List all technology topic channels",
+        "Get category metadata and descriptions"
+      ],
+      "url": "https://blogs.dailybuild.tech/api/categories",
+      "tags": ["taxonomy", "categories", "topics"],
+      "version": "1.0.0"
+    }
+  ]
+}

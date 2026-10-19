@@ -1,0 +1,70 @@
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+.next/
+out/
+coverage/
+temp/
+tmp/
+client/dist/
+client/dist-ssr/
+server/dist/
+server/build/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+*.cert
+
+# Runtime data, database dumps and uploads
+/uploads/
+/server/uploads/
+/backups/
+/server/backups/
+**/backups/
+daily_build_blogs_backup_*.sql
+*.sql.gz
+*.tar.gz
+
+# Local browser profiles
+/chatgpt-profile/
+/test-profile/
+/local-agent/chatgpt-profile/
+
+# Editor and operating system files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+Thumbs.db
+
+# Root audit reports & benchmark telemetry
+/audit-report.html
+/pagespeed_mobile.json
+
+.git-bak
+
+MASTER.md

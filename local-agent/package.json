@@ -1,0 +1,16 @@
+{
+  "name": "dailybuild-local-agent",
+  "version": "1.0.0",
+  "description": "Local AI Image Generation & Auto-Publishing Automation Agent for Daily Build Blogs",
+  "main": "agent.js",
+  "type": "module",
+  "scripts": {
+    "start": "node agent.js",
+    "test-browser": "node agent.js --test-browser"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "playwright": "^1.49.1"
+  }
+}
