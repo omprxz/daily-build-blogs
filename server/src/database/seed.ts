@@ -27,15 +27,15 @@ export async function runSeed() {
     console.log(`[Seed] Created initial administrator: ${config.admin.email}`);
   } else {
     adminId = existingAdmin.id;
+    // Preserve custom database password set from Admin Panel; do not overwrite with config.admin.password
     await db.update(schema.users)
       .set({ 
-        passwordHash, 
         role: 'admin', 
         isActive: true,
-        name: config.admin.name
+        name: existingAdmin.name || config.admin.name,
       })
       .where(eq(schema.users.id, adminId));
-    console.log(`[Seed] Synchronized administrator password & status for: ${config.admin.email}`);
+    console.log(`[Seed] Verified administrator account & preserved custom password for: ${config.admin.email}`);
   }
 
   // 2. Default 6 Categories (Section 12)

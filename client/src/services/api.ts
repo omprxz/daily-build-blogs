@@ -31,6 +31,11 @@ export const api = {
     fetchJson('/auth/login', { method: 'POST', body: JSON.stringify(credentials) }),
   getMe: () => fetchJson('/auth/me'),
   logout: () => fetchJson('/auth/logout', { method: 'POST' }),
+  changePassword: (data: { currentPassword: string; newPassword: string; confirmPassword: string }) =>
+    fetchJson<{ success: boolean; message: string }>('/auth/change-password', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
 
   // Articles
   getArticles: (params: Record<string, string | number | boolean> = {}) => {

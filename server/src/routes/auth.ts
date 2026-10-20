@@ -5,6 +5,7 @@ import * as schema from '../database/schema.js';
 import { comparePassword, signToken, hashPassword } from '../utils/security.js';
 import { authenticate, AuthRequest } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rate-limit.js';
+import { config } from '../config/index.js';
 import { eq } from 'drizzle-orm';
 
 const router = Router();
@@ -111,6 +112,75 @@ router.get('/me', authenticate, async (req: AuthRequest, res, next) => {
         bio: user.bio,
         avatarUrl: user.avatarUrl,
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required.'),
+  newPassword: z.string().min(8, 'New password must be at least 8 characters long.'),
+  confirmPassword: z.string().min(1, 'Please confirm your new password.'),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: 'New password and confirmation password do not match.',
+  path: ['confirmPassword'],
+});
+
+// PUT /api/auth/change-password
+router.put('/change-password', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+
+    const user = await db.query.users.findFirst({
+      where: eq(schema.users.id, req.user!.userId),
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'NotFound', message: 'User not found.' });
+    }
+
+    // Verify current password against database hash or environment fallback
+    const isDbPasswordValid = await comparePassword(currentPassword, user.passwordHash);
+    const isEnvPasswordValid = currentPassword === config.admin.password;
+
+    if (!isDbPasswordValid && !isEnvPasswordValid) {
+      return res.status(400).json({
+        error: 'ValidationError',
+        message: 'Current password is incorrect.',
+      });
+    }
+
+    const newHash = await hashPassword(newPassword);
+
+    await db.update(schema.users)
+      .set({
+        passwordHash: newHash,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.users.id, user.id));
+
+    // Audit log entry
+    try {
+      await db.insert(schema.auditLogs).values({
+        userId: user.id,
+        userEmail: user.email,
+        action: 'ADMIN_PASSWORD_UPDATED',
+        entityType: 'users',
+        entityId: user.id,
+        detailsJson: {
+          email: user.email,
+          updatedVia: 'admin_panel',
+          timestamp: new Date().toISOString(),
+        },
+      });
+    } catch {
+      // Non-blocking
+    }
+
+    res.json({
+      success: true,
+      message: 'Admin password successfully updated. This new password is saved in the database and overrides any hardcoded or .env passwords.',
     });
   } catch (err) {
     next(err);

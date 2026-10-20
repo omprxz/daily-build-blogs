@@ -32,6 +32,7 @@ const SEOManager = React.lazy(() => import('./admin/SEOManager.js').then(m => ({
 const NewsletterView = React.lazy(() => import('./admin/NewsletterView.js').then(m => ({ default: m.NewsletterView })));
 const AnalyticsView = React.lazy(() => import('./admin/AnalyticsView.js').then(m => ({ default: m.AnalyticsView })));
 const SitesManager = React.lazy(() => import('./admin/SitesManager.js').then(m => ({ default: m.SitesManager })));
+const SettingsView = React.lazy(() => import('./admin/AppearanceSettings.js').then(m => ({ default: m.AppearanceSettings })));
 
 export const App: React.FC = () => {
   return (
@@ -85,6 +86,7 @@ export const App: React.FC = () => {
           <Route path="newsletter" element={<NewsletterView />} />
           <Route path="analytics" element={<AnalyticsView />} />
           <Route path="sites" element={<SitesManager />} />
+          <Route path="settings" element={<SettingsView />} />
         </Route>
       </Routes>
     </ThemeProvider>
