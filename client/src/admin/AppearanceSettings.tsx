@@ -43,16 +43,16 @@ export const AppearanceSettings: React.FC = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSaveAppearance} className="clay-card p-6 space-y-6">
-        {/* Claymorphism Light Mode Indicator */}
-        <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 flex items-center justify-between">
+      <form onSubmit={handleSaveAppearance} className="p-6 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs space-y-6">
+        {/* Design System Indicator */}
+        <div className="p-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-indigo-600 shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-xs border border-indigo-100 dark:border-indigo-800">
               <Sun className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs font-bold text-slate-900">Light-Mode Claymorphism Active</div>
-              <div className="text-[11px] text-slate-500 font-medium">Soft 3D inflated surfaces, subtle dual-tone shadows, and high contrast pastel palette.</div>
+              <div className="text-xs font-bold text-slate-900 dark:text-white">Minimalist Flat Design System Active</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Clean flat surfaces, high typography hierarchy, neutral borders, and high contrast palette.</div>
             </div>
           </div>
           <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-indigo-600 text-white uppercase tracking-wider">

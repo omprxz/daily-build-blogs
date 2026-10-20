@@ -411,6 +411,7 @@ router.put('/providers/:slug', authenticate, requireRole(['admin']), async (req,
 const generateTitlesSchema = z.object({
   topic: z.string().min(2),
   currentTitle: z.string().optional(),
+  customInstructions: z.string().optional(),
   count: z.number().default(4),
   provider: z.string().optional(),
   model: z.string().optional(),
@@ -421,6 +422,10 @@ router.post('/generate-titles', authenticate, async (req, res, next) => {
     const input = generateTitlesSchema.parse(req.body);
     const profile = await getEditorialVoiceProfile();
 
+    const customDirectives = input.customInstructions?.trim()
+      ? `\nUser-Specified Title Generation Instructions & Constraints:\n${input.customInstructions.trim()}\n- You MUST strictly satisfy the user's custom constraints (such as tone, length, casing, keywords to include, or words to avoid).`
+      : '';
+
     const prompt = `Topic & Subject: "${input.topic}"
 ${input.currentTitle ? `Current Draft Title: "${input.currentTitle}"` : ''}
 
@@ -429,7 +434,7 @@ Editorial Directives:
 - Tone: ${profile.learnedTone}
 - Derive style and journalistic angle from the topic, but do NOT copy source headlines verbatim.
 - Create varied angles: one analytical breakdown, one breakthrough/impact angle, one architectural/engineering view, and one visionary forward-looking angle.
-- Never use boring clickbait; maintain high-credibility tech journalism standards.
+- Never use boring clickbait; maintain high-credibility tech journalism standards.${customDirectives}
 - Output strictly a JSON array of ${input.count} strings, e.g.: ["Title 1", "Title 2", "Title 3", "Title 4"]`;
 
     const result = await providerRegistry.generate('summary', {

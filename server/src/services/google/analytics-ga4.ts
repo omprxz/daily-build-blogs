@@ -518,10 +518,10 @@ export async function queryGA4Analytics(params: {
   const token = await getValidGA4AccessToken();
   const isConnected = Boolean(token && tokenRecord?.isConnected);
 
-  // Default to 28-day window ending today if dates are not provided
+  // Default to rolling 24-hour window ending today if dates are not provided
   const now = new Date();
   const defaultEnd = now.toISOString().split('T')[0];
-  const defaultStart = new Date(now.getTime() - 28 * 86400 * 1000).toISOString().split('T')[0];
+  const defaultStart = new Date(now.getTime() - 1 * 86400 * 1000).toISOString().split('T')[0];
 
   const actualStartDate = startDate || defaultStart;
   const actualEndDate = endDate || defaultEnd;

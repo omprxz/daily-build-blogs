@@ -82,7 +82,7 @@ export const CorrectionsPolicyPage: React.FC = () => (
     </ul>
     <h2>Contact Editorial</h2>
     <p>
-      To submit a correction, email our editorial desk at <a href="mailto:contact@dailybuild.tech">contact@dailybuild.tech</a> with article links and verified documentation.
+      To submit a correction, email our editorial desk at <a href="mailto:omprxz@gmail.com" className="text-indigo-600 underline">omprxz@gmail.com</a> with article links and verified documentation.
     </p>
   </StaticWrapper>
 );
@@ -97,6 +97,10 @@ export const PrivacyPolicyPage: React.FC = () => (
       <li><strong>Anonymous Metrics:</strong> Aggregated page view analytics to understand content popularity.</li>
       <li><strong>Newsletter:</strong> Email addresses provided for subscriptions are strictly used to dispatch daily digests and can be unsubscribed from with a single click.</li>
     </ul>
+    <h2>Privacy &amp; Data Inquiries</h2>
+    <p>
+      For privacy questions or data requests, contact our desk at <a href="mailto:omprxz@gmail.com" className="text-indigo-600 underline">omprxz@gmail.com</a>.
+    </p>
   </StaticWrapper>
 );
 

@@ -93,12 +93,22 @@ router.get('/', async (req, res, next) => {
       };
     }));
 
+    // Compute total count for pagination and accurate frontend counts
+    const [{ totalCount }] = await db
+      .select({ totalCount: sql<number>`count(*)::int` })
+      .from(schema.articles)
+      .where(whereClause);
+
+    const total = Number(totalCount) || 0;
+
     res.json({
       data: enriched,
       pagination: {
         page,
         limit,
-        hasMore: enriched.length === limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+        hasMore: offset + enriched.length < total,
       },
     });
   } catch (err) {

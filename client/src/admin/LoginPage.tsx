@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api.js';
-import { ShieldCheck, Lock, Mail, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, ArrowRight, Sparkles } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -29,28 +29,32 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F6FB] dark:bg-[#080d17] flex items-center justify-center p-4">
-      <div className="max-w-md w-full clay-card p-8">
-        <div className="text-center mb-8 flex flex-col items-center">
-          <div className="flex items-center justify-center mb-3">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070b14] flex items-center justify-center p-4">
+      <div className="max-w-md w-full p-8 rounded-3xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xl space-y-6">
+        <div className="text-center flex flex-col items-center">
+          <div className="flex items-center justify-center mb-4">
             <img
               src="/logo-light.png"
               alt="Daily Build"
-              className="h-9 w-auto max-w-[220px] object-contain dark:hidden"
+              className="h-8 w-auto max-w-[220px] object-contain dark:hidden"
             />
             <img
               src="/logo-dark.png"
               alt="Daily Build"
-              className="h-9 w-auto max-w-[220px] object-contain hidden dark:block"
+              className="h-8 w-auto max-w-[220px] object-contain hidden dark:block"
             />
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-            Sign in to manage technology publications, workflows &amp; AI models.
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/40 mb-2">
+            <ShieldCheck className="w-3 h-3 text-indigo-500" />
+            <span>EDITORIAL ADMINISTRATION</span>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Sign in to manage technology dispatches, autonomous workflows &amp; AI models.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold">
+          <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 font-semibold leading-relaxed">
             {error}
           </div>
         )}
@@ -61,14 +65,14 @@ export const LoginPage: React.FC = () => {
               Admin Email
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@dailybuild.tech"
-                className="w-full pl-10 pr-4 py-2.5 clay-input text-xs text-slate-900 dark:text-white font-medium"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
             </div>
           </div>
@@ -78,14 +82,14 @@ export const LoginPage: React.FC = () => {
               Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full pl-10 pr-4 py-2.5 clay-input text-xs text-slate-900 dark:text-white font-medium"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
             </div>
           </div>
@@ -93,16 +97,20 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3 px-4 clay-btn-primary disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-2"
+            className="w-full mt-3 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
           >
             {loading ? 'Authenticating...' : (
-              <>Sign In to Dashboard <ArrowRight className="w-4 h-4" /></>
+              <>
+                <span>Sign In to Dashboard</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
             )}
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 text-center text-xs text-gray-400 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> End-to-end encrypted session
+        <div className="pt-4 border-t border-slate-100 dark:border-white/[0.06] text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 font-medium">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+          <span>Encrypted Session • First-Party Cookies</span>
         </div>
       </div>
     </div>

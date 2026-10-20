@@ -125,7 +125,7 @@ export const SitesManager: React.FC = () => {
   const [selectedProperty, setSelectedProperty] = useState<string>(() => {
     return (typeof window !== 'undefined' ? localStorage.getItem('db_last_gsc_property') : '') || '';
   });
-  const [dateRange, setDateRange] = useState<'24h' | '7d' | '28d' | '3m' | '6m'>('28d');
+  const [dateRange, setDateRange] = useState<'24h' | '7d' | '28d' | '3m' | '6m'>('24h');
   const [comparePeriod, setComparePeriod] = useState(true);
   const [gscData, setGscData] = useState<any>(null);
   const [loadingGsc, setLoadingGsc] = useState(false);
@@ -137,7 +137,7 @@ export const SitesManager: React.FC = () => {
   const [selectedGA4Property, setSelectedGA4Property] = useState<string>(() => {
     return (typeof window !== 'undefined' ? localStorage.getItem('db_last_ga4_property') : '') || '';
   });
-  const [ga4DateRange, setGa4DateRange] = useState<'24h' | '7d' | '28d' | '3m' | '6m'>('28d');
+  const [ga4DateRange, setGa4DateRange] = useState<'24h' | '7d' | '28d' | '3m' | '6m'>('24h');
   const [ga4ComparePeriod, setGa4ComparePeriod] = useState(true);
   const [ga4Data, setGa4Data] = useState<any>(null);
   const [loadingGA4, setLoadingGA4] = useState(false);

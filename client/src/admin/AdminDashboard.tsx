@@ -14,7 +14,12 @@ import {
   CheckCircle2,
   AlertTriangle,
   Clock,
+  ArrowUpRight,
+  TrendingUp,
+  Layers,
+  ArrowRight,
 } from 'lucide-react';
+import { getCategoryTheme } from '../utils/editorialPrompt.js';
 
 export const AdminDashboard: React.FC = () => {
   const [summary, setSummary] = useState<any>(null);
@@ -30,7 +35,7 @@ export const AdminDashboard: React.FC = () => {
     setLoading(true);
     Promise.all([
       api.getAnalyticsSummary(),
-      api.getArticles({ limit: 6, status: 'all' }),
+      api.getArticles({ limit: 8, status: 'all' }),
     ])
       .then(([stats, arts]) => {
         setSummary(stats);
@@ -55,242 +60,281 @@ export const AdminDashboard: React.FC = () => {
 
   if (loading && !summary) {
     return (
-      <div className="space-y-6 animate-pulse">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="h-28 bg-white dark:bg-gray-800 rounded-xl"></div>
-          <div className="h-28 bg-white dark:bg-gray-800 rounded-xl"></div>
-          <div className="h-28 bg-white dark:bg-gray-800 rounded-xl"></div>
-          <div className="h-28 bg-white dark:bg-gray-800 rounded-xl"></div>
+      <div className="space-y-6 animate-pulse w-full">
+        <div className="h-10 w-72 bg-slate-200 dark:bg-slate-800 rounded-xl mb-4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-28 bg-white dark:bg-[#0c1220] border border-slate-200 dark:border-white/[0.08] rounded-2xl" />
+          ))}
         </div>
+        <div className="h-64 bg-white dark:bg-[#0c1220] border border-slate-200 dark:border-white/[0.08] rounded-2xl" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 w-full">
-      {/* Page Title & Quick Actions */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="space-y-8 w-full pb-10">
+      {/* Editorial Command Center Header Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200/80 dark:border-white/[0.08]">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/40 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Autonomous Pipeline Operational</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             Editorial Command Center
           </h1>
-          <p className="text-xs text-slate-500 mt-1 font-medium">
-            Publishing queue, dynamic AI model consumption &amp; autonomous pipeline health.
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+            Publishing queue, dynamic AI model consumption &amp; autonomous pipeline telemetry.
           </p>
         </div>
 
-        <div className="flex items-center flex-wrap sm:flex-nowrap gap-2 shrink-0">
+        <div className="flex items-center flex-wrap gap-2.5 shrink-0">
           <Link
             to="/admin/articles/new"
-            className="clay-btn-primary px-3.5 py-2 text-xs flex items-center gap-1.5 whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-xs"
           >
-            <PlusCircle className="w-3.5 h-3.5" /> New Article
+            <PlusCircle className="w-4 h-4" />
+            <span>New Article</span>
           </Link>
           <Link
             to="/admin/studio"
-            className="clay-btn px-3.5 py-2 text-xs flex items-center gap-1.5 text-emerald-700 bg-emerald-50 hover:bg-emerald-100/70 whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100/70 border border-emerald-200 dark:border-emerald-800/50 rounded-xl transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> AI Studio
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>AI Studio</span>
           </Link>
           <button
             onClick={handlePollAll}
             disabled={pollingFeeds}
-            className="clay-btn px-3.5 py-2 text-xs text-slate-700 flex items-center gap-1.5 whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-[#0c1220] hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-white/[0.08] rounded-xl transition-colors"
           >
             <RotateCw className={`w-3.5 h-3.5 ${pollingFeeds ? 'animate-spin text-indigo-600' : ''}`} />
-            {pollingFeeds ? 'Polling...' : 'Poll Feeds'}
+            <span>{pollingFeeds ? 'Polling...' : 'Poll Feeds'}</span>
           </button>
         </div>
       </div>
 
-      {/* 4 Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* 4 Metric KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {/* Total & Published Articles */}
-        <div className="clay-card p-5">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Articles</span>
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Articles</span>
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50">
               <FileText className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-black text-slate-900">
+          <div className="text-3xl font-black text-slate-900 dark:text-white">
             {summary?.articles?.total || 0}
           </div>
-          <div className="text-xs text-slate-500 mt-2 flex items-center gap-2">
-            <span className="text-emerald-600 font-bold">{summary?.articles?.published || 0} Published</span>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-2">
+            <span className="text-emerald-600 dark:text-emerald-400 font-bold">{summary?.articles?.published || 0} Published</span>
             <span>•</span>
             <span>{summary?.articles?.drafts || 0} Drafts</span>
           </div>
         </div>
 
         {/* Total Pageviews */}
-        <div className="clay-card p-5">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Impressions</span>
-            <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 shadow-inner">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Impressions</span>
+            <div className="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-950/50 flex items-center justify-center text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/50">
               <Eye className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-black text-slate-900">
-            {summary?.articles?.totalViews || 0}
+          <div className="text-3xl font-black text-slate-900 dark:text-white">
+            {summary?.articles?.totalViews ? summary.articles.totalViews.toLocaleString() : 0}
           </div>
-          <div className="text-xs text-slate-500 mt-2">
-            Privacy-first first-party tracking
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+            First-party verified telemetry
           </div>
         </div>
 
         {/* AI Tokens & Consumption */}
-        <div className="clay-card p-5">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">AI Token Usage</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shadow-inner">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">AI Tokens Processed</span>
+            <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/50 flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-900/50">
               <Bot className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-black text-slate-900">
+          <div className="text-3xl font-black text-slate-900 dark:text-white">
             {summary?.aiUsage?.totalTokens ? summary.aiUsage.totalTokens.toLocaleString() : '0'}
           </div>
-          <div className="text-xs text-slate-500 mt-2">
-            Gemini, Groq, Headless ChatGPT &amp; APIs
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+            Dynamic hybrid multi-model routing
           </div>
         </div>
 
         {/* Estimated AI Cost */}
-        <div className="clay-card p-5">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Estimated Cost</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Estimated Cost</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-black text-slate-900">
+          <div className="text-3xl font-black text-slate-900 dark:text-white">
             {summary?.aiUsage?.estimatedCostUsd || '$0.0000'}
           </div>
-          <div className="text-xs text-slate-500 mt-2">
-            Low-overhead hybrid model routing
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+            High-efficiency cost containment
           </div>
         </div>
       </div>
 
-      {/* Source Health & Automation Summary */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Research Sources Health */}
-        <div className="clay-card p-5">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-              <Radio className="w-4 h-4 text-indigo-500" /> Source Ingestion Health
-            </h3>
-            <Link to="/admin/sources" className="text-xs text-indigo-600 font-bold hover:underline">Manage Feeds</Link>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="flex items-center gap-1.5 text-slate-700 font-semibold">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Healthy Active Feeds
-              </span>
-              <span className="font-extrabold text-slate-900">{summary?.sources?.healthy || 0} / {summary?.sources?.total || 10}</span>
+      {/* Two-Column Operations Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Research Sources & Model Hub (4 cols) */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Research Sources Health */}
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/[0.06]">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                <Radio className="w-4 h-4 text-indigo-500" />
+                <span>RSS Ingestion Telemetry</span>
+              </h2>
+              <Link to="/admin/sources" className="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                Manage Feeds
+              </Link>
             </div>
-            <div className="flex items-center justify-between text-xs p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="flex items-center gap-1.5 text-slate-700 font-semibold">
-                <AlertTriangle className="w-4 h-4 text-amber-500" /> Failing Feeds
-              </span>
-              <span className="font-extrabold text-slate-900">{summary?.sources?.errorCount || 0}</span>
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between text-xs p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-white/[0.06]">
+                <span className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>Healthy Active Feeds</span>
+                </span>
+                <span className="font-mono font-bold text-slate-900 dark:text-white">
+                  {summary?.sources?.healthy || 0} / {summary?.sources?.total || 10}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-white/[0.06]">
+                <span className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-semibold">
+                  <AlertTriangle className="w-4 h-4 text-amber-500" />
+                  <span>Failing Feeds</span>
+                </span>
+                <span className="font-mono font-bold text-slate-900 dark:text-white">
+                  {summary?.sources?.errorCount || 0}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Dynamic Model Discovery Callout */}
-        <div className="lg:col-span-2 clay-card p-6 bg-gradient-to-br from-indigo-50/80 via-white to-sky-50/60 border border-indigo-100 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2 text-indigo-700 font-bold text-xs uppercase tracking-wider">
-              <Bot className="w-4 h-4" /> Live Dynamic Model Categorization
+          {/* AI Providers Quick Link Card */}
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-50/80 via-white to-sky-50/60 dark:from-indigo-950/30 dark:via-[#0c1220] dark:to-sky-950/20 border border-indigo-200/70 dark:border-indigo-900/40 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider">
+              <Bot className="w-4 h-4" />
+              <span>Multi-Provider AI Mesh</span>
             </div>
-            <h3 className="text-lg font-black text-slate-900 mb-2">
-              Configured for Text, Image, Video &amp; Coding Modalities
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              Autonomous Content &amp; Media Synthesis
             </h3>
-            <p className="text-xs text-slate-600 leading-relaxed max-w-xl font-medium">
-              All models are classified across Text, Image, and Video generation with live provider probing. Train the AI directly on any custom blogs to mimic exact editorial tone.
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
+              Anthropic Claude, Google Gemini, Groq, local Codex, and local browser agents with custom prompt engineering.
             </p>
-          </div>
-          <div className="pt-4 flex flex-wrap items-center gap-3">
-            <Link
-              to="/admin/providers"
-              className="clay-btn-primary px-4 py-2 text-xs font-bold whitespace-nowrap shrink-0"
-            >
-              Configure AI Providers &rarr;
-            </Link>
-            <Link
-              to="/admin/training"
-              className="clay-btn px-4 py-2 text-xs font-bold flex items-center gap-1.5 text-amber-700 bg-amber-50 whitespace-nowrap shrink-0"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" /> Blog Training Lab
-            </Link>
+            <div className="pt-2 flex flex-col gap-2">
+              <Link
+                to="/admin/providers"
+                className="inline-flex items-center justify-between px-3.5 py-2 text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800/80 border border-indigo-200/70 dark:border-indigo-800/60 rounded-xl hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                <span>Configure AI Providers</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                to="/admin/workflows"
+                className="inline-flex items-center justify-between px-3.5 py-2 text-xs font-bold text-purple-700 dark:text-purple-300 bg-white dark:bg-slate-800/80 border border-purple-200/70 dark:border-purple-800/60 rounded-xl hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                <span>Automated Workflow Orchestrator</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Recent Articles Queue */}
-      <div className="clay-card overflow-hidden">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-sm font-black text-slate-900">
-            Recent Publishing Pipeline
-          </h3>
-          <Link to="/admin/articles" className="text-xs text-indigo-600 font-bold hover:underline">
-            View All Articles &rarr;
-          </Link>
-        </div>
+        {/* Recent Articles Pipeline Table (8 cols) */}
+        <div className="lg:col-span-8 p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/[0.06]">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+                Recent Publishing Pipeline
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Latest drafts, scheduled publications, and live dispatches
+              </p>
+            </div>
+            <Link
+              to="/admin/articles"
+              className="inline-flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 text-slate-500 uppercase font-bold border-b border-slate-200/80">
-              <tr>
-                <th className="py-3 px-4">Title</th>
-                <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Views</th>
-                <th className="py-3 px-4">Created</th>
-                <th className="py-3 px-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {recentArticles.map((art) => (
-                <tr key={art.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-3 px-4 font-bold text-slate-900 max-w-xs truncate">
-                    <Link to={`/admin/articles/${art.id}`} className="hover:text-indigo-600">
-                      {art.title}
-                    </Link>
-                  </td>
-                  <td className="py-3 px-4 text-slate-600 font-medium">
-                    {art.category?.name || 'General'}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      art.status === 'published'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : art.status === 'draft'
-                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                        : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                    }`}>
-                      {art.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-slate-600 font-mono font-medium">
-                    {art.viewsCount || 0}
-                  </td>
-                  <td className="py-3 px-4 text-slate-500">
-                    {new Date(art.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <Link
-                      to={`/admin/articles/${art.id}`}
-                      className="px-2.5 py-1 text-xs text-indigo-600 hover:text-indigo-800 font-bold"
-                    >
-                      Edit
-                    </Link>
-                  </td>
+          <div className="overflow-x-auto -mx-5 sm:mx-0">
+            <table className="w-full text-left text-xs min-w-[550px]">
+              <thead className="text-[11px] uppercase tracking-wider font-bold text-slate-400 border-b border-slate-100 dark:border-white/[0.06]">
+                <tr>
+                  <th className="py-2.5 px-3">Headline</th>
+                  <th className="py-2.5 px-3">Channel</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3 text-right">Views</th>
+                  <th className="py-2.5 px-3 text-right">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-white/[0.04]">
+                {recentArticles.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-slate-400">
+                      No recent articles found in publishing pipeline.
+                    </td>
+                  </tr>
+                ) : (
+                  recentArticles.map((art) => {
+                    const theme = getCategoryTheme(art.category?.slug || '');
+                    return (
+                      <tr key={art.id} className="hover:bg-slate-50/70 dark:hover:bg-white/[0.02] transition-colors">
+                        <td className="py-3 px-3 font-semibold text-slate-900 dark:text-white max-w-xs truncate">
+                          <Link to={`/admin/articles/${art.id}`} className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                            {art.title}
+                          </Link>
+                        </td>
+                        <td className="py-3 px-3 text-slate-600 dark:text-slate-400">
+                          <span className="inline-flex items-center gap-1.5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${theme.dotColor}`} />
+                            <span>{art.category?.name || 'General'}</span>
+                          </span>
+                        </td>
+                        <td className="py-3 px-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            art.status === 'published'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
+                              : art.status === 'draft'
+                              ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
+                              : 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800'
+                          }`}>
+                            {art.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono text-slate-600 dark:text-slate-400">
+                          {art.viewsCount || 0}
+                        </td>
+                        <td className="py-3 px-3 text-right">
+                          <Link
+                            to={`/admin/articles/${art.id}`}
+                            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
+                          >
+                            <span>Edit</span>
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

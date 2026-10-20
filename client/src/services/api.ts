@@ -84,7 +84,7 @@ export const api = {
   getRecentAIModels: () => fetchJson('/ai/models/recent'),
   recordModelUsage: (providerSlug: string, modelId: string, taskType?: string) =>
     fetchJson('/ai/models/record', { method: 'POST', body: JSON.stringify({ providerSlug, modelId, taskType }) }),
-  generateTitles: (data: { prompt?: string; topic?: string; provider?: string; model?: string; count?: number }) =>
+  generateTitles: (data: { prompt?: string; topic?: string; currentTitle?: string; customInstructions?: string; provider?: string; model?: string; count?: number }) =>
     fetchJson<{ titles: string[] }>('/ai/generate-titles', { method: 'POST', body: JSON.stringify(data) }),
   rewriteContent: (data: { content: string; selectedText?: string; preset?: string; customPrompt?: string; provider?: string; model?: string }) =>
     fetchJson<{ rewritten: string; mode: string }>('/ai/rewrite', { method: 'POST', body: JSON.stringify(data) }),

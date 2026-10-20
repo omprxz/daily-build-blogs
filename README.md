@@ -42,7 +42,8 @@ Modern content publishing platforms often force teams into an unpleasant trade-o
 - **Automated RSS Research & Deduplication:** Pre-seeded with 10 real-world engineering feeds (Google AI, OpenAI, Anthropic, Hugging Face, GitHub, Mozilla, The Hacker News, Ars Technica, TechCrunch, Google Developers) with SHA-256 normalized deduplication.
 - **Featured Image Processing:** Automatic 16:9 editorial artwork synthesis via Gemini Imagen 3, WebP conversion, and subtle bottom-right logo watermarking via **Sharp** (`libvips`).
 - **Desktop Automation Agent (`local-agent/`):** Optional background desktop agent using Playwright for browser-assisted 16:9 image generation via ChatGPT.
-- **Google Search Console & GA4 Integration:** Built-in OAuth 2.0 integration correlating organic search clicks, impressions, and Core Web Vitals into joint AI performance insight reports.
+- **Google Search Console & GA4 Integration:** Built-in OAuth 2.0 integration correlating organic search clicks, impressions, and Core Web Vitals into joint AI performance insight reports, defaulting to a rolling 24-hour reporting interval across all property analytics views.
+- **Editorial Studio & AI Title Generation:** Article creator and editor with customizable "Title Generation Instructions" field allowing editorial steering of headline tone, length constraints, focus keywords, and SEO intent across both creation and editing flows.
 - **Defense-in-Depth Security:** AES-256-GCM encryption for stored API keys, bcrypt password hashing, JWT sessions, strict HTML sanitization via `sanitize-html`, API rate limiting, and an instant **Emergency Publishing Kill Switch**.
 
 ---
@@ -335,4 +336,4 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for full deployment instructions an
 
 - **License:** Licensed under the [MIT License](LICENSE).
 - **Contributing:** Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
-- **Maintainer Contact:** [contact@dailybuild.tech](mailto:contact@dailybuild.tech)
+- **Maintainer Contact:** [omprxz@gmail.com](mailto:omprxz@gmail.com)

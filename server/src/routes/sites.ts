@@ -445,11 +445,11 @@ router.post('/gsc/analytics', async (req: Request, res: Response, next: NextFunc
       targetProperty = defaultSite?.gscPropertyUrl || defaultSite?.url || 'https://blogs.dailybuild.tech';
     }
 
-    // Default to last 28 days ending today if not provided
+    // Default to last 24 hours ending today if not provided
     const end = endDate || new Date().toISOString().split('T')[0];
     const start =
       startDate ||
-      new Date(Date.now() - 28 * 86400 * 1000).toISOString().split('T')[0];
+      new Date(Date.now() - 1 * 86400 * 1000).toISOString().split('T')[0];
 
     const data = await querySearchAnalytics(targetProperty, {
       startDate: start,

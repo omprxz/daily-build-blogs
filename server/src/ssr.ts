@@ -281,7 +281,7 @@ export async function handleSsr(req: Request, res: Response) {
               <span>${article.readingTimeMins || 4} min read</span>
             </div>
           </header>
-          ${article.featuredImage ? `<figure class="mb-8"><img src="${socialImageUrl}" alt="${escapeHtml(imageAlt)}" class="w-full h-auto rounded-xl shadow-sm object-cover max-h-[500px]" /><figcaption class="text-xs text-gray-500 mt-2 text-center">${escapeHtml(imageAlt)}</figcaption></figure>` : ''}
+          ${article.featuredImage ? `<figure class="mb-8"><div class="aspect-video w-full bg-slate-950 flex items-center justify-center p-2 rounded-2xl overflow-hidden"><img src="${socialImageUrl}" alt="${escapeHtml(imageAlt)}" class="w-full h-full object-contain" /></div><figcaption class="text-xs text-gray-500 mt-2 text-center">${escapeHtml(imageAlt)}</figcaption></figure>` : ''}
           <div class="prose prose-lg dark:prose-invert max-w-none font-serif leading-relaxed text-gray-800 dark:text-gray-200">
             ${article.contentHtml}
           </div>
@@ -554,7 +554,7 @@ export async function handleSsr(req: Request, res: Response) {
               Visual clarity is foundational to our editorial aesthetic. Our technical diagrams and artwork adhere to a minimalist editorial philosophy: restrained tonal palettes, high-contrast ink linework, and clear conceptual schematics designed to illuminate complex system architectures rather than distract with decorative clutter.
             </p>
             <div class="pt-4 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
-              Published by the Daily Build Editorial Team • Inquiries: <a href="mailto:contact@dailybuild.tech" class="text-indigo-600 underline">contact@dailybuild.tech</a>
+              Published by the Daily Build Editorial Team • Inquiries: <a href="mailto:omprxz@gmail.com" class="text-indigo-600 underline">omprxz@gmail.com</a>
             </div>
           </div>
           <footer class="pt-6 border-t border-gray-200 dark:border-gray-800 text-xs text-gray-500 flex flex-wrap gap-4">
@@ -599,7 +599,7 @@ export async function handleSsr(req: Request, res: Response) {
               Editorial coverage is determined strictly by technical merit, architectural novelty, and relevance to practicing engineers. Writers and editors must disclose any personal financial interests or advisory affiliations with covered companies. We maintain a firm firewall between editorial staff and commercial operations.
             </p>
             <div class="pt-4 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
-              For questions regarding our editorial standards, email our desk at <a href="mailto:contact@dailybuild.tech" class="text-indigo-600 underline">contact@dailybuild.tech</a>.
+              For questions regarding our editorial standards, email our desk at <a href="mailto:omprxz@gmail.com" class="text-indigo-600 underline">omprxz@gmail.com</a>.
             </div>
           </div>
           <footer class="pt-6 border-t border-gray-200 dark:border-gray-800 text-xs text-gray-500 flex flex-wrap gap-4">
@@ -640,7 +640,7 @@ export async function handleSsr(req: Request, res: Response) {
               We encourage readers, maintainers, and researchers to report any perceived discrepancies in our technical coverage. Please include the specific article URL, the exact paragraph or code snippet in question, and links to verified primary documentation (such as official release notes, RFCs, or repository commits).
             </p>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              Send correction requests to <a href="mailto:contact@dailybuild.tech" class="text-indigo-600 underline font-semibold">contact@dailybuild.tech</a> with the subject line <em>"Correction Request: [Article Title]"</em>. Our editorial desk investigates all submissions within 24 business hours.
+              Send correction requests to <a href="mailto:omprxz@gmail.com" class="text-indigo-600 underline font-semibold">omprxz@gmail.com</a> with the subject line <em>"Correction Request: [Article Title]"</em>. Our editorial desk investigates all submissions within 24 business hours.
             </p>
           </div>
           <footer class="pt-6 border-t border-gray-200 dark:border-gray-800 text-xs text-gray-500 flex flex-wrap gap-4">
@@ -685,7 +685,7 @@ export async function handleSsr(req: Request, res: Response) {
               Regardless of your geographic location, Daily Build respects your rights under modern privacy regulations including the General Data Protection Regulation (GDPR) and California Consumer Privacy Act (CCPA). You may request access to, correction of, or permanent deletion of any data associated with your interactions at any time.
             </p>
             <div class="pt-4 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
-              For privacy inquiries or data requests, contact our data protection desk at <a href="mailto:privacy@dailybuild.tech" class="text-indigo-600 underline font-semibold">privacy@dailybuild.tech</a>.
+              For privacy inquiries or data requests, contact our data protection desk at <a href="mailto:omprxz@gmail.com" class="text-indigo-600 underline font-semibold">omprxz@gmail.com</a>.
             </div>
           </div>
           <footer class="pt-6 border-t border-gray-200 dark:border-gray-800 text-xs text-gray-500 flex flex-wrap gap-4">
@@ -730,7 +730,7 @@ export async function handleSsr(req: Request, res: Response) {
               In no event shall Daily Build, its contributors, or editors be held liable for any direct, indirect, incidental, consequential, or punitive damages arising out of the use or inability to use the technical information, recommendations, or architecture patterns provided in our publications.
             </p>
             <div class="pt-4 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
-              Last updated: October 2026 • Legal inquiries: <a href="mailto:legal@dailybuild.tech" class="text-indigo-600 underline font-semibold">legal@dailybuild.tech</a>
+              Last updated: October 2026 • Legal inquiries: <a href="mailto:omprxz@gmail.com" class="text-indigo-600 underline font-semibold">omprxz@gmail.com</a>
             </div>
           </div>
           <footer class="pt-6 border-t border-gray-200 dark:border-gray-800 text-xs text-gray-500 flex flex-wrap gap-4">

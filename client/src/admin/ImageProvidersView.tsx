@@ -321,7 +321,7 @@ export const ImageProvidersView: React.FC = () => {
       {activeTab === 'agent' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Webhook Configuration Form */}
-          <div className="lg:col-span-2 clay-card p-6 space-y-6">
+          <div className="lg:col-span-2 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs p-6 space-y-6">
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
                 <Radio className="w-4 h-4 text-indigo-600" /> Webhook Endpoint Configuration
@@ -342,13 +342,13 @@ export const ImageProvidersView: React.FC = () => {
                     value={webhookUrl}
                     onChange={(e) => setWebhookUrl(e.target.value)}
                     placeholder="https://your-tunnel.ngrok-free.app/webhook/generate-image"
-                    className="flex-1 px-3 py-2 text-xs clay-input font-mono"
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   <button
                     type="button"
                     disabled={testingWebhook || !webhookUrl}
                     onClick={handleTestWebhook}
-                    className="clay-btn px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 disabled:opacity-50"
+                    className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-1.5 disabled:opacity-50 transition-colors shadow-xs"
                   >
                     <Send className={`w-3.5 h-3.5 ${testingWebhook ? 'animate-spin' : ''}`} />
                     {testingWebhook ? 'Testing...' : 'Test Ping'}
@@ -401,12 +401,12 @@ export const ImageProvidersView: React.FC = () => {
                     type="text"
                     value={secretToken}
                     onChange={(e) => setSecretToken(e.target.value)}
-                    className="flex-1 px-3 py-2 text-xs clay-input font-mono"
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   <button
                     type="button"
                     onClick={handleCopySecret}
-                    className="clay-btn px-3 py-2 text-xs flex items-center gap-1 font-bold text-slate-700 dark:text-slate-300"
+                    className="px-3 py-2 text-xs flex items-center gap-1 font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-xs"
                   >
                     {copiedSecret ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                     {copiedSecret ? 'Copied' : 'Copy'}
@@ -426,7 +426,7 @@ export const ImageProvidersView: React.FC = () => {
                   <select
                     value={aspectRatio}
                     onChange={(e) => setAspectRatio(e.target.value)}
-                    className="w-full px-3 py-2 text-xs clay-input font-bold text-indigo-700"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   >
                     <option value="16:9">16:9 (Standard Editorial Landscape)</option>
                     <option value="1:1">1:1 (Square)</option>
@@ -455,7 +455,7 @@ export const ImageProvidersView: React.FC = () => {
                     type="text"
                     value={promptPrefix}
                     onChange={(e) => setPromptPrefix(e.target.value)}
-                    className="w-full px-3 py-2 text-xs clay-input"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -467,7 +467,7 @@ export const ImageProvidersView: React.FC = () => {
                     type="text"
                     value={promptSuffix}
                     onChange={(e) => setPromptSuffix(e.target.value)}
-                    className="w-full px-3 py-2 text-xs clay-input"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -486,7 +486,7 @@ export const ImageProvidersView: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingSettings}
-                  className="clay-btn-primary px-5 py-2.5 text-xs flex items-center gap-2 font-bold"
+                  className="px-5 py-2.5 text-xs flex items-center gap-2 font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-xs"
                 >
                   <Check className="w-4 h-4" />
                   {savingSettings ? 'Saving...' : 'Save Settings'}
@@ -497,7 +497,7 @@ export const ImageProvidersView: React.FC = () => {
 
           {/* Quick Setup & Agent Info Guide */}
           <div className="space-y-6">
-            <div className="clay-card p-6 space-y-4">
+            <div className="rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs p-6 space-y-4">
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
                 <Bot className="w-4 h-4 text-emerald-600" /> 1-Step Laptop Agent Setup
               </h3>
@@ -522,7 +522,7 @@ export const ImageProvidersView: React.FC = () => {
               </div>
             </div>
 
-            <div className="clay-card p-6 space-y-3">
+            <div className="rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs p-6 space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
                 <Shield className="w-4 h-4 text-indigo-600" /> Reliability &amp; Security
               </h3>
@@ -536,7 +536,7 @@ export const ImageProvidersView: React.FC = () => {
 
       {/* TAB 2: Live Job Queue & History */}
       {activeTab === 'jobs' && (
-        <div className="clay-card p-6 space-y-4">
+        <div className="rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
@@ -549,7 +549,7 @@ export const ImageProvidersView: React.FC = () => {
             <button
               type="button"
               onClick={loadJobsAndStatus}
-              className="clay-btn px-3 py-1.5 text-xs flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-bold"
+              className="px-3 py-1.5 text-xs flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-bold transition-colors shadow-xs"
             >
               <RefreshCw className="w-3.5 h-3.5" /> Refresh Queue
             </button>
@@ -667,7 +667,7 @@ export const ImageProvidersView: React.FC = () => {
           {/* Job Logs Modal */}
           {selectedJobLogs && (
             <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-              <div className="clay-card bg-slate-950 text-slate-200 max-w-2xl w-full p-6 space-y-4 rounded-2xl border border-slate-800 shadow-2xl">
+              <div className="bg-slate-950 text-slate-200 max-w-2xl w-full p-6 space-y-4 rounded-2xl border border-slate-800 shadow-2xl">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2">
                     <Terminal className="w-5 h-5 text-indigo-400" />
@@ -705,7 +705,7 @@ export const ImageProvidersView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSelectedJobLogs(null)}
-                    className="clay-btn px-4 py-1.5 text-xs text-white bg-slate-800 hover:bg-slate-700 font-bold"
+                    className="px-4 py-1.5 text-xs text-white bg-slate-800 hover:bg-slate-700 font-bold rounded-xl border border-slate-700 transition-colors shadow-xs"
                   >
                     Close
                   </button>
@@ -718,7 +718,7 @@ export const ImageProvidersView: React.FC = () => {
 
       {/* TAB 3: Direct Fallback Synthesis */}
       {activeTab === 'generator' && (
-        <div className="clay-card p-6 space-y-6">
+        <div className="rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs p-6 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
@@ -738,7 +738,7 @@ export const ImageProvidersView: React.FC = () => {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 text-xs clay-input"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
                 <option value="AI & LLMs">AI &amp; LLMs</option>
                 <option value="Technology News">Technology News</option>
@@ -754,7 +754,7 @@ export const ImageProvidersView: React.FC = () => {
               <select
                 value={selectedEngine}
                 onChange={(e) => setSelectedEngine(e.target.value)}
-                className="w-full px-3 py-2 text-xs clay-input font-bold text-indigo-700"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
                 <option value="antigravity">Google Antigravity Imagen (16:9 Editorial)</option>
                 <option value="codex">OpenAI Codex CLI (16:9 Editorial Graphics)</option>
@@ -771,7 +771,7 @@ export const ImageProvidersView: React.FC = () => {
                 <select
                   value={geminiModel}
                   onChange={(e) => setGeminiModel(e.target.value)}
-                  className="w-full px-3 py-2 text-xs clay-input font-medium text-slate-800 dark:text-slate-200"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 >
                   {geminiModels.length > 0 ? (
                     geminiModels.map((m: any) => (
@@ -794,7 +794,7 @@ export const ImageProvidersView: React.FC = () => {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2 text-xs clay-input"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
 
@@ -807,7 +807,7 @@ export const ImageProvidersView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPromptBuilder(!showPromptBuilder)}
-                  className="px-3 py-1 rounded-lg text-xs font-semibold clay-btn text-indigo-700"
+                  className="px-3 py-1 rounded-xl text-xs font-semibold border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-colors"
                 >
                   {showPromptBuilder ? 'Use Simple Style' : 'Expand Advanced Prompt Builder'}
                 </button>
@@ -830,7 +830,7 @@ export const ImageProvidersView: React.FC = () => {
                     type="text"
                     value={style}
                     onChange={(e) => setStyle(e.target.value)}
-                    className="w-full px-3 py-2 text-xs clay-input"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
               )}
@@ -840,7 +840,7 @@ export const ImageProvidersView: React.FC = () => {
               <button
                 type="submit"
                 disabled={generating}
-                className="clay-btn-primary px-5 py-2.5 text-xs flex items-center gap-2 font-bold"
+                className="px-5 py-2.5 text-xs flex items-center gap-2 font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-xs"
               >
                 <Sparkles className="w-4 h-4" />
                 {generating ? 'Synthesizing with Engine...' : 'Generate 16:9 Featured Cover'}
@@ -849,12 +849,12 @@ export const ImageProvidersView: React.FC = () => {
           </form>
 
           {previewImage && (
-            <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-4 items-start">
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row gap-4 items-start">
               <div className="w-full sm:w-72 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 flex items-center justify-center p-1">
                 <img src={previewImage.imageUrl} alt="" className="w-full h-40 object-contain" />
               </div>
               <div className="flex-1 space-y-1">
-                <span className="clay-badge px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700 bg-emerald-50">
+                <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full border border-emerald-200 dark:border-emerald-800/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400">
                   Synthesized Successfully
                 </span>
                 <h4 className="font-bold text-slate-900 dark:text-white text-sm">{title}</h4>
@@ -865,7 +865,7 @@ export const ImageProvidersView: React.FC = () => {
                   href={previewImage.imageUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="clay-btn inline-flex items-center gap-1 text-xs text-indigo-600 font-bold px-3 py-1.5 mt-2"
+                  className="inline-flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 font-bold px-3 py-1.5 mt-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-xs"
                 >
                   <ExternalLink className="w-3 h-3" /> View Full Image
                 </a>

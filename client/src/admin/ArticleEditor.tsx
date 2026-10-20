@@ -100,6 +100,10 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
   const [generatingTitles, setGeneratingTitles] = useState(false);
   const [titleProvider, setTitleProvider] = useState('antigravity');
   const [titleModel, setTitleModel] = useState('');
+  const [titleInstructions, setTitleInstructions] = useState<string>(() => {
+    return (typeof window !== 'undefined' ? localStorage.getItem('db_last_title_instructions') : '') || '';
+  });
+  const [aiMetadata, setAiMetadata] = useState<any>({});
 
   // AI Content Studio / Rewriter State
   const [showRewriterModal, setShowRewriterModal] = useState(false);
@@ -177,9 +181,14 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
           setMetaDescription(data.metaDescription || '');
           setIsFeaturedLead(data.isFeaturedLead || false);
           setIsTrending(data.isTrending || false);
-          setTagsInput(Array.isArray(data.tags) ? data.tags.join(', ') : '');
           setRevisions(data.revisions || []);
           setSources(data.sources || []);
+          if (data.aiMetadata) {
+            setAiMetadata(data.aiMetadata);
+            if (data.aiMetadata.titleInstructions) {
+              setTitleInstructions(data.aiMetadata.titleInstructions);
+            }
+          }
         })
         .finally(() => setLoading(false));
     }
@@ -194,6 +203,14 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
 
     setSaving(true);
     const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
+
+    const updatedAiMetadata = {
+      ...(aiMetadata || {}),
+      titleInstructions: titleInstructions.trim() || undefined,
+    };
+    if (titleInstructions.trim()) {
+      localStorage.setItem('db_last_title_instructions', titleInstructions.trim());
+    }
 
     const payload = {
       title,
@@ -210,6 +227,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
       isTrending,
       tags,
       sources,
+      aiMetadata: updatedAiMetadata,
     };
 
     try {
@@ -236,6 +254,8 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
       const res = await api.generateTitles({
         prompt: title || excerpt || 'Advanced Enterprise Technology',
         topic: title || excerpt,
+        currentTitle: title || undefined,
+        customInstructions: titleInstructions.trim() || undefined,
         provider: titleProvider,
         model: (titleProvider === 'antigravity' || titleProvider === 'codex') ? undefined : titleModel,
         count: 4,
@@ -324,21 +344,20 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
   return (
     <form onSubmit={handleSave} className="space-y-8 w-full pb-16">
       {/* Top Header */}
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => navigate('/admin/articles')}
-            className="p-2.5 rounded-xl clay-btn text-slate-600 hover:text-slate-900"
+            className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div>
-            <h1 className="text-xl font-black text-slate-900">
+            <h1 className="text-xl font-black text-slate-900 dark:text-white">
               {isNew ? 'Create New Article' : 'Edit Article'}
             </h1>
-            <div className="text-xs text-slate-500 font-medium">Editorial CMS &amp; SEO Engine</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Editorial CMS &amp; SEO Engine</div>
           </div>
         </div>
 
@@ -346,7 +365,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="px-3.5 py-2 text-xs font-bold clay-input cursor-pointer"
+            className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white cursor-pointer shadow-xs focus:ring-1 focus:ring-indigo-500"
           >
             <option value="draft">Draft</option>
             <option value="in_review">In Review</option>
@@ -359,7 +378,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
           <button
             type="submit"
             disabled={saving}
-            className="clay-btn-primary px-4 py-2 text-xs flex items-center gap-1.5"
+            className="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 shadow-xs transition-colors"
           >
             <Save className="w-4 h-4" />
             {saving ? 'Saving...' : 'Save Article'}
@@ -396,13 +415,37 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Breakthrough in Sub-Nanosecond Reasoning Architectures"
-              className="w-full px-4 py-3 text-base font-bold clay-input text-slate-900 placeholder-slate-400"
+              className="w-full px-4 py-3 text-base font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
             />
+
+            {/* Title Generation Instructions */}
+            <div className="mt-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                  Title Generation Instructions
+                </span>
+                <span className="text-[10px] text-slate-400 font-normal">Tone, Length, Keywords &amp; SEO Intent</span>
+              </div>
+              <textarea
+                rows={2}
+                value={titleInstructions}
+                onChange={(e) => {
+                  setTitleInstructions(e.target.value);
+                  localStorage.setItem('db_last_title_instructions', e.target.value);
+                }}
+                placeholder="e.g., Focus on distributed system reliability, keep under 65 characters, active voice, include key technical keywords, avoid buzzwords like 'revolutionary' or 'game-changer'..."
+                className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                Controls AI headline synthesis for this article across Create and Edit operations.
+              </p>
+            </div>
           </div>
 
           {/* Slug */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
               URL Slug (Canonical Permalinks)
             </label>
             <div className="flex items-center gap-2">
@@ -412,14 +455,14 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="leave blank to auto-generate from headline"
-                className="flex-1 px-3 py-2 text-xs clay-input font-mono text-slate-900"
+                className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
               />
             </div>
           </div>
 
           {/* Excerpt */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
               Editorial Excerpt (Standfirst)
             </label>
             <textarea
@@ -428,7 +471,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               placeholder="Concise, captivating 2-sentence technical summary..."
-              className="w-full px-3 py-2 text-xs clay-input text-slate-900 font-serif leading-relaxed"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-serif leading-relaxed focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
             />
           </div>
 
@@ -514,17 +557,17 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
         {/* Right Sidebar: Meta, Media, SEO, Revisions */}
         <div className="space-y-6">
           {/* Category & Placement */}
-          <div className="clay-card p-5 space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
               Taxonomy &amp; Placement
             </h3>
 
             <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1">Primary Category</label>
+              <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Primary Category</label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-3 py-2 text-xs clay-input text-slate-800 cursor-pointer"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
               >
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -533,17 +576,17 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1">Tags (Comma-separated)</label>
+              <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Tags (Comma-separated)</label>
               <input
                 type="text"
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
                 placeholder="AI, LLMs, Linux, Rust"
-                className="w-full px-3 py-2 text-xs clay-input"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
               />
             </div>
 
-            <div className="space-y-2 pt-2 border-t border-slate-100 text-xs">
+            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -551,7 +594,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                   onChange={(e) => setIsFeaturedLead(e.target.checked)}
                   className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
-                <span className="font-semibold text-slate-700">Featured Lead Story on Homepage</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Featured Lead Story on Homepage</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -561,13 +604,13 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                   onChange={(e) => setIsTrending(e.target.checked)}
                   className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
-                <span className="font-semibold text-slate-700">Mark as Trending Intelligence</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Mark as Trending Intelligence</span>
               </label>
             </div>
           </div>
 
           {/* Featured Thumbnail */}
-          <div className="clay-card p-5 space-y-3 relative overflow-hidden border border-indigo-100 bg-gradient-to-b from-white to-indigo-50/20">
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs space-y-3 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
@@ -1203,6 +1246,24 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                   </select>
                 )}
               </div>
+            </div>
+
+            {/* Custom Instructions for Title Generation */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                <span>Title Generation Instructions (Optional):</span>
+                <span className="text-[10px] text-slate-400 font-normal">Custom rules &amp; constraints</span>
+              </label>
+              <textarea
+                rows={2}
+                value={titleInstructions}
+                onChange={(e) => {
+                  setTitleInstructions(e.target.value);
+                  localStorage.setItem('db_last_title_instructions', e.target.value);
+                }}
+                placeholder="e.g., Target senior engineers, active voice, under 65 chars, highlight latency metrics, avoid hype words..."
+                className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
             </div>
 
             {/* Suggestions List */}

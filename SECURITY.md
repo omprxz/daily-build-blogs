@@ -17,7 +17,7 @@ Only the latest release on the primary branch receives active security patches.
 
 If you believe you have discovered a vulnerability, follow responsible disclosure:
 
-1. Send an email to **[contact@dailybuild.tech](mailto:contact@dailybuild.tech)** with the subject line:  
+1. Send an email to **[omprxz@gmail.com](mailto:omprxz@gmail.com)** with the subject line:  
    `[SECURITY VULNERABILITY] Daily Build Blogs - <Component>`
 2. Include:
    - A detailed description of the vulnerability.

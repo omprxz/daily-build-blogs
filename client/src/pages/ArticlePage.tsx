@@ -349,16 +349,18 @@ export const ArticlePage: React.FC = () => {
           </section>
         )}
 
-        {/* Executive Summary & Core Takeaway Card */}
-        {article.excerpt && (
+        {/* Key Architectural Takeaways (Rendered only when distinct takeaways exist in metadata) */}
+        {article.aiMetadata?.takeaways && Array.isArray(article.aiMetadata.takeaways) && article.aiMetadata.takeaways.length > 0 && (
           <div className="mb-8 p-5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-900/40 shadow-xs">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 mb-2">
               <BookOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              Executive Summary &amp; Core Takeaway
+              Key Architectural Takeaways
             </div>
-            <p className="text-sm sm:text-base text-ink-800 dark:text-ink-200 leading-relaxed font-normal">
-              {article.excerpt}
-            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-sm text-ink-800 dark:text-ink-200">
+              {article.aiMetadata.takeaways.map((t: string, i: number) => (
+                <li key={i}>{t}</li>
+              ))}
+            </ul>
           </div>
         )}
 

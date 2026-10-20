@@ -83,7 +83,7 @@ export const AnalyticsView: React.FC = () => {
   const [system, setSystem] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [timeFilter, setTimeFilter] = useState<'all' | '30d' | '7d' | '24h'>('all');
+  const [timeFilter, setTimeFilter] = useState<'all' | '30d' | '7d' | '24h'>('24h');
   const [killSwitchActive, setKillSwitchActive] = useState(false);
   const [togglingKillSwitch, setTogglingKillSwitch] = useState(false);
 

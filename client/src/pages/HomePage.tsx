@@ -18,26 +18,33 @@ export const HomePage: React.FC = () => {
   const [subscriberEmail, setSubscriberEmail] = useState('');
   const [submittingEmail, setSubmittingEmail] = useState(false);
 
+  const [totalArticles, setTotalArticles] = useState<number>(() => initialData?.totalArticles || 0);
+
   useEffect(() => {
     api.recordPageView({ path: '/' }).catch(() => {});
 
-    // Only fetch if initialData was not provided by server SSR
-    if (!articles.length) {
-      Promise.all([
-        api.getArticles({ limit: 18, status: 'published' }),
-        api.getCategories().catch(() => []),
-      ])
-        .then(([articlesRes, catsRes]) => {
-          if (articlesRes?.data) {
-            setArticles(articlesRes.data);
+    // Ensure category counts and total article count are populated
+    Promise.all([
+      articles.length ? Promise.resolve(null) : api.getArticles({ limit: 18, status: 'published' }).catch(() => null),
+      api.getCategories().catch(() => []),
+    ])
+      .then(([articlesRes, catsRes]) => {
+        if (articlesRes?.data) {
+          setArticles(articlesRes.data);
+          if (articlesRes.pagination?.total) {
+            setTotalArticles(articlesRes.pagination.total);
           }
-          if (Array.isArray(catsRes)) {
-            setCategories(catsRes);
+        }
+        if (Array.isArray(catsRes) && catsRes.length > 0) {
+          setCategories(catsRes);
+          const computedTotal = catsRes.reduce((acc: number, c: any) => acc + (c.articleCount || 0), 0);
+          if (computedTotal > 0) {
+            setTotalArticles((prev) => prev || computedTotal);
           }
-        })
-        .catch(() => {})
-        .finally(() => setLoading(false));
-    }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
@@ -177,12 +184,12 @@ export const HomePage: React.FC = () => {
                 : 'bg-white dark:bg-[#0c1220] border border-ink-200 dark:border-white/[0.08] text-ink-700 dark:text-ink-300 hover:border-indigo-400 dark:hover:border-indigo-500'
             }`}
           >
-            All Stories ({articles.length})
+            All Stories ({totalArticles || articles.length})
           </button>
-          {categories.map((cat) => {
+          {categories.map((cat: any) => {
             const active = selectedTopic === cat.slug;
             const theme = getCategoryTheme(cat.slug);
-            const count = articles.filter(a => a.category?.slug === cat.slug).length;
+            const count = cat.articleCount !== undefined ? cat.articleCount : articles.filter(a => a.category?.slug === cat.slug).length;
             return (
               <button
                 key={cat.id}

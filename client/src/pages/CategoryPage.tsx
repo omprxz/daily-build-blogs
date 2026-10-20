@@ -9,6 +9,7 @@ export const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [category, setCategory] = useState<any>(null);
   const [articles, setArticles] = useState<ArticleItem[]>([]);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,6 +23,9 @@ export const CategoryPage: React.FC = () => {
       api.getArticles({ category: slug, status: 'published', limit: 36 })
         .then((res) => {
           if (res?.data) setArticles(res.data);
+          if (res?.pagination?.total !== undefined) {
+            setTotalCount(res.pagination.total);
+          }
         })
         .finally(() => setLoading(false));
     }
@@ -72,11 +76,16 @@ export const CategoryPage: React.FC = () => {
             </p>
           )}
 
-          <div className="pt-2 flex items-center gap-4 text-xs font-mono text-ink-400">
-            <span>{articles.length} Published {articles.length === 1 ? 'Dispatch' : 'Dispatches'}</span>
-            <span>•</span>
-            <span className="text-emerald-600 dark:text-emerald-400">Updated Regularly</span>
-          </div>
+          {(() => {
+            const count = totalCount !== null ? totalCount : (category?.articleCount !== undefined ? category.articleCount : articles.length);
+            return (
+              <div className="pt-2 flex items-center gap-4 text-xs font-mono text-ink-400">
+                <span>{count} Published {count === 1 ? 'Dispatch' : 'Dispatches'}</span>
+                <span>•</span>
+                <span className="text-emerald-600 dark:text-emerald-400">Updated Regularly</span>
+              </div>
+            );
+          })()}
         </div>
       </header>
 
