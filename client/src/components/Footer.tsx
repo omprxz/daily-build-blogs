@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api.js';
-import { Rss, ShieldCheck, Heart, ArrowUp, Activity } from 'lucide-react';
+import { Rss, ShieldCheck, Heart, ArrowUp, Activity, Github } from 'lucide-react';
 import { getCategoryTheme } from '../utils/editorialPrompt.js';
 
 export const Footer: React.FC = () => {
@@ -103,6 +103,18 @@ export const Footer: React.FC = () => {
               <li><a href="/terms" className="text-ink-700 dark:text-ink-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms of Service</a></li>
               <li>
                 <a
+                  href="https://github.com/omprxz/daily-build-blogs.git"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-ink-700 dark:text-ink-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1.5"
+                  title="Source Code Repository"
+                >
+                  <Github className="w-3.5 h-3.5" />
+                  <span>GitHub Repository</span>
+                </a>
+              </li>
+              <li>
+                <a
                   href="/rss.xml"
                   target="_blank"
                   rel="noreferrer"
@@ -123,6 +135,15 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4 text-xs font-medium">
+            <a
+              href="https://github.com/omprxz/daily-build-blogs.git"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="hover:text-ink-900 dark:hover:text-white transition-colors"
+            >
+              Source Code
+            </a>
+            <span>•</span>
             <a href="/editorial-policy" className="hover:text-ink-900 dark:hover:text-white transition-colors">Editorial Independence</a>
             <span>•</span>
             <a href="/sitemap.xml" target="_blank" rel="noreferrer" className="hover:text-ink-900 dark:hover:text-white transition-colors">Sitemap</a>

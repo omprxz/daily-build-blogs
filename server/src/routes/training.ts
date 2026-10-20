@@ -279,4 +279,131 @@ router.get('/corpus', authenticate, async (req, res, next) => {
   }
 });
 
+// -------------------------------------------------------------
+// Training Topics & Persistent Keywords Management
+// -------------------------------------------------------------
+
+// GET /api/training/topics - List all saved keywords/topics
+router.get('/topics', authenticate, async (req, res, next) => {
+  try {
+    const list = await db.query.trainingTopics.findMany({
+      orderBy: [desc(schema.trainingTopics.createdAt)],
+    });
+    res.json(list);
+  } catch (err) {
+    next(err);
+  }
+});
+
+const topicCreateSchema = z.object({
+  text: z.string().optional(),
+  type: z.string().optional(),
+  items: z.array(z.object({
+    text: z.string().min(1),
+    type: z.string().optional(),
+  })).optional(),
+});
+
+// POST /api/training/topics - Add individual or continuous task-list items
+router.post('/topics', authenticate, requireRole(['admin', 'editor']), async (req, res, next) => {
+  try {
+    const body = topicCreateSchema.parse(req.body);
+    const entriesToInsert: Array<{ text: string; type: string }> = [];
+
+    if (body.text && body.text.trim()) {
+      entriesToInsert.push({
+        text: body.text.trim(),
+        type: body.type?.trim() || 'topic',
+      });
+    }
+
+    if (Array.isArray(body.items)) {
+      for (const item of body.items) {
+        if (item.text && item.text.trim()) {
+          entriesToInsert.push({
+            text: item.text.trim(),
+            type: item.type?.trim() || 'topic',
+          });
+        }
+      }
+    }
+
+    if (entriesToInsert.length === 0) {
+      return res.status(400).json({ error: 'ValidationError', message: 'Please provide at least one keyword, topic, or instruction.' });
+    }
+
+    const created = await Promise.all(
+      entriesToInsert.map(entry =>
+        db.insert(schema.trainingTopics)
+          .values({
+            text: entry.text,
+            type: entry.type,
+            isActive: true,
+          })
+          .returning()
+      )
+    );
+
+    res.status(201).json({
+      success: true,
+      items: created.flat(),
+      item: created[0]?.[0],
+    });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'ValidationError', message: err.errors[0]?.message || 'Invalid input.' });
+    }
+    next(err);
+  }
+});
+
+// PUT /api/training/topics/:id - Edit a keyword/topic or toggle isActive
+const topicUpdateSchema = z.object({
+  text: z.string().min(1).optional(),
+  type: z.string().optional(),
+  isActive: z.boolean().optional(),
+});
+
+router.put('/topics/:id', authenticate, requireRole(['admin', 'editor']), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const body = topicUpdateSchema.parse(req.body);
+
+    const updatePayload: any = {
+      updatedAt: new Date(),
+    };
+
+    if (body.text !== undefined) updatePayload.text = body.text.trim();
+    if (body.type !== undefined) updatePayload.type = body.type.trim();
+    if (body.isActive !== undefined) updatePayload.isActive = body.isActive;
+
+    const [updated] = await db.update(schema.trainingTopics)
+      .set(updatePayload)
+      .where(eq(schema.trainingTopics.id, id))
+      .returning();
+
+    if (!updated) {
+      return res.status(404).json({ error: 'NotFound', message: 'Topic/keyword entry not found.' });
+    }
+
+    res.json({ success: true, item: updated });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'ValidationError', message: err.errors[0]?.message || 'Invalid input.' });
+    }
+    next(err);
+  }
+});
+
+// DELETE /api/training/topics/:id - Delete a keyword/topic entry
+router.delete('/topics/:id', authenticate, requireRole(['admin', 'editor']), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.delete(schema.trainingTopics).where(eq(schema.trainingTopics.id, id));
+    res.json({ success: true, message: 'Removed keyword/topic entry.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

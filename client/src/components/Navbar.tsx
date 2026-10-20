@@ -11,25 +11,37 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentDate, setCurrentDate] = useState('');
+  const [currentDateTime, setCurrentDateTime] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Format real-time publication date
-    const now = new Date();
-    const formatted = now.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-    setCurrentDate(formatted);
+    // Format real-time publication date and 24-hour time (hours and minutes only)
+    const updateDateTime = () => {
+      const now = new Date();
+      const datePart = now.toLocaleDateString(undefined, {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+      const timePart = now.toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+      setCurrentDateTime(`${datePart}, ${timePart}`);
+    };
+
+    updateDateTime();
+    const timer = setInterval(updateDateTime, 30000);
 
     api.getCategories().then((data) => {
       if (Array.isArray(data)) setCategories(data);
     }).catch(() => {});
+
+    return () => clearInterval(timer);
   }, []);
 
   // Global hotkey listener for Cmd+K / Ctrl+K
@@ -89,26 +101,15 @@ export const Navbar: React.FC = () => {
   return (
     <>
       {/* Top Editorial Ticker Bar */}
-      <div className="w-full bg-ink-950 text-white/80 border-b border-white/[0.08] text-[11px] font-mono tracking-wide py-1.5 px-4 sm:px-6 transition-colors">
+      <div className="w-full bg-slate-900 text-slate-300 border-b border-slate-800 text-[11px] font-mono tracking-wide py-1.5 px-4 sm:px-6 transition-colors">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 truncate">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-            <span className="font-semibold text-white uppercase tracking-wider">DAILY BUILD TECH</span>
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
+            <span className="font-semibold text-white uppercase tracking-wider text-[11px]">DAILY BUILD TECH</span>
           </div>
 
-          <div className="flex items-center gap-4 text-white/60 text-[11px] flex-shrink-0">
-            <time className="hidden md:inline">{currentDate}</time>
-            <span className="hidden md:inline text-white/30">•</span>
-            <a
-              href="/rss.xml"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white inline-flex items-center gap-1 transition-colors"
-              title="RSS Feed"
-            >
-              <Rss className="w-3 h-3 text-amber-400" />
-              <span>RSS</span>
-            </a>
+          <div className="flex items-center text-slate-300 text-[11px] flex-shrink-0">
+            <time className="font-mono">{currentDateTime}</time>
           </div>
         </div>
       </div>

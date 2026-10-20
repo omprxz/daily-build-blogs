@@ -897,8 +897,8 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
               <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
                 <ImageIcon className="w-3.5 h-3.5 text-indigo-500" /> Generated Thumbnail Preview:
               </span>
-              <div className="max-w-md overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
-                <img src={thumbnailUrl} alt="Article Thumbnail" className="w-full h-44 object-cover" />
+              <div className="max-w-md overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800 bg-slate-950/20">
+                <img src={thumbnailUrl} alt="Article Thumbnail" className="w-full h-44 object-contain" />
               </div>
               <p className="text-[11px] text-gray-400">
                 Thumbnail is ready and will be attached automatically when opening the article draft.

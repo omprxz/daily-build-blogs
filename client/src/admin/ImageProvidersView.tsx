@@ -611,9 +611,9 @@ export const ImageProvidersView: React.FC = () => {
                               href={job.uploadedImageUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="block w-16 h-9 rounded overflow-hidden border border-slate-200 shadow-2xs hover:scale-105 transition-transform"
+                              className="block w-16 h-9 rounded overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 flex items-center justify-center p-0.5"
                             >
-                              <img src={job.uploadedImageUrl} alt="" className="w-full h-full object-cover" />
+                              <img src={job.uploadedImageUrl} alt="" className="w-full h-full object-contain" />
                             </a>
                           ) : (
                             <span className="text-slate-300 text-[10px] italic">Pending</span>
@@ -850,8 +850,8 @@ export const ImageProvidersView: React.FC = () => {
 
           {previewImage && (
             <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-4 items-start">
-              <div className="w-full sm:w-72 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
-                <img src={previewImage.imageUrl} alt="" className="w-full h-40 object-cover" />
+              <div className="w-full sm:w-72 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 flex items-center justify-center p-1">
+                <img src={previewImage.imageUrl} alt="" className="w-full h-40 object-contain" />
               </div>
               <div className="flex-1 space-y-1">
                 <span className="clay-badge px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700 bg-emerald-50">

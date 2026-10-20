@@ -332,11 +332,11 @@ export const ArticlePage: React.FC = () => {
         {/* 16:9 Featured Hero Media Showcase */}
         {article.featuredImage && (
           <section aria-label="Featured Media" className="mb-8">
-            <div className="hero-editorial-frame aspect-video w-full bg-ink-950">
+            <div className="hero-editorial-frame aspect-video w-full bg-slate-950 flex items-center justify-center p-2 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800">
               <img
                 src={article.featuredImage}
                 alt={article.featuredImageAlt || article.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 loading="eager"
               />
             </div>

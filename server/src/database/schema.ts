@@ -386,6 +386,16 @@ export const trainingBlogs = pgTable('training_blogs', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// 14b. Training Topics, Keywords & Persistent Instructions
+export const trainingTopics = pgTable('training_topics', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  text: text('text').notNull(),
+  type: varchar('type', { length: 50 }).default('topic').notNull(), // 'keyword', 'long_tail', 'phrase', 'sentence', 'topic', 'category', 'instruction'
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // 15. Sites & Performance Management
 export const managedSites = pgTable('managed_sites', {
   id: uuid('id').defaultRandom().primaryKey(),

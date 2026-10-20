@@ -407,6 +407,15 @@ export async function runMigrations() {
         updated_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
 
+      CREATE TABLE IF NOT EXISTS training_topics (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        text TEXT NOT NULL,
+        type VARCHAR(50) NOT NULL DEFAULT 'topic',
+        is_active BOOLEAN NOT NULL DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
       -- 15. Managed Sites & Performance Audits
       CREATE TABLE IF NOT EXISTS managed_sites (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

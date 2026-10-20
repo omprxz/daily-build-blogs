@@ -206,6 +206,21 @@ export const api = {
   deleteTrainingBlog: (id: string) => fetchJson(`/training/blogs/${id}`, { method: 'DELETE' }),
   getTrainingCorpus: () => fetchJson<any>('/training/corpus'),
 
+  // Training Topics & Persistent Keywords
+  getTrainingTopics: () => fetchJson<any[]>('/training/topics'),
+  createTrainingTopic: (data: { text?: string; type?: string; items?: any[] }) =>
+    fetchJson<{ success: boolean; items?: any[]; item?: any }>('/training/topics', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  updateTrainingTopic: (id: string, data: { text?: string; type?: string; isActive?: boolean }) =>
+    fetchJson<{ success: boolean; item: any }>(`/training/topics/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  deleteTrainingTopic: (id: string) =>
+    fetchJson<{ success: boolean; message: string }>(`/training/topics/${id}`, { method: 'DELETE' }),
+
   // Sites Management, Lighthouse PageSpeed, & Google Search Console
   getSites: () => fetchJson<{ sites: any[] }>('/sites'),
   createSite: (data: { name: string; url: string; gscPropertyUrl?: string; ga4PropertyId?: string; ga4MeasurementId?: string; isDefault?: boolean; notes?: string }) =>

@@ -24,264 +24,242 @@
 }
 
 /* ==========================================================================
-   ADMIN CLAYMORPHISM & ADVANCED UI DESIGN SYSTEM (Light & Dark Support)
+   MINIMALIST FLAT UI DESIGN SYSTEM (Light & Dark Support)
    ========================================================================== */
 
-/* Main Clay Card */
-.clay-card {
-  background: #FFFFFF;
-  border-radius: 1.25rem;
-  box-shadow: 
-    8px 10px 24px rgba(180, 192, 216, 0.22),
-    -6px -6px 18px rgba(255, 255, 255, 0.95),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.95),
-    inset -2px -2px 4px rgba(203, 213, 225, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* Global image containment & transform elimination */
+img {
+  object-fit: contain;
 }
 
-.clay-card:hover {
-  box-shadow: 
-    10px 14px 28px rgba(180, 192, 216, 0.28),
-    -8px -8px 22px rgba(255, 255, 255, 1),
-    inset 2px 2px 5px rgba(255, 255, 255, 0.98),
-    inset -2px -2px 5px rgba(203, 213, 225, 0.28);
+/* Strictly remove hover-based scale, zoom, enlargement, and transform animations */
+img,
+.card,
+[class*="card"],
+[class*="card"] img,
+article,
+article img {
+  transform: none !important;
+  transition-property: color, background-color, border-color, opacity, box-shadow !important;
 }
 
-.dark .clay-card {
-  background: #111726;
+/* Flat Card Surface */
+.clay-card,
+.flat-card {
+  background: #ffffff;
+  border-radius: 0.875rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.clay-card:hover,
+.flat-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.dark .clay-card,
+.dark .flat-card {
+  background: #0d1322;
   border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    6px 8px 20px rgba(0, 0, 0, 0.4),
-    inset 1px 1px 2px rgba(255, 255, 255, 0.06),
-    inset -1px -1px 2px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
   color: #f1f5f9;
 }
 
-.dark .clay-card:hover {
-  border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 
-    8px 12px 24px rgba(0, 0, 0, 0.5),
-    inset 1px 1px 2px rgba(255, 255, 255, 0.08);
+.dark .clay-card:hover,
+.dark .flat-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* Secondary / Sub-panel Clay Surface */
-.clay-card-flat {
-  background: #F8FAFC;
-  border-radius: 1rem;
-  box-shadow: 
-    5px 6px 16px rgba(180, 192, 216, 0.18),
-    -5px -5px 14px rgba(255, 255, 255, 0.95),
-    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.9),
-    inset -1.5px -1.5px 3px rgba(203, 213, 225, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+/* Secondary / Flat Sub-panel */
+.clay-card-flat,
+.flat-card-subtle {
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.15s ease;
 }
 
-.dark .clay-card-flat {
-  background: #0d121f;
+.dark .clay-card-flat,
+.dark .flat-card-subtle {
+  background: #090e1a;
   border-color: rgba(255, 255, 255, 0.06);
-  box-shadow: 
-    4px 5px 14px rgba(0, 0, 0, 0.3),
-    inset 1px 1px 2px rgba(255, 255, 255, 0.04);
   color: #e2e8f0;
 }
 
-/* Clay Button: tactile, soft rounded pill */
-.clay-btn {
-  background: #FFFFFF;
-  color: #1E293B;
-  border-radius: 0.875rem;
-  box-shadow: 
-    4px 6px 14px rgba(180, 192, 216, 0.25),
-    -4px -4px 12px rgba(255, 255, 255, 0.95),
-    inset 2px 2px 3px rgba(255, 255, 255, 0.95),
-    inset -2px -2px 3px rgba(203, 213, 225, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+.clay-card-flat:hover,
+.flat-card-subtle:hover {
+  border-color: #cbd5e1;
+}
+
+.dark .clay-card-flat:hover,
+.dark .flat-card-subtle:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Flat Standard Button */
+.clay-btn,
+.flat-btn {
+  background: #ffffff;
+  color: #1e293b;
+  border-radius: 0.625rem;
+  border: 1px solid #cbd5e1;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.clay-btn:hover,
+.flat-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.dark .clay-btn,
+.dark .flat-btn {
+  background: #141c2e;
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.dark .clay-btn:hover,
+.dark .flat-btn:hover {
+  background: #1c273e;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* Flat Primary Button */
+.clay-btn-primary,
+.flat-btn-primary {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border-radius: 0.625rem;
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.clay-btn-primary:hover,
+.flat-btn-primary:hover {
+  background: #4338ca !important;
+}
+
+.dark .clay-btn-primary,
+.dark .flat-btn-primary {
+  background: #6366f1 !important;
+}
+
+.dark .clay-btn-primary:hover,
+.dark .flat-btn-primary:hover {
+  background: #4f46e5 !important;
+}
+
+/* Flat Badge / Pill */
+.clay-badge,
+.flat-badge {
+  background: #f1f5f9;
+  color: #334155;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
   font-weight: 600;
 }
 
-.clay-btn:hover {
-  box-shadow: 
-    6px 8px 18px rgba(180, 192, 216, 0.3),
-    -5px -5px 14px rgba(255, 255, 255, 1),
-    inset 2px 2px 3px rgba(255, 255, 255, 0.98),
-    inset -2px -2px 3px rgba(203, 213, 225, 0.28);
-}
-
-.clay-btn:active {
-  box-shadow: 
-    2px 2px 6px rgba(180, 192, 216, 0.35),
-    -2px -2px 6px rgba(255, 255, 255, 0.8),
-    inset 2px 2px 4px rgba(148, 163, 184, 0.25),
-    inset -2px -2px 4px rgba(255, 255, 255, 0.7);
-}
-
-.dark .clay-btn {
-  background: #192132;
-  color: #f1f5f9;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    3px 4px 12px rgba(0, 0, 0, 0.35),
-    inset 1.5px 1.5px 2px rgba(255, 255, 255, 0.08),
-    inset -1.5px -1.5px 2px rgba(0, 0, 0, 0.3);
-}
-
-.dark .clay-btn:hover {
-  background: #202b40;
-  border-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 
-    4px 6px 14px rgba(0, 0, 0, 0.45),
-    inset 1.5px 1.5px 2px rgba(255, 255, 255, 0.12);
-}
-
-/* Clay Primary Button */
-.clay-btn-primary {
-  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
-  color: #FFFFFF !important;
-  border-radius: 0.875rem;
-  box-shadow: 
-    5px 7px 18px rgba(79, 70, 229, 0.28),
-    -4px -4px 12px rgba(255, 255, 255, 0.8),
-    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.45),
-    inset -2px -2px 4px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-}
-
-.clay-btn-primary:hover {
-  box-shadow: 
-    7px 9px 22px rgba(79, 70, 229, 0.35),
-    -4px -4px 14px rgba(255, 255, 255, 0.9),
-    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.5),
-    inset -2px -2px 4px rgba(0, 0, 0, 0.18);
-}
-
-.clay-btn-primary:active {
-  box-shadow: 
-    2px 2px 8px rgba(79, 70, 229, 0.4),
-    inset 3px 3px 5px rgba(0, 0, 0, 0.2),
-    inset -2px -2px 4px rgba(255, 255, 255, 0.2);
-}
-
-.dark .clay-btn-primary {
-  box-shadow: 
-    4px 6px 16px rgba(79, 70, 229, 0.35),
-    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.35),
-    inset -2px -2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Clay Badge / Pill */
-.clay-badge {
-  background: #F1F5F9;
-  border-radius: 9999px;
-  box-shadow: 
-    3px 4px 10px rgba(180, 192, 216, 0.2),
-    -3px -3px 8px rgba(255, 255, 255, 0.95),
-    inset 1px 1px 2px rgba(255, 255, 255, 0.85),
-    inset -1px -1px 2px rgba(203, 213, 225, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-}
-
-.dark .clay-badge {
-  background: #172032;
+.dark .clay-badge,
+.dark .flat-badge {
+  background: #131b2e;
   border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    2px 3px 8px rgba(0, 0, 0, 0.3),
-    inset 1px 1px 1.5px rgba(255, 255, 255, 0.08);
   color: #cbd5e1;
 }
 
-/* Clay Inset Input Field */
-.clay-input {
-  border-radius: 0.875rem;
-  background: #F8FAFC;
-  box-shadow: 
-    inset 2.5px 2.5px 5px rgba(180, 192, 216, 0.25),
-    inset -2.5px -2.5px 5px rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  color: #1E293B;
-  transition: all 0.2s ease;
+/* Flat Input Field */
+.clay-input,
+.flat-input {
+  border-radius: 0.625rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.clay-input:focus {
+.clay-input:focus,
+.flat-input:focus {
   outline: none;
-  background: #FFFFFF;
-  box-shadow: 
-    inset 2px 2px 4px rgba(180, 192, 216, 0.15),
-    inset -2px -2px 4px rgba(255, 255, 255, 0.95),
-    0 0 0 3px rgba(99, 102, 241, 0.2);
-  border-color: #6366F1;
+  background: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
-.dark .clay-input {
-  background: #0c111d;
+.dark .clay-input,
+.dark .flat-input {
+  background: #090e1a;
   border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.45),
-    inset -1px -1px 2px rgba(255, 255, 255, 0.05);
-  color: #f1f5f9;
+  color: #f8fafc;
 }
 
-.dark .clay-input:focus {
-  background: #0f1524;
-  border-color: #6366F1;
-  box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.4),
-    0 0 0 3px rgba(99, 102, 241, 0.25);
+.dark .clay-input:focus,
+.dark .flat-input:focus {
+  background: #0c1220;
+  border-color: #818cf8;
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.25);
 }
 
-/* Pastel accent helpers */
+/* Semantic Pastel Helpers */
 .clay-pastel-blue {
-  background: #EEF2FF;
-  border: 1px solid #E0E7FF;
+  background: #f0f4ff;
+  border: 1px solid #dbeafe;
 }
 .dark .clay-pastel-blue {
-  background: rgba(99, 102, 241, 0.12);
-  border-color: rgba(99, 102, 241, 0.25);
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.2);
 }
 
 .clay-pastel-emerald {
-  background: #ECFDF5;
-  border: 1px solid #D1FAE5;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
 }
 .dark .clay-pastel-emerald {
-  background: rgba(16, 185, 129, 0.12);
-  border-color: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
 }
 
 .clay-pastel-amber {
-  background: #FFFBEB;
-  border: 1px solid #FEF3C7;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
 }
 .dark .clay-pastel-amber {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
 }
 
 .clay-pastel-rose {
-  background: #FFF1F2;
-  border: 1px solid #FFE4E6;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
 }
 .dark .clay-pastel-rose {
-  background: rgba(244, 63, 94, 0.12);
-  border-color: rgba(244, 63, 94, 0.25);
+  background: rgba(244, 63, 94, 0.1);
+  border-color: rgba(244, 63, 94, 0.2);
 }
 
 .clay-pastel-purple {
-  background: #FAF5FF;
-  border: 1px solid #F3E8FF;
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
 }
 .dark .clay-pastel-purple {
-  background: rgba(168, 85, 247, 0.12);
-  border-color: rgba(168, 85, 247, 0.25);
+  background: rgba(168, 85, 247, 0.1);
+  border-color: rgba(168, 85, 247, 0.2);
 }
 
 /* Futuristic background grid */
@@ -517,39 +495,39 @@
    PUBLIC EDITORIAL & DEV COMMUNITY DESIGN SYSTEM
    ========================================================================== */
 
-/* Editorial Card with Tactile Paper Depth */
+/* Editorial Card with Clean Flat Border */
 .editorial-card {
   background-color: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transform: none !important;
 }
 
 .dark .editorial-card {
   background-color: #0b101d;
   border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.35);
+  box-shadow: none;
 }
 
 .editorial-card:hover {
-  border-color: rgba(99, 102, 241, 0.45);
-  box-shadow: 0 12px 28px -6px rgba(79, 70, 229, 0.12), 0 4px 10px -3px rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  transform: none !important;
 }
 
 .dark .editorial-card:hover {
-  border-color: rgba(99, 102, 241, 0.55);
-  box-shadow: 0 14px 32px -6px rgba(99, 102, 241, 0.2), 0 4px 10px -3px rgba(0, 0, 0, 0.4);
-  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: none !important;
 }
 
 /* Featured Hero Editorial Frame */
 .hero-editorial-frame {
   position: relative;
-  border-radius: 1.25rem;
+  border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12);
-  border: 1px solid rgba(226, 232, 240, 0.85);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  transform: none !important;
 }
 
 .dark .hero-editorial-frame {

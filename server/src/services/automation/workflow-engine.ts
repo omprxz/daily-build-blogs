@@ -256,10 +256,11 @@ You MUST ONLY create content about a completely fresh, distinct, and new technol
               tiers.push({ provider: nodeConfig.fallback4Provider, model: nodeConfig.fallback4Model });
             }
 
+            const outlineVoice = await getEditorialVoiceProfile();
             const aiRes = await providerRegistry.generateWithFallbacks('outline', {
               model: selectedModel,
-              prompt: `Create a structured technical outline for a breaking tech story: "${headline}". Break down into 5 key sections: 1. Executive Context, 2. Core Architecture, 3. Implementation Details, 4. Limitations & Bottlenecks, 5. Conclusion & Recommendations.${recentTitlesExclusionPrompt}`,
-              systemInstruction: 'You are an elite technology editor. Produce a high-density, 5-section outline. Strictly exclude and avoid duplicating recent published articles.',
+              prompt: `Create a structured technical outline for a breaking tech story: "${headline}". Break down into 5 key sections: 1. Executive Context, 2. Core Architecture, 3. Implementation Details, 4. Limitations & Bottlenecks, 5. Conclusion & Recommendations.\n\n${outlineVoice.styleDirectives}${recentTitlesExclusionPrompt}`,
+              systemInstruction: `You are an elite technology editor for DailyBuild Tech. Produce a high-density, 5-section outline adhering to our active editorial priorities and directives. Strictly exclude and avoid duplicating recent published articles. ${outlineVoice.learnedTone}`,
             }, tiers);
 
             runtimeContext.outline = aiRes.content;

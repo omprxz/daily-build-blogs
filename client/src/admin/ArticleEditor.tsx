@@ -582,8 +582,8 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
 
             {/* Current Image Preview */}
             {featuredImage ? (
-              <div className="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-2xs">
-                <img src={featuredImage} alt={featuredImageAlt || 'Cover preview'} className="w-full h-36 object-cover" />
+              <div className="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-2xs bg-slate-950/20">
+                <img src={featuredImage} alt={featuredImageAlt || 'Cover preview'} className="w-full h-36 object-contain" />
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between p-3">
                   <span className="text-white text-[11px] font-semibold bg-black/60 px-2 py-1 rounded">
                     16:9 Featured Cover
@@ -879,7 +879,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                       onClick={() => setShowPromptModal(true)}
                       title="Preview full dynamic 16:9 thumbnail prompt"
                       aria-label="View actual thumbnail prompt"
-                      className="p-2 rounded-xl border border-indigo-200 bg-white hover:bg-indigo-50 text-indigo-600 transition-colors shadow-2xs hover:scale-105 active:scale-95 flex items-center justify-center"
+                      className="p-2 rounded-xl border border-indigo-200 bg-white hover:bg-indigo-50 text-indigo-600 transition-colors shadow-2xs flex items-center justify-center"
                     >
                       <Eye className="w-4 h-4" />
                     </button>

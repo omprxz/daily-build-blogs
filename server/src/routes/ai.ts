@@ -723,14 +723,22 @@ ${recent16Titles.map((t, idx) => `${idx + 1}. "${t}"`).join('\n')}
 You MUST ONLY suggest completely fresh, distinct topics other than these existing ones.`
       : '';
 
+    const profile = await getEditorialVoiceProfile();
+
+    const targetTopicsBlock = profile.activeTopics?.length > 0
+      ? `\nPRIORITIZED TARGET TOPICS, KEYWORDS & EDITORIAL INSTRUCTIONS:
+Prioritize formulating headlines that actively align with, address, or integrate these team-specified focus areas:
+${profile.activeTopics.map((t, idx) => `${idx + 1}. "${t}"`).join('\n')}`
+      : '';
+
     const prompt = storyContext
-      ? `Based on these recent engineering & tech RSS news stories:\n${storyContext}\n${exclusionBlock}\n\nFormulate ${input.count} trending, high-interest editorial headlines for a digital tech publication. Focus on popular platforms, comparisons, and breakthrough industry changes. Keep each headline punchy, compelling, and authoritative. Return each headline on a new line, nothing else.`
-      : `Suggest ${input.count} trending, popular, highly engaging technology and AI news article headlines for a modern digital publication.\n${exclusionBlock}\nReturn each topic on a new line, nothing else.`;
+      ? `Based on these recent engineering & tech RSS news stories:\n${storyContext}\n${targetTopicsBlock}\n${exclusionBlock}\n\nFormulate ${input.count} trending, high-interest editorial headlines for a digital tech publication. Focus on popular platforms, comparisons, breakthrough industry changes, and the prioritized target topics. Keep each headline punchy, compelling, and authoritative. Return each headline on a new line, nothing else.`
+      : `Suggest ${input.count} trending, popular, highly engaging technology and AI news article headlines for a modern digital publication.\n${targetTopicsBlock}\n${exclusionBlock}\nReturn each topic on a new line, nothing else.`;
 
     const result = await providerRegistry.generate('summary', {
       model: input.model || '',
       prompt,
-      systemInstruction: 'You are an editorial director for a top tech news publication. Output only a list of high-interest headlines, one per line. Do NOT repeat or duplicate recently published topics.',
+      systemInstruction: 'You are an editorial director for a top tech news publication. Output only a list of high-interest headlines, one per line. Incorporate active target topics where applicable. Do NOT repeat or duplicate recently published topics.',
     }, input.provider);
 
     const topics = result.content
