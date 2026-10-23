@@ -40,6 +40,7 @@ import {
   TestExecutionStep,
   TestLogEntry,
 } from './workflow/TestExecutionPanel.js';
+import { FlowToggleSwitch } from './components/FlowToggleSwitch.js';
 
 const DEFAULT_AVAILABLE_PROVIDERS = [
   { slug: 'antigravity', name: 'Google Antigravity CLI (agy)' },
@@ -879,18 +880,11 @@ export const WorkflowBuilder: React.FC = () => {
             className="font-bold text-sm text-slate-900 bg-transparent border-b border-transparent hover:border-slate-300 px-1 py-0.5 focus:border-indigo-600 focus:outline-none min-w-[120px] max-w-[260px] truncate"
           />
 
-          <button
-            type="button"
-            onClick={handleToggleWorkflowActive}
-            className={`px-2 py-0.5 text-[10px] font-bold rounded border flex items-center gap-1 transition-colors shrink-0 whitespace-nowrap ${
-              currentWorkflow?.isActive
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
-            }`}
-          >
-            <Power className="w-2.5 h-2.5" />
-            {currentWorkflow?.isActive ? 'Active' : 'Paused'}
-          </button>
+          <FlowToggleSwitch
+            checked={Boolean(currentWorkflow?.isActive)}
+            onChange={handleToggleWorkflowActive}
+            size="sm"
+          />
         </div>
 
         {/* Right: Controls in a single tight line with no wrapping */}

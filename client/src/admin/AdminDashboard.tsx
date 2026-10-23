@@ -23,7 +23,9 @@ import { getCategoryTheme } from '../utils/editorialPrompt.js';
 import {
   deriveNextScheduledPublication,
   NextScheduledPublication,
+  formatConciseCountdown,
 } from '../utils/publishingSchedule.js';
+import { FlowToggleSwitch } from './components/FlowToggleSwitch.js';
 
 export const AdminDashboard: React.FC = () => {
   const [summary, setSummary] = useState<any>(null);
@@ -32,6 +34,12 @@ export const AdminDashboard: React.FC = () => {
   const [pollingFeeds, setPollingFeeds] = useState(false);
 
   const [scheduledPublication, setScheduledPublication] = useState<NextScheduledPublication | null>(null);
+  const [nowMs, setNowMs] = useState<number>(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -54,6 +62,27 @@ export const AdminDashboard: React.FC = () => {
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
+  };
+
+  const handleToggleScheduledFlow = async () => {
+    if (!scheduledPublication?.workflowId) return;
+    const targetId = scheduledPublication.workflowId;
+    const newActive = !scheduledPublication.isActive;
+
+    // Optimistic UI update
+    setScheduledPublication((prev) => (prev ? { ...prev, isActive: newActive } : null));
+
+    try {
+      await api.toggleWorkflow(targetId);
+      const workflows = await api.getWorkflows();
+      if (Array.isArray(workflows)) {
+        const derived = deriveNextScheduledPublication(workflows);
+        setScheduledPublication(derived);
+      }
+    } catch (err: any) {
+      alert(`Could not toggle flow: ${err.message}`);
+      loadData();
+    }
   };
 
   const handlePollAll = async () => {
@@ -126,55 +155,72 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Next Scheduled Publication Section (Derived from configured publishing flow, shown only when active) */}
+      {/* Next Scheduled Publication Section (Derived from configured publishing flow, shown even if paused) */}
       {scheduledPublication && (
-        <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-indigo-50/90 via-white to-sky-50/60 dark:from-indigo-950/40 dark:via-[#0c1220] dark:to-sky-950/20 border border-indigo-200/80 dark:border-indigo-800/50 shadow-xs transition-all">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="relative p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-indigo-50/90 via-white to-sky-50/60 dark:from-indigo-950/40 dark:via-[#0c1220] dark:to-sky-950/20 border border-indigo-200/80 dark:border-indigo-800/50 shadow-xs transition-all">
+          {/* Top Header Row: Label on Left, Remaining Time Countdown at Top Right */}
+          <div className="flex items-center justify-between gap-4 mb-2">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Next Scheduled Article Publication</span>
+            </div>
+
+            {/* Remaining time at top right of section, concise with countdown in realtime with seconds */}
+            <div
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold border shrink-0 transition-colors ${
+                scheduledPublication.isActive
+                  ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800/60'
+                  : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200/70 dark:border-rose-800/60'
+              }`}
+            >
+              <Clock
+                className={`w-3.5 h-3.5 ${
+                  scheduledPublication.isActive ? 'text-indigo-500 animate-pulse' : 'text-rose-500'
+                }`}
+              />
+              <span>
+                {formatConciseCountdown(
+                  scheduledPublication.nextDate.getTime(),
+                  nowMs,
+                  !scheduledPublication.isActive
+                )}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pt-1">
             <div className="space-y-2 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/60">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Active Publishing Flow</span>
-                </span>
-                <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
-                  {scheduledPublication.workflowName}
-                </span>
+              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                {scheduledPublication.fullFormatted}
               </div>
 
-              <div>
-                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-indigo-500" />
-                  <span>Next Scheduled Article Publication</span>
-                </div>
-                <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-0.5">
-                  {scheduledPublication.fullFormatted}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 flex-wrap pt-0.5">
-                <span className="inline-flex items-center gap-1 font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-lg border border-indigo-200/70 dark:border-indigo-800/50">
-                  <Clock className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                  <span>{scheduledPublication.timeRemaining}</span>
-                </span>
-                <span className="text-slate-400">•</span>
-                <span className="font-medium text-slate-600 dark:text-slate-300">
-                  Cadence: {scheduledPublication.explanation}
-                </span>
+              {/* Cadence: light bg border chips */}
+              <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 flex-wrap pt-0.5">
+                <span className="font-semibold text-slate-500 dark:text-slate-400">Cadence:</span>
+                {scheduledPublication.cadenceChips && scheduledPublication.cadenceChips.length > 0 ? (
+                  scheduledPublication.cadenceChips.map((chip, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs"
+                    >
+                      {chip}
+                    </span>
+                  ))
+                ) : (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs">
+                    {scheduledPublication.formattedTime}
+                  </span>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 self-stretch md:self-center justify-end shrink-0 pt-2 md:pt-0">
-              {/* Micro eye icon link which opens view link in new tab */}
-              <a
-                href={scheduledPublication.previewUrl || '/'}
-                target="_blank"
-                rel="noreferrer"
-                className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-2xs flex items-center justify-center shrink-0"
-                title="View Live Publication in New Tab"
-                aria-label="View Live Publication in New Tab"
-              >
-                <Eye className="w-4 h-4" />
-              </a>
+            <div className="flex items-center gap-3 self-stretch md:self-center justify-end shrink-0 pt-2 md:pt-0">
+              {/* Simple toggle switch for active / inactive with color themed green/red on/off switches UI */}
+              <FlowToggleSwitch
+                checked={Boolean(scheduledPublication.isActive)}
+                onChange={handleToggleScheduledFlow}
+                size="md"
+              />
 
               <Link
                 to="/admin/automation"
@@ -380,13 +426,12 @@ export const AdminDashboard: React.FC = () => {
                           </span>
                         </td>
                         <td className="py-3 px-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            art.status === 'published'
-                              ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
-                              : art.status === 'draft'
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${art.status === 'published'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
+                            : art.status === 'draft'
                               ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
                               : 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800'
-                          }`}>
+                            }`}>
                             {art.status}
                           </span>
                         </td>

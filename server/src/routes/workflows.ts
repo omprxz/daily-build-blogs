@@ -23,20 +23,20 @@ router.get('/', authenticate, async (req, res, next) => {
 // GET /api/workflows/next-scheduled - Derive date & time of next scheduled publication from active workflow
 router.get('/next-scheduled', authenticate, async (_req, res, next) => {
   try {
-    const activeWorkflows = await db.query.workflows.findMany({
-      where: eq(schema.workflows.isActive, true),
+    const allWorkflows = await db.query.workflows.findMany({
       orderBy: [desc(schema.workflows.updatedAt)],
     });
 
-    if (activeWorkflows.length === 0) {
+    if (allWorkflows.length === 0) {
       return res.json({ active: false, data: null });
     }
 
     const { validateAndExplainCron } = await import('../utils/cron-helpers.js');
     const nowMs = Date.now();
-    let bestResult: any = null;
+    const candidates: any[] = [];
 
-    for (const wf of activeWorkflows) {
+    for (const wf of allWorkflows) {
+      const isWfActive = Boolean(wf.isActive);
       const settings = (wf.settingsJson as any) || {};
       if (settings.autoPublishEnabled === false) continue;
       if (settings.endDate && new Date(settings.endDate).getTime() < nowMs) continue;
@@ -71,13 +71,8 @@ router.get('/next-scheduled', authenticate, async (_req, res, next) => {
         const cronRes = validateAndExplainCron(cronExpr, timezone, 5);
         if (cronRes.isValid && cronRes.nextOccurrences && cronRes.nextOccurrences.length > 0) {
           explanation = cronRes.explanation || 'Cron publication schedule';
-          // Calculate next date from occurrences or direct check
-          const occurrences = cronRes.nextOccurrences;
-          if (occurrences.length > 0) {
-            // First valid occurrence within date bounds
-            nextRunDate = new Date(nowMs + 60000); // Approximate next slot from validated cron
-            explanation = cronRes.explanation || `Every ${cronExpr}`;
-          }
+          nextRunDate = new Date(nowMs + 60000);
+          explanation = cronRes.explanation || `Every ${cronExpr}`;
         }
       }
 
@@ -99,10 +94,10 @@ router.get('/next-scheduled', authenticate, async (_req, res, next) => {
         timeZoneName: 'short',
       });
 
-      const candidate = {
+      candidates.push({
         workflowId: wf.id,
         workflowName: wf.name || 'Automated Publishing Pipeline',
-        isActive: true,
+        isActive: isWfActive,
         timingMode,
         cronExpression: settings.cronExpression || wf.cronExpression,
         intervalMins: settings.intervalMins,
@@ -114,18 +109,22 @@ router.get('/next-scheduled', authenticate, async (_req, res, next) => {
         explanation,
         autoPublish: true,
         previewUrl: settings.lastGeneratedArticleId ? `/article/${settings.lastGeneratedArticleId}` : '/',
-      };
-
-      if (!bestResult || new Date(candidate.nextDate).getTime() < new Date(bestResult.nextDate).getTime()) {
-        bestResult = candidate;
-      }
+      });
     }
 
-    if (!bestResult) {
+    if (candidates.length === 0) {
       return res.json({ active: false, data: null });
     }
 
-    res.json({ active: true, data: bestResult });
+    // Prefer active workflows first
+    const activeCandidates = candidates.filter((c) => c.isActive);
+    if (activeCandidates.length > 0) {
+      activeCandidates.sort((a, b) => new Date(a.nextDate).getTime() - new Date(b.nextDate).getTime());
+      return res.json({ active: true, data: activeCandidates[0] });
+    }
+
+    candidates.sort((a, b) => new Date(a.nextDate).getTime() - new Date(b.nextDate).getTime());
+    return res.json({ active: false, data: candidates[0] });
   } catch (err) {
     next(err);
   }

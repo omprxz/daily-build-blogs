@@ -362,6 +362,19 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
         </div>
 
         <div className="flex items-center gap-3">
+          {(slug || (!isNew && id)) && (
+            <a
+              href={`/article/${slug || id}`}
+              target="_blank"
+              rel="noreferrer"
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors shadow-xs flex items-center justify-center shrink-0"
+              title="View Live Article in New Tab"
+              aria-label="View Live Article in New Tab"
+            >
+              <Eye className="w-4 h-4" />
+            </a>
+          )}
+
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}

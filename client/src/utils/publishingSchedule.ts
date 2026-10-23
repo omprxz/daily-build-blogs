@@ -13,12 +13,134 @@ export interface NextScheduledPublication {
   formattedTime: string; // e.g. "10:43 PM IST"
   fullFormatted: string; // e.g. "Friday, Oct 23, 2026 at 10:43 PM IST"
   explanation: string; // e.g. "Every day at 10:43 PM (IST)"
+  cadenceChips: string[]; // e.g. ["9:00 AM", "1:00 PM", "5:00 PM", "9:00 PM"] or ["9:34 AM"]
   timeRemaining: string; // e.g. "in 4 hours 47 mins"
   autoPublish: boolean;
   previewUrl: string;
 }
 
 const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
+
+export function parseCadenceChips(
+  cronExpr?: string,
+  intervalMins?: number,
+  explanation?: string
+): string[] {
+  function format12h(hour: number, minute: number): string {
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const h = hour % 12 === 0 ? 12 : hour % 12;
+    const m = minute < 10 ? `0${minute}` : `${minute}`;
+    return `${h}:${m} ${ampm}`;
+  }
+
+  // 1. Check interval
+  if (intervalMins && intervalMins > 0) {
+    if (intervalMins < 60) return [`Every ${intervalMins}m`];
+    if (intervalMins % 60 === 0) return [`Every ${intervalMins / 60}h`];
+    return [`Every ${intervalMins}m`];
+  }
+
+  // 2. Check explanation string if it matches "At min X, at H1,H2:00"
+  if (explanation) {
+    const match = explanation.match(/At min\s+(\d+),\s*at\s+([0-9,]+):00/i);
+    if (match) {
+      const minVal = Number(match[1]);
+      const hourVals = match[2].split(',').map(Number).filter((n) => !isNaN(n));
+      if (hourVals.length > 0 && !isNaN(minVal)) {
+        return hourVals.sort((a, b) => a - b).map((h) => format12h(h, minVal));
+      }
+    }
+  }
+
+  // 3. Parse cron expression
+  if (cronExpr) {
+    const parts = cronExpr.trim().split(/\s+/);
+    if (parts.length === 5) {
+      const [minPart, hourPart] = parts;
+
+      const expandField = (field: string, minLimit: number, maxLimit: number): number[] | null => {
+        if (field === '*') return null;
+        if (field.startsWith('*/')) {
+          const step = Number(field.slice(2));
+          if (isNaN(step) || step <= 0) return null;
+          const nums: number[] = [];
+          for (let i = minLimit; i <= maxLimit; i += step) nums.push(i);
+          return nums;
+        }
+        const items = field.split(',');
+        const nums: number[] = [];
+        for (const item of items) {
+          if (item.includes('-')) {
+            const [start, end] = item.split('-').map(Number);
+            if (isNaN(start) || isNaN(end)) return null;
+            for (let i = start; i <= end; i++) nums.push(i);
+          } else {
+            const val = Number(item);
+            if (isNaN(val)) return null;
+            nums.push(val);
+          }
+        }
+        return nums.sort((a, b) => a - b);
+      };
+
+      const parsedHours = expandField(hourPart, 0, 23);
+      const parsedMins = expandField(minPart, 0, 59);
+
+      if (parsedHours && parsedMins) {
+        const chips: string[] = [];
+        for (const h of parsedHours) {
+          for (const m of parsedMins) {
+            chips.push(format12h(h, m));
+          }
+        }
+        if (chips.length > 0) return chips;
+      }
+
+      if (parsedHours && minPart === '*') {
+        return parsedHours.map((h) => format12h(h, 0));
+      }
+
+      if (hourPart === '*' && parsedMins) {
+        return parsedMins.map((m) => `:${m < 10 ? '0' + m : m}`);
+      }
+
+      if (hourPart.startsWith('*/')) {
+        return [`Every ${hourPart.slice(2)}h`];
+      }
+
+      if (minPart.startsWith('*/')) {
+        return [`Every ${minPart.slice(2)}m`];
+      }
+    }
+  }
+
+  return ['Regular cadence'];
+}
+
+export function formatConciseCountdown(targetMs: number, nowMs: number, isPaused: boolean): string {
+  if (isPaused) {
+    return 'Paused';
+  }
+  const diffSec = Math.floor((targetMs - nowMs) / 1000);
+  if (diffSec <= 0) {
+    return 'Due momentarily';
+  }
+  const days = Math.floor(diffSec / 86400);
+  const hours = Math.floor((diffSec % 86400) / 3600);
+  const minutes = Math.floor((diffSec % 3600) / 60);
+  const seconds = diffSec % 60;
+
+  if (days > 0) {
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${seconds}s`;
+  }
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+  return `${seconds}s`;
+}
 
 function formatTimeRemaining(targetDate: Date): string {
   const diffMs = targetDate.getTime() - Date.now();
@@ -111,7 +233,7 @@ function findNextCronDate(parts: string[], minDateMs: number = 0): Date | null {
 
 /**
  * Derives the next scheduled article publication from configured publishing flows.
- * Returns null if no active flow is configured, or if the flow has no upcoming publication.
+ * Returns information even if the flow is paused, marking isActive appropriately.
  */
 export function deriveNextScheduledPublication(
   workflows: any[]
@@ -120,19 +242,15 @@ export function deriveNextScheduledPublication(
     return null;
   }
 
-  // Find active workflows
-  const activeWorkflows = workflows.filter((w) => w && Boolean(w.isActive));
-  if (activeWorkflows.length === 0) {
-    return null;
-  }
-
   const nowMs = Date.now();
-  let candidateResults: NextScheduledPublication[] = [];
+  const candidateResults: NextScheduledPublication[] = [];
 
-  for (const wf of activeWorkflows) {
+  for (const wf of workflows) {
+    if (!wf) continue;
+    const isWfActive = Boolean(wf.isActive);
     const settings = (wf.settingsJson as any) || {};
 
-    // If auto-publishing is explicitly disabled, skip
+    // If auto-publishing is explicitly disabled in settings, skip
     if (settings.autoPublishEnabled === false) {
       continue;
     }
@@ -165,7 +283,6 @@ export function deriveNextScheduledPublication(
         : nowMs + intervalMins * 60 * 1000;
 
       if (targetMs <= nowMs) {
-        // Next worker check triggers on upcoming minute
         targetMs = Math.ceil((nowMs + 1000) / 60000) * 60000;
       }
       if (targetMs < minStartMs) {
@@ -217,6 +334,11 @@ export function deriveNextScheduledPublication(
     const formattedTime = timeFormatter.format(nextRunDate);
     const fullFormatted = `${formattedDate} at ${formattedTime}`;
     const timeRemaining = formatTimeRemaining(nextRunDate);
+    const cadenceChips = parseCadenceChips(
+      settings.cronExpression || wf.cronExpression,
+      settings.intervalMins,
+      explanation
+    );
 
     // Preview URL: live website or last published article
     const previewUrl = settings.lastGeneratedArticleId
@@ -226,7 +348,7 @@ export function deriveNextScheduledPublication(
     candidateResults.push({
       workflowId: wf.id,
       workflowName: wf.name || 'Automated Publishing Pipeline',
-      isActive: true,
+      isActive: isWfActive,
       timingMode,
       cronExpression: settings.cronExpression || wf.cronExpression,
       intervalMins: settings.intervalMins,
@@ -236,6 +358,7 @@ export function deriveNextScheduledPublication(
       formattedTime,
       fullFormatted,
       explanation,
+      cadenceChips,
       timeRemaining,
       autoPublish: true,
       previewUrl,
@@ -246,7 +369,14 @@ export function deriveNextScheduledPublication(
     return null;
   }
 
-  // Sort by earliest next publication date
+  // Prefer active workflows first
+  const activeCandidates = candidateResults.filter((c) => c.isActive);
+  if (activeCandidates.length > 0) {
+    activeCandidates.sort((a, b) => a.nextDate.getTime() - b.nextDate.getTime());
+    return activeCandidates[0];
+  }
+
+  // If paused, sort by next publication date and return the first
   candidateResults.sort((a, b) => a.nextDate.getTime() - b.nextDate.getTime());
   return candidateResults[0];
 }
