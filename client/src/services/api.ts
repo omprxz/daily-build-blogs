@@ -116,6 +116,7 @@ export const api = {
 
   // Workflows
   getWorkflows: () => fetchJson('/workflows'),
+  getNextScheduledPublication: () => fetchJson<{ active: boolean; data: any }>('/workflows/next-scheduled'),
   getWorkflow: (id: string) => fetchJson(`/workflows/${id}`),
   createWorkflow: (data: any) => fetchJson('/workflows', { method: 'POST', body: JSON.stringify(data) }),
   updateWorkflow: (id: string, data: any) => fetchJson(`/workflows/${id}`, { method: 'PUT', body: JSON.stringify(data) }),

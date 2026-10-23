@@ -65,7 +65,8 @@ router.get('/', async (req, res, next) => {
       conditions.push(
         or(
           ilike(schema.articles.title, `%${search}%`),
-          ilike(schema.articles.excerpt, `%${search}%`)
+          ilike(schema.articles.excerpt, `%${search}%`),
+          ilike(schema.articles.slug, `%${search}%`)
         )
       );
     }

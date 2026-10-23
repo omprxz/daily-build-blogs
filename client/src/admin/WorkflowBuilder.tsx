@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import {
   ReactFlow,
   Controls,
@@ -29,7 +28,7 @@ import {
   Loader2,
   Check,
   AlertCircle,
-  Globe,
+  Eye,
 } from 'lucide-react';
 import { CustomWorkflowNode } from './workflow/CustomWorkflowNode.js';
 import { AdvancedScheduler } from './workflow/AdvancedScheduler.js';
@@ -925,12 +924,16 @@ export const WorkflowBuilder: React.FC = () => {
             <History className="w-3.5 h-3.5 text-slate-500" /> Logs
           </button>
 
-          <Link
-            to="/admin/sites"
-            className="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center gap-1 transition-colors shrink-0 whitespace-nowrap"
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="p-1 rounded-lg border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors flex items-center justify-center shrink-0"
+            title="View Live Site in New Tab"
+            aria-label="View Live Site in New Tab"
           >
-            <Globe className="w-3.5 h-3.5 text-indigo-500" /> Sites
-          </Link>
+            <Eye className="w-3.5 h-3.5" />
+          </a>
 
           <button
             type="button"

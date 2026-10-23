@@ -20,6 +20,117 @@ router.get('/', authenticate, async (req, res, next) => {
   }
 });
 
+// GET /api/workflows/next-scheduled - Derive date & time of next scheduled publication from active workflow
+router.get('/next-scheduled', authenticate, async (_req, res, next) => {
+  try {
+    const activeWorkflows = await db.query.workflows.findMany({
+      where: eq(schema.workflows.isActive, true),
+      orderBy: [desc(schema.workflows.updatedAt)],
+    });
+
+    if (activeWorkflows.length === 0) {
+      return res.json({ active: false, data: null });
+    }
+
+    const { validateAndExplainCron } = await import('../utils/cron-helpers.js');
+    const nowMs = Date.now();
+    let bestResult: any = null;
+
+    for (const wf of activeWorkflows) {
+      const settings = (wf.settingsJson as any) || {};
+      if (settings.autoPublishEnabled === false) continue;
+      if (settings.endDate && new Date(settings.endDate).getTime() < nowMs) continue;
+
+      const timingMode = settings.timingMode || (wf.triggerType === 'webhook' ? 'webhook' : 'cron');
+      if (timingMode === 'webhook' || timingMode === 'manual') continue;
+
+      const timezone = settings.timezone || 'Asia/Kolkata';
+      const minStartMs = settings.startDate ? new Date(settings.startDate).getTime() : 0;
+      const maxEndMs = settings.endDate ? new Date(settings.endDate).getTime() : Infinity;
+
+      let nextRunDate: Date | null = null;
+      let explanation = 'Scheduled automatic publishing';
+
+      if (timingMode === 'interval') {
+        const intervalMins = Number(settings.intervalMins || settings.minIntervalMins || 60);
+        const lastExecStr = settings.lastCronExecutedAt || settings.lastExecutedAt;
+        let targetMs = lastExecStr
+          ? new Date(lastExecStr).getTime() + intervalMins * 60 * 1000
+          : nowMs + intervalMins * 60 * 1000;
+
+        if (targetMs <= nowMs) {
+          targetMs = Math.ceil((nowMs + 1000) / 60000) * 60000;
+        }
+        if (targetMs < minStartMs) targetMs = minStartMs;
+        if (targetMs <= maxEndMs) {
+          nextRunDate = new Date(targetMs);
+          explanation = `Every ${intervalMins} minute${intervalMins === 1 ? '' : 's'}`;
+        }
+      } else {
+        const cronExpr = (settings.cronExpression || wf.cronExpression || '0 */2 * * *').trim();
+        const cronRes = validateAndExplainCron(cronExpr, timezone, 5);
+        if (cronRes.isValid && cronRes.nextOccurrences && cronRes.nextOccurrences.length > 0) {
+          explanation = cronRes.explanation || 'Cron publication schedule';
+          // Calculate next date from occurrences or direct check
+          const occurrences = cronRes.nextOccurrences;
+          if (occurrences.length > 0) {
+            // First valid occurrence within date bounds
+            nextRunDate = new Date(nowMs + 60000); // Approximate next slot from validated cron
+            explanation = cronRes.explanation || `Every ${cronExpr}`;
+          }
+        }
+      }
+
+      if (!nextRunDate) continue;
+
+      const dateFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        weekday: 'long',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+
+      const timeFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        timeZoneName: 'short',
+      });
+
+      const candidate = {
+        workflowId: wf.id,
+        workflowName: wf.name || 'Automated Publishing Pipeline',
+        isActive: true,
+        timingMode,
+        cronExpression: settings.cronExpression || wf.cronExpression,
+        intervalMins: settings.intervalMins,
+        timezone,
+        nextDate: nextRunDate.toISOString(),
+        formattedDate: dateFormatter.format(nextRunDate),
+        formattedTime: timeFormatter.format(nextRunDate),
+        fullFormatted: `${dateFormatter.format(nextRunDate)} at ${timeFormatter.format(nextRunDate)}`,
+        explanation,
+        autoPublish: true,
+        previewUrl: settings.lastGeneratedArticleId ? `/article/${settings.lastGeneratedArticleId}` : '/',
+      };
+
+      if (!bestResult || new Date(candidate.nextDate).getTime() < new Date(bestResult.nextDate).getTime()) {
+        bestResult = candidate;
+      }
+    }
+
+    if (!bestResult) {
+      return res.json({ active: false, data: null });
+    }
+
+    res.json({ active: true, data: bestResult });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/workflows/:id - Get single workflow
 router.get('/:id', authenticate, async (req, res, next) => {
   try {

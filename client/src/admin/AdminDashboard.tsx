@@ -16,16 +16,22 @@ import {
   Clock,
   ArrowUpRight,
   TrendingUp,
-  Layers,
   ArrowRight,
+  Calendar,
 } from 'lucide-react';
 import { getCategoryTheme } from '../utils/editorialPrompt.js';
+import {
+  deriveNextScheduledPublication,
+  NextScheduledPublication,
+} from '../utils/publishingSchedule.js';
 
 export const AdminDashboard: React.FC = () => {
   const [summary, setSummary] = useState<any>(null);
   const [recentArticles, setRecentArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [pollingFeeds, setPollingFeeds] = useState(false);
+
+  const [scheduledPublication, setScheduledPublication] = useState<NextScheduledPublication | null>(null);
 
   useEffect(() => {
     loadData();
@@ -36,10 +42,15 @@ export const AdminDashboard: React.FC = () => {
     Promise.all([
       api.getAnalyticsSummary(),
       api.getArticles({ limit: 8, status: 'all' }),
+      api.getWorkflows().catch(() => []),
     ])
-      .then(([stats, arts]) => {
+      .then(([stats, arts, workflows]) => {
         setSummary(stats);
         if (arts?.data) setRecentArticles(arts.data);
+        if (Array.isArray(workflows)) {
+          const derived = deriveNextScheduledPublication(workflows);
+          setScheduledPublication(derived);
+        }
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
@@ -114,6 +125,68 @@ export const AdminDashboard: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Next Scheduled Publication Section (Derived from configured publishing flow, shown only when active) */}
+      {scheduledPublication && (
+        <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-indigo-50/90 via-white to-sky-50/60 dark:from-indigo-950/40 dark:via-[#0c1220] dark:to-sky-950/20 border border-indigo-200/80 dark:border-indigo-800/50 shadow-xs transition-all">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="space-y-2 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/60">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Active Publishing Flow</span>
+                </span>
+                <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                  {scheduledPublication.workflowName}
+                </span>
+              </div>
+
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>Next Scheduled Article Publication</span>
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-0.5">
+                  {scheduledPublication.fullFormatted}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 flex-wrap pt-0.5">
+                <span className="inline-flex items-center gap-1 font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-lg border border-indigo-200/70 dark:border-indigo-800/50">
+                  <Clock className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  <span>{scheduledPublication.timeRemaining}</span>
+                </span>
+                <span className="text-slate-400">•</span>
+                <span className="font-medium text-slate-600 dark:text-slate-300">
+                  Cadence: {scheduledPublication.explanation}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 self-stretch md:self-center justify-end shrink-0 pt-2 md:pt-0">
+              {/* Micro eye icon link which opens view link in new tab */}
+              <a
+                href={scheduledPublication.previewUrl || '/'}
+                target="_blank"
+                rel="noreferrer"
+                className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-2xs flex items-center justify-center shrink-0"
+                title="View Live Publication in New Tab"
+                aria-label="View Live Publication in New Tab"
+              >
+                <Eye className="w-4 h-4" />
+              </a>
+
+              <Link
+                to="/admin/automation"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-slate-800 border border-indigo-200/80 dark:border-indigo-800/60 rounded-xl transition-colors shadow-2xs shrink-0"
+              >
+                <span>Publishing Flow Settings</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 4 Metric KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
