@@ -15,12 +15,14 @@ import {
   Clock,
   ArrowRight,
   Calendar,
+  Timer,
 } from 'lucide-react';
 import { getCategoryTheme } from '../utils/editorialPrompt.js';
 import {
   deriveNextScheduledPublication,
   NextScheduledPublication,
   formatConciseCountdown,
+  getTimerBreakdown,
 } from '../utils/publishingSchedule.js';
 import { FlowToggleSwitch } from './components/FlowToggleSwitch.js';
 import cronstrue from 'cronstrue';
@@ -156,38 +158,107 @@ export const AdminDashboard: React.FC = () => {
       {/* Next Scheduled Publication Section (Derived from configured publishing flow, shown even if paused) */}
       {scheduledPublication && (
         <div className="relative p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-indigo-50/90 via-white to-sky-50/60 dark:from-indigo-950/40 dark:via-[#0c1220] dark:to-sky-950/20 border border-indigo-200/80 dark:border-indigo-800/50 shadow-xs transition-all">
-          {/* Top Header Row: Label on Left, Remaining Time Countdown at Top Right */}
-          <div className="flex items-center justify-between gap-4 mb-2">
+          {/* Top Header Row: Label on Left, Status Badge at Top Right */}
+          <div className="flex items-center justify-between gap-4 mb-3">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-indigo-500" />
               <span>Next Scheduled Article Publication</span>
             </div>
 
-            {/* Remaining time at top right of section, concise with countdown in realtime with seconds */}
             <div
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold border shrink-0 transition-colors ${scheduledPublication.isActive
-                ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800/60'
-                : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200/70 dark:border-rose-800/60'
-                }`}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border shrink-0 transition-colors ${
+                scheduledPublication.isActive
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/60'
+                  : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200/70 dark:border-rose-800/60'
+              }`}
             >
-              <Clock
-                className={`w-3.5 h-3.5 ${scheduledPublication.isActive ? 'text-indigo-500 animate-pulse' : 'text-rose-500'
-                  }`}
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  scheduledPublication.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
+                }`}
               />
-              <span>
-                {formatConciseCountdown(
-                  scheduledPublication.nextDate.getTime(),
-                  nowMs,
-                  !scheduledPublication.isActive
-                )}
-              </span>
+              <span>{scheduledPublication.isActive ? 'Automated Flow Active' : 'Automated Flow Paused'}</span>
             </div>
           </div>
 
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pt-1">
             <div className="space-y-2 min-w-0">
-              <div className="text-xl sm:text-2xl font-black text-red-500 tracking-tight">
-                {scheduledPublication.fullFormatted.replace(/\s*GMT[+-]?\d*(?::\d+)?/gi, '').trim()}
+              {/* Real-time Countdown Timer in black color with timer design */}
+              {(() => {
+                const timer = getTimerBreakdown(
+                  scheduledPublication.nextDate.getTime(),
+                  nowMs,
+                  !scheduledPublication.isActive
+                );
+
+                if (timer.isPaused) {
+                  return (
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white">
+                      <Clock className="w-5 h-5 text-rose-500" />
+                      <span className="font-mono text-xl sm:text-2xl font-black tracking-tight">
+                        Schedule Paused
+                      </span>
+                    </div>
+                  );
+                }
+
+                if (timer.isDue) {
+                  return (
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white">
+                      <Clock className="w-5 h-5 text-indigo-500 animate-pulse" />
+                      <span className="font-mono text-xl sm:text-2xl font-black tracking-tight">
+                        Due Momentarily
+                      </span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="inline-flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 shadow-2xs">
+                    <Timer className="w-5 h-5 sm:w-6 sm:h-6 text-black dark:text-white mr-1 shrink-0" />
+                    {timer.days > 0 && (
+                      <>
+                        <div className="flex items-baseline gap-0.5">
+                          <span className="font-mono text-2xl sm:text-3xl font-black text-black dark:text-white tabular-nums tracking-tight">
+                            {timer.days}
+                          </span>
+                          <span className="text-[10px] sm:text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">d</span>
+                        </div>
+                        <span className="font-mono text-xl sm:text-2xl font-black text-slate-300 dark:text-slate-600 px-0.5">:</span>
+                      </>
+                    )}
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="font-mono text-2xl sm:text-3xl font-black text-black dark:text-white tabular-nums tracking-tight">
+                        {String(timer.hours).padStart(2, '0')}
+                      </span>
+                      <span className="text-[10px] sm:text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">h</span>
+                    </div>
+                    <span className="font-mono text-xl sm:text-2xl font-black text-slate-300 dark:text-slate-600 px-0.5">:</span>
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="font-mono text-2xl sm:text-3xl font-black text-black dark:text-white tabular-nums tracking-tight">
+                        {String(timer.minutes).padStart(2, '0')}
+                      </span>
+                      <span className="text-[10px] sm:text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">m</span>
+                    </div>
+                    <span className="font-mono text-xl sm:text-2xl font-black text-slate-300 dark:text-slate-600 px-0.5">:</span>
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="font-mono text-2xl sm:text-3xl font-black text-black dark:text-white tabular-nums tracking-tight">
+                        {String(timer.seconds).padStart(2, '0')}
+                      </span>
+                      <span className="text-[10px] sm:text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">s</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Date along with timing in micro size and half-gray color */}
+              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 pt-0.5">
+                <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                <span>
+                  {scheduledPublication.fullFormatted.replace(/\s*GMT[+-]?\d*(?::\d+)?/gi, '').trim()}
+                </span>
+                <span className="text-slate-300 dark:text-slate-600">•</span>
+                <span>({scheduledPublication.timezone})</span>
               </div>
 
               {/* Cadence: light bg border chips */}

@@ -141,6 +141,61 @@ export function parseCadenceChips(
   return ['Regular cadence'];
 }
 
+export interface TimerBreakdown {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  isDue: boolean;
+  isPaused: boolean;
+  formatted: string;
+}
+
+export function getTimerBreakdown(targetMs: number, nowMs: number, isPaused: boolean): TimerBreakdown {
+  if (isPaused) {
+    return {
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      isDue: false,
+      isPaused: true,
+      formatted: 'Paused',
+    };
+  }
+  const diffSec = Math.floor((targetMs - nowMs) / 1000);
+  if (diffSec <= 0) {
+    return {
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      isDue: true,
+      isPaused: false,
+      formatted: 'Due momentarily',
+    };
+  }
+  const days = Math.floor(diffSec / 86400);
+  const hours = Math.floor((diffSec % 86400) / 3600);
+  const minutes = Math.floor((diffSec % 3600) / 60);
+  const seconds = diffSec % 60;
+
+  const formatted =
+    days > 0
+      ? `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`
+      : `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+
+  return {
+    days,
+    hours,
+    minutes,
+    seconds,
+    isDue: false,
+    isPaused: false,
+    formatted,
+  };
+}
+
 export function formatConciseCountdown(targetMs: number, nowMs: number, isPaused: boolean): string {
   if (isPaused) {
     return 'Paused';
