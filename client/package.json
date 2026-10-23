@@ -15,6 +15,7 @@
   "dependencies": {
     "@xyflow/react": "^12.4.4",
     "clsx": "^2.1.1",
+    "cronstrue": "^3.38.0",
     "express": "^4.21.2",
     "lucide-react": "^0.479.0",
     "mermaid": "^12.2.0",

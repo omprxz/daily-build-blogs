@@ -1,3 +1,4 @@
+import cronstrue from 'cronstrue';
 import { validateAndExplainCron } from './cron.js';
 
 export interface NextScheduledPublication {
@@ -21,7 +22,16 @@ export interface NextScheduledPublication {
 
 const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
 
+export function explainWithCronstrue(cronExpr: string): string {
+  try {
+    return cronstrue.toString(cronExpr.trim(), { use24HourTimeFormat: false });
+  } catch {
+    return cronExpr;
+  }
+}
+
 export function parseCadenceChips(
+  timingMode: string = 'cron',
   cronExpr?: string,
   intervalMins?: number,
   explanation?: string
@@ -33,27 +43,33 @@ export function parseCadenceChips(
     return `${h}:${m} ${ampm}`;
   }
 
-  // 1. Check interval
-  if (intervalMins && intervalMins > 0) {
-    if (intervalMins < 60) return [`Every ${intervalMins}m`];
-    if (intervalMins % 60 === 0) return [`Every ${intervalMins / 60}h`];
-    return [`Every ${intervalMins}m`];
+  // 1. If timingMode is interval, format interval
+  if (timingMode === 'interval') {
+    const mins = Number(intervalMins || 60);
+    if (mins < 60) return [`Every ${mins}m`];
+    if (mins % 60 === 0) return [`Every ${mins / 60}h`];
+    return [`Every ${mins}m`];
   }
 
-  // 2. Check explanation string if it matches "At min X, at H1,H2:00"
-  if (explanation) {
-    const match = explanation.match(/At min\s+(\d+),\s*at\s+([0-9,]+):00/i);
-    if (match) {
-      const minVal = Number(match[1]);
-      const hourVals = match[2].split(',').map(Number).filter((n) => !isNaN(n));
-      if (hourVals.length > 0 && !isNaN(minVal)) {
-        return hourVals.sort((a, b) => a - b).map((h) => format12h(h, minVal));
-      }
-    }
-  }
-
-  // 3. Parse cron expression
+  // 2. Parse using cronstrue
   if (cronExpr) {
+    try {
+      const text = cronstrue.toString(cronExpr.trim(), { use24HourTimeFormat: false });
+      // Extract discrete times like "09:00 AM", "01:00 PM", "09:34 AM"
+      const timeMatches = text.match(/\b\d{1,2}:\d{2}\s*(?:AM|PM)\b/gi);
+      if (timeMatches && timeMatches.length > 0) {
+        // Strip leading zeros for clean 12-hour chip display (e.g. 09:34 AM -> 9:34 AM)
+        return timeMatches.map((t) => t.replace(/^0(\d:)/, '$1'));
+      }
+
+      // If no specific time points (e.g. "On the hour, every 2 hours" or "Every 15 minutes")
+      const clean = text.replace(/^On the hour,\s*/i, '');
+      return [clean];
+    } catch {
+      // Fall through to manual parsing
+    }
+
+    // Manual fallback for standard cron expressions
     const parts = cronExpr.trim().split(/\s+/);
     if (parts.length === 5) {
       const [minPart, hourPart] = parts;
@@ -111,6 +127,14 @@ export function parseCadenceChips(
       if (minPart.startsWith('*/')) {
         return [`Every ${minPart.slice(2)}m`];
       }
+    }
+  }
+
+  // 3. Fallback from explanation string if present
+  if (explanation) {
+    const timeMatches = explanation.match(/\b\d{1,2}:\d{2}\s*(?:AM|PM)\b/gi);
+    if (timeMatches && timeMatches.length > 0) {
+      return timeMatches.map((t) => t.replace(/^0(\d:)/, '$1'));
     }
   }
 
@@ -233,7 +257,7 @@ function findNextCronDate(parts: string[], minDateMs: number = 0): Date | null {
 
 /**
  * Derives the next scheduled article publication from configured publishing flows.
- * Returns information even if the flow is paused, marking isActive appropriately.
+ * Uses cronstrue for parsing and explaining cron expressions.
  */
 export function deriveNextScheduledPublication(
   workflows: any[]
@@ -299,7 +323,12 @@ export function deriveNextScheduledPublication(
       const cronValidation = validateAndExplainCron(cronExpr, timezone, 3);
 
       if (cronValidation.isValid) {
-        explanation = cronValidation.explanation || 'Cron publication schedule';
+        try {
+          explanation = `${cronstrue.toString(cronExpr, { use24HourTimeFormat: false })} (${timezone})`;
+        } catch {
+          explanation = cronValidation.explanation || 'Cron publication schedule';
+        }
+
         const parts = cronExpr.split(/\s+/);
         if (parts.length === 5) {
           const calculatedDate = findNextCronDate(parts, minStartMs);
@@ -334,7 +363,10 @@ export function deriveNextScheduledPublication(
     const formattedTime = timeFormatter.format(nextRunDate);
     const fullFormatted = `${formattedDate} at ${formattedTime}`;
     const timeRemaining = formatTimeRemaining(nextRunDate);
+
+    // Pass timingMode explicitly so intervalMins doesn't override cron
     const cadenceChips = parseCadenceChips(
+      timingMode,
       settings.cronExpression || wf.cronExpression,
       settings.intervalMins,
       explanation

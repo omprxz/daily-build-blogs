@@ -1,21 +1,17 @@
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
+import cronstrue from 'cronstrue';
 import {
   Clock,
   Webhook,
   Radio,
   Sparkles,
-  Layers,
   Image as ImageIcon,
   CheckCircle2,
-  FileText,
-  HelpCircle,
   Play,
   Hourglass,
   Sliders,
   AlertCircle,
-  Copy,
-  Trash2,
   Loader2,
 } from 'lucide-react';
 
@@ -83,15 +79,14 @@ const CustomWorkflowNodeComponent: React.FC<NodeProps> = ({ data, selected }) =>
 
   return (
     <div
-      className={`relative rounded-lg border bg-white shadow-xs min-w-[190px] max-w-[220px] text-left select-none ${
-        nodeData.isRunning
-          ? 'border-indigo-600 ring-2 ring-indigo-500/40 shadow-md'
-          : nodeData.isCompleted
+      className={`relative rounded-lg border bg-white shadow-xs min-w-[190px] max-w-[220px] text-left select-none ${nodeData.isRunning
+        ? 'border-indigo-600 ring-2 ring-indigo-500/40 shadow-md'
+        : nodeData.isCompleted
           ? 'border-emerald-500/80 shadow-xs'
           : selected
-          ? 'border-indigo-600 ring-2 ring-indigo-500/20 shadow-sm'
-          : 'border-slate-200 hover:border-slate-300'
-      }`}
+            ? 'border-indigo-600 ring-2 ring-indigo-500/20 shadow-sm'
+            : 'border-slate-200 hover:border-slate-300'
+        }`}
     >
       {/* Input Handle */}
       {!isTrigger && (

@@ -1,6 +1,4 @@
-/**
- * Client-Side Cron Utilities for Asia/Kolkata (IST)
- */
+import cronstrue from 'cronstrue';
 
 export interface CronValidationResult {
   isValid: boolean;
@@ -51,7 +49,12 @@ export function validateAndExplainCron(
   const dowValid = validateField(dowPart, 0, 7);
   if (!dowValid.valid) return { isValid: false, error: `Invalid weekday '${dowPart}': ${dowValid.error}` };
 
-  const explanation = explainCronExpression(parts);
+  let explanation = '';
+  try {
+    explanation = `${cronstrue.toString(trimmed, { use24HourTimeFormat: false })} (${timeZone}).`;
+  } catch {
+    explanation = explainCronExpression(parts);
+  }
   const nextOccurrences = getNextCronOccurrences(parts, timeZone, count);
 
   return {
@@ -103,6 +106,12 @@ function formatHourMinute(hour: number, minute: number): string {
 }
 
 export function explainCronExpression(parts: string[]): string {
+  try {
+    return `${cronstrue.toString(parts.join(' '), { use24HourTimeFormat: false })} (Asia/Kolkata).`;
+  } catch {
+    // fallback to custom parser below
+  }
+
   const [min, hour, dom, month, dow] = parts;
 
   if (min === '*' && hour === '*' && dom === '*' && month === '*' && dow === '*') {

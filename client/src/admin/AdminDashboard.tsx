@@ -8,14 +8,11 @@ import {
   DollarSign,
   Radio,
   PlusCircle,
-  Play,
   RotateCw,
   Sparkles,
   CheckCircle2,
   AlertTriangle,
   Clock,
-  ArrowUpRight,
-  TrendingUp,
   ArrowRight,
   Calendar,
 } from 'lucide-react';
@@ -26,6 +23,7 @@ import {
   formatConciseCountdown,
 } from '../utils/publishingSchedule.js';
 import { FlowToggleSwitch } from './components/FlowToggleSwitch.js';
+import cronstrue from 'cronstrue';
 
 export const AdminDashboard: React.FC = () => {
   const [summary, setSummary] = useState<any>(null);
@@ -167,16 +165,14 @@ export const AdminDashboard: React.FC = () => {
 
             {/* Remaining time at top right of section, concise with countdown in realtime with seconds */}
             <div
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold border shrink-0 transition-colors ${
-                scheduledPublication.isActive
-                  ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800/60'
-                  : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200/70 dark:border-rose-800/60'
-              }`}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold border shrink-0 transition-colors ${scheduledPublication.isActive
+                ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800/60'
+                : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200/70 dark:border-rose-800/60'
+                }`}
             >
               <Clock
-                className={`w-3.5 h-3.5 ${
-                  scheduledPublication.isActive ? 'text-indigo-500 animate-pulse' : 'text-rose-500'
-                }`}
+                className={`w-3.5 h-3.5 ${scheduledPublication.isActive ? 'text-indigo-500 animate-pulse' : 'text-rose-500'
+                  }`}
               />
               <span>
                 {formatConciseCountdown(
@@ -190,7 +186,7 @@ export const AdminDashboard: React.FC = () => {
 
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pt-1">
             <div className="space-y-2 min-w-0">
-              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              <div className="text-xl sm:text-2xl font-black text-red-500 tracking-tight">
                 {scheduledPublication.fullFormatted}
               </div>
 
@@ -208,7 +204,15 @@ export const AdminDashboard: React.FC = () => {
                   ))
                 ) : (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs">
-                    {scheduledPublication.formattedTime}
+                    {scheduledPublication.cronExpression
+                      ? (() => {
+                          try {
+                            return cronstrue.toString(scheduledPublication.cronExpression, { use24HourTimeFormat: false });
+                          } catch {
+                            return scheduledPublication.formattedTime;
+                          }
+                        })()
+                      : scheduledPublication.formattedTime}
                   </span>
                 )}
               </div>

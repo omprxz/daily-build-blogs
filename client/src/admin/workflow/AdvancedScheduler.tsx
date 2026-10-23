@@ -9,6 +9,7 @@ import {
   Info,
 } from 'lucide-react';
 import { validateAndExplainCron, CronValidationResult } from '../../utils/cron.js';
+import cronstrue from 'cronstrue';
 
 interface AdvancedSchedulerProps {
   cronExpression: string;
@@ -180,7 +181,15 @@ export const AdvancedScheduler: React.FC<AdvancedSchedulerProps> = ({
             {validation.isValid ? (
               <div className="text-[11px] text-emerald-700 font-medium bg-emerald-50/70 border border-emerald-100 px-2 py-1 rounded-md flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-emerald-600 shrink-0" />
-                <span>{validation.explanation}</span>
+                <span>
+                  {(() => {
+                    try {
+                      return `${cronstrue.toString(internalCron, { use24HourTimeFormat: false })} (${timezone})`;
+                    } catch {
+                      return validation.explanation;
+                    }
+                  })()}
+                </span>
               </div>
             ) : (
               <div className="text-[11px] text-rose-700 font-medium bg-rose-50 border border-rose-100 px-2 py-1 rounded-md flex items-center gap-1.5">
