@@ -356,11 +356,13 @@ export function deriveNextScheduledPublication(
       hour: 'numeric',
       minute: '2-digit',
       hour12: true,
-      timeZoneName: 'short',
     });
 
     const formattedDate = dateFormatter.format(nextRunDate);
-    const formattedTime = timeFormatter.format(nextRunDate);
+    const formattedTime = timeFormatter
+      .format(nextRunDate)
+      .replace(/\s*GMT[+-]?\d*(?::\d+)?/gi, '')
+      .trim();
     const fullFormatted = `${formattedDate} at ${formattedTime}`;
     const timeRemaining = formatTimeRemaining(nextRunDate);
 

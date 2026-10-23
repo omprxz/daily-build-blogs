@@ -187,7 +187,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pt-1">
             <div className="space-y-2 min-w-0">
               <div className="text-xl sm:text-2xl font-black text-red-500 tracking-tight">
-                {scheduledPublication.fullFormatted}
+                {scheduledPublication.fullFormatted.replace(/\s*GMT[+-]?\d*(?::\d+)?/gi, '').trim()}
               </div>
 
               {/* Cadence: light bg border chips */}

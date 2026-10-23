@@ -91,8 +91,13 @@ router.get('/next-scheduled', authenticate, async (_req, res, next) => {
         hour: 'numeric',
         minute: '2-digit',
         hour12: true,
-        timeZoneName: 'short',
       });
+
+      const formattedDate = dateFormatter.format(nextRunDate);
+      const formattedTime = timeFormatter
+        .format(nextRunDate)
+        .replace(/\s*GMT[+-]?\d*(?::\d+)?/gi, '')
+        .trim();
 
       candidates.push({
         workflowId: wf.id,
@@ -103,9 +108,9 @@ router.get('/next-scheduled', authenticate, async (_req, res, next) => {
         intervalMins: settings.intervalMins,
         timezone,
         nextDate: nextRunDate.toISOString(),
-        formattedDate: dateFormatter.format(nextRunDate),
-        formattedTime: timeFormatter.format(nextRunDate),
-        fullFormatted: `${dateFormatter.format(nextRunDate)} at ${timeFormatter.format(nextRunDate)}`,
+        formattedDate,
+        formattedTime,
+        fullFormatted: `${formattedDate} at ${formattedTime}`,
         explanation,
         autoPublish: true,
         previewUrl: settings.lastGeneratedArticleId ? `/article/${settings.lastGeneratedArticleId}` : '/',
