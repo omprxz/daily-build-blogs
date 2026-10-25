@@ -7,6 +7,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+package-lock.json
+
 # Dependencies
 node_modules/
 **/node_modules/
@@ -47,7 +49,9 @@ daily_build_blogs_backup_*.sql
 # Local browser profiles
 /chatgpt-profile/
 /test-profile/
-/local-agent/chatgpt-profile/
+/local-image-mcp/chatgpt-profile/
+/local-image-mcp/generated/
+/local-image-mcp/data/
 
 # Editor and operating system files
 .vscode/*

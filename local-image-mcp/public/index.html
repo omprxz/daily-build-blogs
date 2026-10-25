@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Local Image MCP — History</title>
+<style>
+:root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#172033;background:#f5f7fb}
+*{box-sizing:border-box}body{margin:0;padding:28px;max-width:1440px;margin-inline:auto}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+h1{font-size:24px;margin:0}p{color:#64748b;margin:8px 0 0}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:12px;margin:24px 0}
+.stat,.panel{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px}
+.stat span{display:block;color:#64748b;font-size:12px}.stat strong{display:block;font-size:26px;margin-top:8px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+input,select,button{font:inherit;border:1px solid #cbd5e1;border-radius:8px;padding:10px;background:#fff}
+input{min-width:240px;flex:1}button{cursor:pointer;background:#172033;color:#fff;border-color:#172033}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #edf0f5;vertical-align:top}
+th{color:#64748b;font-weight:600;white-space:nowrap}td.prompt{min-width:260px;max-width:500px;white-space:pre-wrap;overflow-wrap:anywhere}
+.status{display:inline-block;padding:4px 7px;border-radius:6px;background:#edf2f7;font-size:12px}
+.status.completed{background:#dcfce7;color:#166534}.status.failed{background:#fee2e2;color:#991b1b}.status.generating,.status.uploading,.status.queued{background:#fef3c7;color:#92400e}
+a{color:#2563eb;text-decoration:none}small{color:#64748b}.empty{padding:30px;text-align:center;color:#64748b}
+@media(max-width:760px){body{padding:14px}.stats{grid-template-columns:repeat(2,minmax(100px,1fr))}.panel{overflow:auto}h1{font-size:20px}}
+</style>
+</head>
+<body>
+<header><div><h1>Local Image MCP</h1><p>Image generation history stored in local SQLite.</p></div><button id="refresh">Refresh</button></header>
+<section class="stats">
+<div class="stat"><span>Total requests</span><strong id="total">0</strong></div>
+<div class="stat"><span>Completed</span><strong id="completed">0</strong></div>
+<div class="stat"><span>Failed</span><strong id="failed">0</strong></div>
+<div class="stat"><span>Active</span><strong id="active">0</strong></div>
+</section>
+<section class="panel">
+<div class="controls">
+<input id="search" placeholder="Search prompts, paths or URLs">
+<select id="status"><option value="">All statuses</option><option>queued</option><option>generating</option><option>uploading</option><option>completed</option><option>failed</option></select>
+<button id="apply">Search</button>
+</div>
+<table><thead><tr><th>ID / Created</th><th>Status</th><th>Prompt</th><th>Image</th><th>Duration</th><th>Error</th></tr></thead><tbody id="rows"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody></table>
+</section>
+<script>
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function load(){
+ const params = new URLSearchParams({search:document.querySelector("#search").value,status:document.querySelector("#status").value});
+ const response = await fetch("/api/requests?"+params);
+ const data = await response.json();
+ for(const key of ["total","completed","failed","active"]) document.getElementById(key).textContent = data.stats[key] || 0;
+ const rows = data.requests.map(item=>{
+   const image = item.imgbb_url ? `<a href="${esc(item.imgbb_url)}" target="_blank" rel="noreferrer">ImgBB URL</a>` : "";
+   const local = item.local_path ? `<div><small>${esc(item.local_path)}</small></div>` : "";
+   const duration = item.duration_ms == null ? "—" : `${(item.duration_ms/1000).toFixed(1)} s`;
+   return `<tr><td>#${item.id}<div><small>${esc(new Date(item.created_at).toLocaleString())}</small></div></td><td><span class="status ${esc(item.status)}">${esc(item.status)}</span></td><td class="prompt">${esc(item.prompt)}</td><td>${image}${local}</td><td>${duration}</td><td>${esc(item.error || "")}</td></tr>`;
+ }).join("");
+ document.querySelector("#rows").innerHTML = rows || '<tr><td colspan="6" class="empty">No requests found.</td></tr>';
+}
+document.querySelector("#refresh").addEventListener("click",load);
+document.querySelector("#apply").addEventListener("click",load);
+document.querySelector("#status").addEventListener("change",load);
+document.querySelector("#search").addEventListener("keydown",e=>{if(e.key==="Enter")load()});
+load();
+setInterval(load,10000);
+</script>
+</body>
+</html>
