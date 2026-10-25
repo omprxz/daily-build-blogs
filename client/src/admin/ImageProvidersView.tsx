@@ -413,7 +413,7 @@ export const ImageProvidersView: React.FC = () => {
                   </button>
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  Place this secret in <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">local-agent/.env</code> as <code className="text-indigo-600">AGENT_SECRET</code>.
+                  Optional: Used for authenticating webhook endpoints or legacy polling workers.
                 </p>
               </div>
 
@@ -542,7 +542,7 @@ export const ImageProvidersView: React.FC = () => {
                 <Layers className="w-4 h-4 text-indigo-600" /> Automation Job Queue &amp; History
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Real-time tracking of generation requests dispatched to the local agent or cron scheduler.
+                Real-time tracking of generation requests dispatched to the Local Image MCP Server or cron scheduler.
               </p>
             </div>
             <button

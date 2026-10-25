@@ -27,7 +27,7 @@ This document provides a comprehensive security review and architectural guide f
 ### Trust Zones
 1. **Public Zone (Untrusted):** Anonymous site visitors, RSS consumers, and public search engine crawlers.
 2. **Authenticated Admin Zone:** Authenticated administrators possessing valid JWT session tokens.
-3. **Local Agent Bridge:** Authenticated via pre-shared secret token (`X-Agent-Secret`).
+3. **Local Image Automation Bridge:** Model Context Protocol (Streamable HTTP `/mcp`) or authenticated secret token (`X-Agent-Secret`).
 4. **Data Persistence Zone:** PostgreSQL database and server uploads filesystem.
 
 ---
@@ -76,7 +76,7 @@ All external AI provider API keys saved through the administration dashboard are
 Before exposing an instance to the public internet, administrators must complete the following:
 
 - [ ] **Generate Unique Secrets:** Replace all default values for `JWT_SECRET`, `SESSION_SECRET`, and `ENCRYPTION_MASTER_KEY` in `server/.env`.
-- [ ] **Configure Local Agent Secret:** Replace `LOCAL_AGENT_SECRET` with a secure random token; verify that `agent.js` uses the matching secret.
+- [ ] **Configure Local Image Automation:** Secure your local image MCP server endpoint and replace `LOCAL_AGENT_SECRET` with a secure random token if legacy webhooks are used.
 - [ ] **Change Initial Admin Password:** Log into `/admin` and change the default password immediately.
 - [ ] **Enforce TLS/HTTPS:** Ensure Nginx is configured with Let's Encrypt and redirects all port 80 traffic to port 4443.
 - [ ] **Lock Down PostgreSQL:** Ensure PostgreSQL listens strictly on `127.0.0.1` and is not exposed to external interfaces.

@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Featured Image Generation & Watermarking**:
   - Google Gemini Imagen 3 visual synthesis.
   - Automatic WebP conversion and DailyBuild logo watermarking via Sharp.
-  - Dedicated desktop agent (`local-agent/`) for external browser-assisted 16:9 featured imagery.
+  - Dedicated Model Context Protocol server (`local-image-mcp/`) for external browser-assisted 16:9 featured imagery.
 - **Google Search Console & GA4 Integration**: OAuth 2.0 integration for real-time organic search telemetry and Core Web Vitals correlation with joint AI insight reports.
 - **Security & Data Protection**:
   - AES-256-GCM encryption for stored AI API keys.

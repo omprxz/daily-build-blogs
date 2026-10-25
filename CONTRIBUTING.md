@@ -19,7 +19,7 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 Daily Build Blogs is structured into independent packages:
 - `client/`: React 18, TypeScript, Tailwind CSS, Vite with dual client SPA and SSR builds (`@xyflow/react` for visual workflow orchestration).
 - `server/`: Express.js, TypeScript, Drizzle ORM with PostgreSQL, dynamic AI provider adapters, image processing with Sharp, and background worker daemon.
-- `local-agent/`: Lightweight standalone automation agent using Playwright for desktop-assisted AI operations.
+- `local-image-mcp/`: Model Context Protocol (MCP) image generation server for browser-assisted editorial AI artwork via ChatGPT.
 - `nginx/`: Production reverse-proxy virtual host configuration with HTTP/2 and caching.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for full architectural documentation.
@@ -36,7 +36,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for full architectural document
    ```bash
    cp server/.env.example server/.env
    cp client/.env.example client/.env
-   cp local-agent/.env.example local-agent/.env
+   cp local-image-mcp/.env.example local-image-mcp/.env
    ```
    Configure your local PostgreSQL credentials in `server/.env`.
 
@@ -48,8 +48,8 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for full architectural document
    # Install server dependencies
    cd server && npm install && cd ..
 
-   # Install local-agent dependencies (optional)
-   cd local-agent && npm install && cd ..
+   # Install local-image-mcp dependencies (optional)
+   cd local-image-mcp && npm install && cd ..
    ```
 
 4. **Initialize Database**:
@@ -69,9 +69,9 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for full architectural document
    ```bash
    cd client && npm run dev
    ```
-   In terminal 3 (Optional local agent):
+   In terminal 3 (Optional Local Image MCP server):
    ```bash
-   cd local-agent && npm start
+   cd local-image-mcp && npm start
    ```
 
 ## Quality Guidelines

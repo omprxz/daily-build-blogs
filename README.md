@@ -41,7 +41,7 @@ Modern content publishing platforms often force teams into an unpleasant trade-o
 - **Visual Workflow Automation Canvas:** Drag-and-drop node orchestration powered by `@xyflow/react` for triggers (Cron, RSS, Manual), AI synthesis (Outline, Article, Thumbnail, SEO), and publishing policies.
 - **Automated RSS Research & Deduplication:** Pre-seeded with 10 real-world engineering feeds (Google AI, OpenAI, Anthropic, Hugging Face, GitHub, Mozilla, The Hacker News, Ars Technica, TechCrunch, Google Developers) with SHA-256 normalized deduplication.
 - **Featured Image Processing:** Automatic 16:9 editorial artwork synthesis via Gemini Imagen 3, WebP conversion, and subtle bottom-right logo watermarking via **Sharp** (`libvips`).
-- **Desktop Automation Agent (`local-agent/`):** Optional background desktop agent using Playwright for browser-assisted 16:9 image generation via ChatGPT.
+- **Local Image MCP Server (`local-image-mcp/`):** Model Context Protocol (MCP) server providing a Streamable HTTP endpoint (`/mcp`) for browser-assisted 16:9 editorial image synthesis via ChatGPT and automatic ImgBB cloud delivery.
 - **Google Search Console & GA4 Integration:** Built-in OAuth 2.0 integration correlating organic search clicks, impressions, and Core Web Vitals into joint AI performance insight reports, defaulting to a rolling 24-hour reporting interval across all property analytics views.
 - **Editorial Studio & AI Title Generation:** Article creator and editor with customizable "Title Generation Instructions" field allowing editorial steering of headline tone, length constraints, focus keywords, and SEO intent across both creation and editing flows.
 - **Defense-in-Depth Security:** AES-256-GCM encryption for stored API keys, bcrypt password hashing, JWT sessions, strict HTML sanitization via `sanitize-html`, API rate limiting, and an instant **Emergency Publishing Kill Switch**.
@@ -58,7 +58,7 @@ Modern content publishing platforms often force teams into an unpleasant trade-o
 | **Database** | PostgreSQL 14+ (Connection pool via `pg`) |
 | **SSR Engine** | Custom Express HTML template injector (`server/src/ssr.ts`) & React Server DOM (`client/src/entry-server.tsx`) |
 | **Image Processing** | Sharp (`libvips`), WebP encoding, alpha watermark compositing |
-| **Automation & Jobs** | `node-cron`, custom DAG execution engine, Playwright (`local-agent/`) |
+| **Automation & Jobs** | `node-cron`, custom DAG execution engine, Model Context Protocol (`local-image-mcp/`) |
 | **Production** | PM2 Process Manager, Nginx HTTP/2 reverse proxy, Let's Encrypt Certbot |
 
 ---
@@ -92,7 +92,7 @@ graph LR
         Gemini[Google Gemini & Imagen 3]
         OpenRouter[OpenRouter 300+ Models]
         Ollama[Local Ollama]
-        Agent[Desktop Agent :4500]
+        Agent[Local Image MCP Server :4580/mcp]
     end
 
     API --> Postgres
@@ -137,9 +137,10 @@ daily-build-blogs/
 │   ├── test/                   # Unit and integration test suite
 │   ├── package.json
 │   └── tsconfig.json
-├── local-agent/                # Standalone Desktop AI Automation Agent
-│   ├── agent.js                # Playwright automation & webhook daemon
-│   ├── README.md               # Local agent setup instructions
+├── local-image-mcp/            # Model Context Protocol (MCP) Image Generation Server
+│   ├── src/                    # MCP server, browser controller, ImgBB uploader
+│   ├── public/                 # Local image history & admin viewer
+│   ├── README.md               # Local Image MCP setup & usage guide
 │   └── package.json
 ├── nginx/                      # Production Nginx reverse-proxy configuration
 │   └── blogs.dailybuild.tech.conf
@@ -183,7 +184,7 @@ cd daily-build-blogs
 
 cp server/.env.example server/.env
 cp client/.env.example client/.env
-cp local-agent/.env.example local-agent/.env
+cp local-image-mcp/.env.example local-image-mcp/.env
 ```
 
 Edit `server/.env` with your PostgreSQL database credentials and generated secrets:
@@ -241,7 +242,7 @@ All commands have been verified in clean execution environments:
 | **Run Test Suite** | `cd server && npm test` | **VERIFIED** (8/8 tests pass) |
 | **Build Client & SSR** | `cd client && npm run build:all` | **VERIFIED** (Output to `client/dist/`) |
 | **Compile Server** | `cd server && npm run build` | **VERIFIED** (TypeScript compile) |
-| **Check Local Agent** | `node --check local-agent/agent.js` | **VERIFIED** (Syntax valid) |
+| **Check Local Image MCP** | `node --check local-image-mcp/src/index.js` | **VERIFIED** (Syntax valid) |
 
 ---
 

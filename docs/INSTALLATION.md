@@ -10,7 +10,7 @@ This guide provides end-to-end instructions for installing, configuring, and ver
 > Daily Build Blogs is organized as **independent Node.js packages** rather than an npm workspace monorepo. Dependencies and scripts are executed inside their respective directories:
 > - `client/`: React 18 frontend with Vite and SSR client/server bundles.
 > - `server/`: Node.js + Express.js backend, Drizzle ORM, and background daemon.
-> - `local-agent/`: Optional desktop agent for automated browser-assisted workflows.
+> - `local-image-mcp/`: Model Context Protocol (MCP) server for automated browser-assisted ChatGPT image synthesis.
 
 ---
 
@@ -55,7 +55,7 @@ Each subsystem reads from its own local `.env` file:
 # Copy templates
 cp server/.env.example server/.env
 cp client/.env.example client/.env
-cp local-agent/.env.example local-agent/.env
+cp local-image-mcp/.env.example local-image-mcp/.env
 ```
 
 #### Configure `server/.env` (Required):
@@ -104,8 +104,8 @@ cd server
 npm install
 cd ..
 
-# 3. (Optional) Install Local Agent Dependencies
-cd local-agent
+# 3. (Optional) Install Local Image MCP Dependencies
+cd local-image-mcp
 npm install
 cd ..
 ```
@@ -153,12 +153,12 @@ npm run dev
 ```
 - **Port:** `http://localhost:5173` (Vite dev server with HMR)
 
-### Terminal 3 (Optional): Local Desktop Agent
+### Terminal 3 (Optional): Local Image MCP Server
 ```bash
-cd local-agent
+cd local-image-mcp
 npm start
 ```
-- **Port:** `http://localhost:4500`
+- **Port:** `http://localhost:4580` (Streamable HTTP MCP endpoint at `/mcp`, web dashboard at `/`)
 
 ---
 
@@ -193,7 +193,7 @@ To maintain strict open-source accuracy, commands are categorized by verificatio
 - `cd client && npm run build:all`: **VERIFIED**. Compiles client bundle and SSR bundle in 13.4s without error.
 - `cd server && npm run build`: **VERIFIED**. Compiles TypeScript into `dist/` with exit code 0.
 - `cd server && npm test`: **VERIFIED**. Executes all 8 unit and integration tests with exit code 0.
-- `node --check local-agent/agent.js`: **VERIFIED**. Syntax verified valid.
+- `node --check local-image-mcp/src/index.js`: **VERIFIED**. Syntax verified valid.
 
 ### Verified via Code Implementation
 - `npm run db:migrate`: Executes `tsx src/database/migrate.ts` creating all tables, indexes, and constraints.

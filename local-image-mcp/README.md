@@ -17,17 +17,18 @@ copy .env.example .env
 ```
 
 Edit `.env`:
-- `IMGBB_API_KEY`: your ImgBB key
-- `PROFILE_DIR`: the absolute path to the existing `chatgpt-profile` directory used by your current Local Agent
+- `IMGBB_API_KEY`: your ImgBB API key (obtain from https://api.imgbb.com)
+- `PROFILE_DIR`: the absolute path to your persistent Chrome profile directory signed into ChatGPT
 - Adjust `CHROME_PATH` only if the Chrome executable is not detected automatically.
 
-If the existing code is in `C:\path\to\local-agent` and its profile is `C:\path\to\local-agent\chatgpt-profile`, set:
+Example:
 
 ```env
-PROFILE_DIR=C:\path\to\local-agent\chatgpt-profile
+PROFILE_DIR=C:\Users\username\chatgpt-profile
 ```
 
-Do not run the old Local Agent and this MCP at the same time with the same profile. Chrome locks persistent profiles; close the old agent/browser first. Do not delete profile lock files while Chrome is running.
+> [!NOTE]
+> Chrome locks persistent profiles while active. Close any open Chrome sessions using this profile directory before starting the MCP server. Do not delete profile lock files while Chrome is running.
 
 ## Start
 
@@ -58,6 +59,22 @@ Configure your MCP client to use the HTTP URL directly; no local JavaScript file
 ```
 
 The exact configuration field can vary by MCP client. For MCP Inspector, choose Streamable HTTP and enter `http://127.0.0.1:4580/mcp` as the URL.
+
+## Integration with Daily Build Blogs
+
+To connect this MCP server to your Daily Build Blogs instance:
+
+1. Start `local-image-mcp` on your machine (`npm start`).
+2. If Daily Build Blogs is hosted remotely, create a secure public tunnel via ngrok:
+   ```bash
+   ngrok http 4580
+   ```
+3. In Daily Build Blogs **Admin CMS -> AI Providers & MCP Images**:
+   - In the **Local Image MCP & External Agent** card, enter your endpoint URL in the **MCP Image Server Endpoint** field (e.g., `https://your-tunnel.ngrok-free.dev` or `http://localhost:4580`).
+   - The backend automatically resolves `${origin}/mcp` directly after the domain name and extension.
+   - Click **Test MCP** to execute a live handshake and verify tool detection.
+   - In **Featured Image Settings**, set your preferred engine to **Model Context Protocol (MCP)**.
+   - In the Visual Workflow Builder, image nodes can now use MCP for automatic synthesis.
 
 ## Tool
 

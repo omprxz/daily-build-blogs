@@ -41,13 +41,13 @@ graph TB
         Uploads["Local Media Storage (/uploads)"]
     end
 
-    subgraph ExternalServices ["External Providers & Local Agent"]
+    subgraph ExternalServices ["External Providers & Local Image MCP"]
         Gemini["Google Gemini (API / Imagen 3)"]
         OpenRouter["OpenRouter (Claude, Grok, Meta)"]
         OpenAI["OpenAI (GPT-4o, o3-mini)"]
         Groq["Groq Cloud (Llama 3.3)"]
         Ollama["Local Ollama (:11434)"]
-        LocalAgent["Desktop Agent (Playwright :4500)"]
+        LocalAgent["Local Image MCP Server (Streamable HTTP :4580/mcp)"]
         GoogleSearch["Google Search Console & GA4"]
     end
 
@@ -156,11 +156,12 @@ Supported adapters:
 - Composites the official DailyBuild watermark logo in the bottom-right corner with 72% opacity and 24px padding.
 - Automatically normalizes aspect ratio to 16:9 and encodes into optimized WebP format at 85% quality.
 
-### G. Local Desktop Automation Agent (`local-agent/`)
-- A standalone Node.js service running on the editor's personal computer.
-- Listens on `http://localhost:4500` (optionally exposed via ngrok webhook).
-- Automates Playwright Chromium with persistent session profiles (`./chatgpt-profile`).
-- Can synthesize high-resolution imagery and push results back to the server via authenticated REST endpoints.
+### G. Local Image MCP Server (`local-image-mcp/`)
+- A standalone Node.js Model Context Protocol (MCP) service running on the editor's machine or server.
+- Listens on `http://localhost:4580` (or tunneled via ngrok) exposing `/mcp` via Streamable HTTP (SSE).
+- Exposes tool `generate_and_upload_image` which orchestrates persistent browser automation with ChatGPT.
+- Synthesizes 16:9 editorial imagery, uploads to ImgBB, and returns image metadata to the backend.
+- The server backend ingests the cloud image, watermarks it with Sharp, and links it directly to the article.
 
 ---
 

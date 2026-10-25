@@ -7,12 +7,12 @@ This audit report documents static analysis findings, dependency health, unused 
 ## 1. Executive Summary
 
 - **Repository Analysis Date:** October 20, 2026
-- **Total Tracked Files:** 105 files across `client/`, `server/`, `local-agent/`, `nginx/`, and root.
+- **Total Tracked Files:** Tracked files across `client/`, `server/`, `local-image-mcp/`, `nginx/`, and root.
 - **Build & Test Validation Status:**
   - `client` static and SSR production build: **Passed** (0 errors).
   - `server` TypeScript compilation (`tsc`): **Passed** (0 errors).
   - `server` unit and integration test suite: **Passed** (8 of 8 tests passed).
-  - `local-agent` syntax check: **Passed** (0 syntax errors).
+  - `local-image-mcp` syntax check: **Passed** (0 syntax errors).
 - **Files Deleted:** 0 files deleted (no orphaned or demonstrably harmful files were tracked; all files serve active, archival, or future plugin purposes).
 - **Files Retained for Maintainer Review:** 4 files categorized with full technical evidence below.
 
@@ -31,7 +31,7 @@ All core components, services, and assets confirmed in active execution paths:
 - `server/src/services/image/featured-watermark.ts` & `server/assets/logo.png`: Watermark composite pipeline.
 - `server/scripts/*` (`deploy.sh`, `backup.sh`, `restore.sh`): Production lifecycle scripts.
 - `nginx/blogs.dailybuild.tech.conf`: Nginx virtual host.
-- `local-agent/agent.js`: Standalone desktop automation agent.
+- `local-image-mcp/src/index.js`: Model Context Protocol (MCP) image generation server.
 
 ---
 
@@ -83,7 +83,7 @@ The following files were flagged during static analysis for lacking direct impor
 | `drizzle-orm` | Server | Apache-2.0 | Fully compatible with MIT |
 | `express` | Client & Server | MIT | Permissive |
 | `sharp` | Server | Apache-2.0 | Permissive (Dynamically links `libvips` which is LGPL-3.0+) |
-| `playwright` | Local Agent | Apache-2.0 | Fully compatible |
+| `playwright-core` / `@modelcontextprotocol/sdk` | Local Image MCP | Apache-2.0 / MIT | Fully compatible |
 | `react` / `react-dom` | Client & Server | MIT | Permissive |
 | `@xyflow/react` | Client | MIT | Permissive |
 | `tailwindcss` | Client | MIT | Permissive |

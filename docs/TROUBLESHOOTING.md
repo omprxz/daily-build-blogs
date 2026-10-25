@@ -93,12 +93,14 @@ In `server/ecosystem.config.cjs`, verify that `dailybuild-server` has `DISABLE_W
 
 ---
 
-### F. Local Agent Cannot Connect / Webhook Failures
-**Symptoms:** `Local agent webhook ping timed out` or `Invalid agent secret`  
+### F. Local Image MCP Server Cannot Connect / Tool Execution Errors
+**Symptoms:** `MCP handshake failed`, `Client must accept both application/json and text/event-stream`, or `Image generation failed`  
 **Root Causes & Solutions:**
-1. **Secret Mismatch:** Verify `AGENT_SECRET` in `local-agent/.env` matches `LOCAL_AGENT_SECRET` in `server/.env`.
-2. **ngrok Tunnel Disconnected:** Ensure ngrok is running (`ngrok http 4500`) and the HTTPS URL is updated under **Admin CMS -> AI Providers & Local Agent**.
-3. **Backup Polling:** Note that the agent will automatically poll the server every 5 seconds even if the webhook tunnel is temporarily unavailable.
+1. **Endpoint Resolution:** Ensure the configured URL in **Admin CMS -> AI Providers & MCP Images** is the base URL or ngrok domain. The backend automatically appends `/mcp` directly after the domain extension (e.g., `https://your-tunnel.ngrok-free.dev` resolves to `https://your-tunnel.ngrok-free.dev/mcp`).
+2. **ngrok Tunnel Disconnected:** Ensure ngrok is forwarding port 4580 (`ngrok http 4580`) and the active HTTPS URL is configured in the Admin CMS.
+3. **Chrome Profile Locking:** If Chrome fails to launch or reports a profile lock, close any running Chrome instances using that `PROFILE_DIR` before starting the MCP server.
+4. **ImgBB API Key:** Ensure `IMGBB_API_KEY` in `local-image-mcp/.env` is valid; the server requires this to host synthesized assets and return URLs to the backend.
+5. **Verify Handshake:** Click the **Test MCP** button in the Admin CMS to verify an instant protocol handshake and tool availability.
 
 ---
 
@@ -125,7 +127,7 @@ In `server/ecosystem.config.cjs`, verify that `dailybuild-server` has `DISABLE_W
 Default port assignments:
 - `4000`: Backend Express.js Server (API & SSR)
 - `4444`: Client SSR Express Proxy (Standalone)
-- `4500`: Local Desktop Agent Webhook Listener
+- `4580`: Local Image MCP Server & Web Admin (`/mcp`)
 - `5173`: Vite Client Development Server
 - `5432`: PostgreSQL Database
 - `11434`: Ollama Local Model Server

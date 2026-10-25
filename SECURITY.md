@@ -46,10 +46,10 @@ Article content, excerpts, and syndicated RSS feed bodies are sanitized using **
 ### 5. Rate Limiting & Denial of Service Protection
 Global API endpoints are protected by `express-rate-limit` (100 requests per 15 minutes by default). Public website endpoints are cached and proxied through Nginx with HTTP/2 and static asset caching.
 
-### 6. Local Agent Secret Token Authentication
-The standalone desktop agent (`local-agent/`) authenticates all webhook invocations and job polling requests via a shared secret header (`X-Agent-Secret`).
+### 6. Local Image Generation & Webhook Security
+The Local Image MCP Server (`local-image-mcp/`) communicates over Streamable HTTP (`/mcp`) with session tracking. When utilizing legacy polling or webhook endpoints, requests are authenticated via the shared secret header (`X-Agent-Secret`).
 > [!IMPORTANT]
-> The `LOCAL_AGENT_SECRET` or `AGENT_SECRET` environment variable **must** be explicitly defined with a cryptographically random secret in production. Do not rely on dev default fallback tokens.
+> The `LOCAL_AGENT_SECRET` or webhook secrets **must** be explicitly defined with a cryptographically random secret in production if webhooks are exposed. Keep MCP endpoints secured behind private network interfaces or authenticated tunnels.
 
 ### 7. Emergency Publishing Kill Switch
 An instant global toggle is exposed in the Admin CMS and API (`/api/settings/kill-switch`) to immediately halt all automatic article publishing pipelines platform-wide.

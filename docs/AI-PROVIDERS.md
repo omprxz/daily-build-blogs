@@ -52,10 +52,13 @@ Daily Build Blogs supports three pathways for synthesizing 16:9 editorial featur
 ### B. OpenAI DALL-E 3 (Status: Coming Soon)
 - Displayed in the Admin CMS as **Coming Soon** with inactive trigger controls pending official rollout.
 
-### C. Local Desktop Automation Agent (`local-agent/`)
-- A standalone Node.js service running on an editor's personal computer.
-- Uses Playwright Chromium with persistent session cookies (`./chatgpt-profile`).
-- Receives jobs via webhook or polling, generates 16:9 images via ChatGPT, downloads the asset, and uploads it to the backend media storage.
+### C. Local Image MCP Server (`local-image-mcp/`)
+- A standalone Model Context Protocol (MCP) server communicating over Streamable HTTP at `{domain}/mcp` (e.g. `https://your-tunnel.ngrok-free.dev/mcp` or `http://localhost:4580/mcp`).
+- Implements MCP tool `generate_and_upload_image` with parameter `{ prompt: string }`.
+- Drives a local persistent Chrome profile to generate 16:9 editorial artwork via ChatGPT.
+- Uploads the synthesized asset to ImgBB and returns cloud URLs alongside request metadata.
+- The server backend automatically downloads the ImgBB result, applies Sharp WebP compression and the bottom-right logo watermark, and associates the asset with the article.
+- Can be tested directly from **Admin CMS -> AI Providers & MCP Images** via the "Test MCP" handshake button.
 
 ---
 

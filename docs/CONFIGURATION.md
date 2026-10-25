@@ -23,7 +23,7 @@ Daily Build Blogs is configured through environment variables and dynamic admini
 | `UPLOAD_DIR` | No | `./uploads` | Local filesystem directory path for storing uploaded and generated featured images. |
 | `MAX_FILE_SIZE_MB` | No | `10` | Maximum allowed upload size in megabytes. |
 | `DISABLE_WORKER` | No | `false` | When set to `true`, disables the background worker inside Express (used when running PM2 `dailybuild-worker`). |
-| `LOCAL_AGENT_SECRET` | No | *(dev default)* | Shared secret token expected in `X-Agent-Secret` header from the desktop `local-agent/`. |
+| `LOCAL_AGENT_SECRET` | No | *(dev default)* | Optional shared secret token used in `X-Agent-Secret` header for webhook endpoints or legacy polling. |
 | `EMERGENCY_KILL_SWITCH_ACTIVE` | No | `false` | Global emergency switch. When `true`, prevents all automatic publishing workflows from executing. |
 | `WORKFLOW_EXECUTION_TIMEOUT_MS` | No | `120000` | Maximum execution time in milliseconds before a workflow node fails (default: 2 minutes). |
 | `CRON_SCHEDULE_FEED_POLLING` | No | `"*/30 * * * *"` | Cron expression for automatic RSS source polling (default: every 30 minutes). |
@@ -68,17 +68,20 @@ These keys can be configured via environment variables or entered dynamically in
 
 ---
 
-## 3. Local Desktop Agent Environment Variables (`local-agent/.env`)
+## 3. Local Image MCP Server Environment Variables (`local-image-mcp/.env`)
 
 | Variable Name | Required | Default Value | Description |
 | ------------- | :------: | ------------- | ----------- |
-| `PORT` | Yes | `4500` | Port for the local agent webhook listener. Expose to internet via ngrok: `ngrok http 4500`. |
-| `SERVER_URL` | Yes | `http://localhost:4000` | URL of the central Daily Build Blogs backend server. |
-| `AGENT_SECRET` | **YES** | `your_secure_agent_secret_here` | Must match `LOCAL_AGENT_SECRET` on the server. |
-| `WORKER_NAME` | No | `Local-Worker-01` | Human-readable label for this worker displayed in the Admin Dashboard. |
-| `PROFILE_DIR` | No | `./chatgpt-profile` | Persistent directory for Chromium browser cookies and ChatGPT session storage. |
-| `HEADLESS` | No | `false` | Set to `false` to show visible browser window, or `true` for headless execution. |
-| `POLL_INTERVAL_MS` | No | `5000` | Backup polling interval in milliseconds to check for pending image generation jobs. |
+| `IMGBB_API_KEY` | **YES** | *(none)* | ImgBB API key from https://api.imgbb.com for hosting synthesized images in the cloud. |
+| `PROFILE_DIR` | **YES** | `C:\path\to\chatgpt-profile` | Absolute path to persistent Chrome user profile directory containing an active ChatGPT session. |
+| `ADMIN_HOST` | No | `127.0.0.1` | Local listening host. Keep `127.0.0.1` unless exposing across a private LAN. |
+| `ADMIN_PORT` | No | `4580` | Port for the Streamable HTTP MCP server (`/mcp`) and local image viewer. Expose to internet via ngrok: `ngrok http 4580`. |
+| `BROWSER_CHANNEL` | No | `chrome` | Browser channel used by automation engine (`chrome`). |
+| `CHROME_PATH` | No | *(empty)* | Optional path to custom Chrome binary if installed in a non-standard location. |
+| `HEADLESS` | No | `false` | Run browser headlessly (`true`) or visible (`false`) to monitor generation in real time. |
+| `GENERATION_TIMEOUT_MS` | No | `180000` | Maximum timeout in ms for ChatGPT image synthesis (default: 3 minutes). |
+| `GENERATED_DIR` | No | `./generated` | Local storage directory for downloaded image assets. |
+| `DATABASE_PATH` | No | `./data/image-history.sqlite` | SQLite file path for tracking local generation request logs and latency history. |
 
 ---
 
