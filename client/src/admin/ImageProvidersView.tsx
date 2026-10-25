@@ -324,24 +324,24 @@ export const ImageProvidersView: React.FC = () => {
           <div className="lg:col-span-2 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs p-6 space-y-6">
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
-                <Radio className="w-4 h-4 text-indigo-600" /> Webhook Endpoint Configuration
+                <Radio className="w-4 h-4 text-indigo-600" /> MCP Image Server Endpoint Configuration
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Configure your public ngrok webhook URL. When cron jobs run or articles are created, the server dispatches generation payloads to this URL.
+                Configure your domain or ngrok tunnel. The server connects directly to the MCP endpoint at <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 font-mono">&#123;domain&#125;/mcp</code> to generate and upload images via ChatGPT.
               </p>
             </div>
 
             <form onSubmit={handleSaveSettings} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Public Webhook URL (ngrok):
+                  Configured Domain / Tunnel URL (MCP connects at /mcp):
                 </label>
                 <div className="flex gap-2">
                   <input
                     type="url"
                     value={webhookUrl}
                     onChange={(e) => setWebhookUrl(e.target.value)}
-                    placeholder="https://your-tunnel.ngrok-free.app/webhook/generate-image"
+                    placeholder="https://dessie-unrecompensable-putridly.ngrok-free.dev"
                     className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   <button
@@ -351,11 +351,11 @@ export const ImageProvidersView: React.FC = () => {
                     className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-1.5 disabled:opacity-50 transition-colors shadow-xs"
                   >
                     <Send className={`w-3.5 h-3.5 ${testingWebhook ? 'animate-spin' : ''}`} />
-                    {testingWebhook ? 'Testing...' : 'Test Ping'}
+                    {testingWebhook ? 'Testing...' : 'Test MCP'}
                   </button>
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  Start tunnel in terminal: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600">ngrok http 4500</code>, then paste URL above.
+                  Connects to <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 font-mono">/mcp</code> directly after your domain extension to trigger <code className="font-mono text-emerald-600">generate_and_upload_image</code>.
                 </p>
               </div>
 
@@ -499,26 +499,25 @@ export const ImageProvidersView: React.FC = () => {
           <div className="space-y-6">
             <div className="rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs p-6 space-y-4">
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
-                <Bot className="w-4 h-4 text-emerald-600" /> 1-Step Laptop Agent Setup
+                <Bot className="w-4 h-4 text-emerald-600" /> Local MCP Image Server
               </h3>
               <ol className="text-xs text-slate-600 dark:text-slate-400 space-y-2.5 list-decimal list-inside leading-relaxed">
                 <li>
-                  Open terminal in <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 font-mono">local-agent/</code>
+                  Start your local MCP server (exposes <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 font-mono">/mcp</code>).
                 </li>
                 <li>
-                  Install packages: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">npm install</code>
+                  Expose via ngrok: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">ngrok http 4500</code>
                 </li>
                 <li>
-                  Start ngrok tunnel: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">ngrok http 4500</code>
+                  Paste your tunnel domain above and save settings.
                 </li>
-                <li>Paste tunnel URL above and save settings.</li>
                 <li>
-                  Run agent: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono text-emerald-600 font-bold">npm start</code>
+                  Click <strong>"Test MCP"</strong> to verify server handshake and tool detection.
                 </li>
               </ol>
 
               <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl border border-indigo-100 dark:border-indigo-900 text-[11px] text-indigo-800 dark:text-indigo-300">
-                <strong>Dual-Mode Reliability:</strong> Even if ngrok restarts, the agent automatically polls the server queue every 5 seconds so no jobs are ever dropped.
+                <strong>Direct MCP Dispatch:</strong> The server speaks JSON-RPC Streamable HTTP directly with your MCP server's <code className="font-mono">generate_and_upload_image</code> tool.
               </div>
             </div>
 
@@ -756,9 +755,10 @@ export const ImageProvidersView: React.FC = () => {
                 onChange={(e) => setSelectedEngine(e.target.value)}
                 className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
+                <option value="mcp">Local ChatGPT MCP Server (/mcp 16:9 Editorial)</option>
                 <option value="antigravity">Google Antigravity Imagen (16:9 Editorial)</option>
                 <option value="codex">OpenAI Codex CLI (16:9 Editorial Graphics)</option>
-                <option value="clichat">ChatGPT Local Agent / CliChat</option>
+                <option value="clichat">CliChat Python CLI</option>
                 <option value="gemini">Google Gemini Imagen</option>
               </select>
             </div>

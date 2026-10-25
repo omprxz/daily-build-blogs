@@ -5,6 +5,7 @@ import * as schema from './database/schema.js';
 import { config } from './config/index.js';
 import { eq, and, lte, or } from 'drizzle-orm';
 import { buildFeaturedImagePrompt } from './services/image/image-service.js';
+import { executeMcpImageJob } from './routes/automation.js';
 
 console.log('[DailyBuild Worker] Starting background job scheduler and feed poll daemon...');
 
@@ -259,7 +260,7 @@ cron.schedule('*/3 * * * *', async () => {
         }
         continue;
       }
-        console.log(`[Worker Cron] Queuing local image generation job for article: "${art.title}"`);
+        console.log(`[Worker Cron] Queuing MCP image generation job for article: "${art.title}"`);
         const catName = (art.category as any)?.name || 'Technology';
         const composedPrompt = buildFeaturedImagePrompt(art.title, catName);
 
@@ -277,26 +278,11 @@ cron.schedule('*/3 * * * *', async () => {
           updatedAt: new Date(),
         }).returning();
 
-        // Dispatch secure request to configured webhook URL if present
+        // Dispatch MCP generation directly to configured domain /mcp
         if (cfg.webhookUrl) {
-          fetch(cfg.webhookUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Agent-Secret': cfg.secretToken,
-            },
-            body: JSON.stringify({
-              type: 'cron_job_created',
-              jobId: job.id,
-              articleId: art.id,
-              title: art.title,
-              category: catName,
-              prompt: composedPrompt,
-              aspectRatio: '16:9',
-              createdAt: job.createdAt,
-            }),
-            signal: AbortSignal.timeout(5000),
-          }).catch((err) => console.warn(`[Worker Cron Webhook Dispatch] ${err.message}`));
+          executeMcpImageJob(job.id, cfg.webhookUrl).catch((err) => {
+            console.warn(`[Worker Cron MCP Execution Notice for ${job.id}]:`, err.message);
+          });
         }
       }
     } catch (err: any) {

@@ -10,6 +10,7 @@ import { authenticate, requireRole } from '../middleware/auth.js';
 import { eq, desc, and, lt, gt, or } from 'drizzle-orm';
 import { buildFeaturedImagePrompt } from '../services/image/image-service.js';
 import { processFeaturedImageWatermark } from '../services/image/featured-watermark.js';
+import { mcpImageClient, resolveMcpUrl } from '../services/image/mcp-image-client.js';
 
 const router = Router();
 
@@ -60,7 +61,119 @@ export async function getAutomationConfig() {
 }
 
 /**
- * Queue a new image generation job on the server and trigger webhook if available
+ * Executes image generation job by sending the prompt directly to the admin-configured domain's MCP server (/mcp)
+ */
+export async function executeMcpImageJob(jobId: string, customUrl?: string) {
+  const job = await db.query.imageAutomationJobs.findFirst({
+    where: eq(schema.imageAutomationJobs.id, jobId),
+    with: { article: true },
+  });
+  if (!job) return;
+
+  const logs = Array.isArray(job.logsJson) ? [...job.logsJson] : [];
+  logs.push(`[${new Date().toLocaleTimeString()}] Triggering MCP image synthesis on configured domain (/mcp)...`);
+
+  await db.update(schema.imageAutomationJobs)
+    .set({
+      status: 'claimed',
+      claimedBy: 'mcp-chatgpt',
+      claimedAt: new Date(),
+      logsJson: logs,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.imageAutomationJobs.id, jobId));
+
+  try {
+    const result = await mcpImageClient.generateImage({
+      prompt: job.prompt,
+      customUrl,
+      articleId: job.articleId,
+    });
+
+    const publicUrl = result.imageUrl;
+    const cleanAlt = `Conceptual editorial illustration for ${job.articleTitle} generated via MCP`;
+
+    let shouldPublish = false;
+    if (job.articleId) {
+      const article = await db.query.articles.findFirst({
+        where: eq(schema.articles.id, job.articleId),
+      });
+
+      if (article) {
+        shouldPublish = Boolean(
+          job.autoPublishOnComplete &&
+          (article.status === 'draft' || article.status === 'scheduled' || article.status === 'in_review')
+        );
+
+        await db.update(schema.articles)
+          .set({
+            featuredImage: publicUrl,
+            featuredImageAlt: cleanAlt,
+            ...(shouldPublish ? { status: 'published', publishedAt: new Date() } : {}),
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.articles.id, job.articleId));
+      }
+    }
+
+    // Insert record into generatedImages
+    await db.insert(schema.generatedImages).values({
+      articleId: job.articleId || null,
+      prompt: job.prompt,
+      imageUrl: publicUrl,
+      altText: cleanAlt,
+      providerSlug: 'mcp-chatgpt',
+      modelId: 'chatgpt-dalle-mcp',
+      status: 'completed',
+      metadataJson: {
+        originalUrl: result.originalImageUrl,
+        requestId: result.requestId,
+        durationMs: result.durationMs,
+        aspectRatio: job.aspectRatio || '16:9',
+        autoPublished: shouldPublish,
+        format: 'webp',
+      },
+      createdAt: new Date(),
+    }).catch(() => {});
+
+    const updatedLogs = [
+      ...logs,
+      ...result.logs,
+      `[${new Date().toLocaleTimeString()}] Completed: ${publicUrl}`,
+      ...(shouldPublish ? [`[${new Date().toLocaleTimeString()}] Article automatically PUBLISHED.`] : []),
+    ];
+
+    await db.update(schema.imageAutomationJobs)
+      .set({
+        status: 'completed',
+        uploadedImageUrl: publicUrl,
+        completedAt: new Date(),
+        logsJson: updatedLogs,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.imageAutomationJobs.id, jobId));
+
+    return { success: true, imageUrl: publicUrl, autoPublished: shouldPublish };
+  } catch (err: any) {
+    const errorLogs = [
+      ...logs,
+      `[${new Date().toLocaleTimeString()}] MCP Generation Error: ${err.message}`,
+    ];
+    await db.update(schema.imageAutomationJobs)
+      .set({
+        status: 'failed',
+        errorMessage: String(err.message || 'MCP Error').slice(0, 500),
+        logsJson: errorLogs,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.imageAutomationJobs.id, jobId));
+    console.error(`[MCP Job Execution Failed for Job ${jobId}]:`, err);
+    throw err;
+  }
+}
+
+/**
+ * Queue a new image generation job on the server and trigger MCP generation on configured domain (/mcp)
  */
 export async function queueLocalImageJob(params: {
   articleId?: string | null;
@@ -92,11 +205,11 @@ export async function queueLocalImageJob(params: {
   let job: any;
 
   if (existingJob) {
-    const isStaleClaim = existingJob.status === 'claimed' && existingJob.claimedAt && (Date.now() - new Date(existingJob.claimedAt).getTime() > 120000);
-    // If it's completed, failed, stale, or pending, refresh it to pending so the agent can claim/re-generate
+    const isStaleClaim = existingJob.status === 'claimed' && existingJob.claimedAt && (Date.now() - new Date(existingJob.claimedAt).getTime() > 180000);
+    // If it's completed, failed, stale, or pending, refresh it to pending
     if (existingJob.status === 'completed' || existingJob.status === 'failed' || isStaleClaim || existingJob.status === 'pending') {
       const currentLogs = Array.isArray(existingJob.logsJson) ? existingJob.logsJson : [];
-      currentLogs.push(`[${new Date().toLocaleTimeString()}] Job queued for local agent generation.`);
+      currentLogs.push(`[${new Date().toLocaleTimeString()}] Job queued for MCP image generation.`);
 
       const [updated] = await db.update(schema.imageAutomationJobs)
         .set({
@@ -141,59 +254,10 @@ export async function queueLocalImageJob(params: {
   let dispatchedWebhook = false;
   const targetWebhookUrl = (params.webhookUrlOverride || cfg.webhookUrl || '').trim();
   if (cfg.isEnabled && targetWebhookUrl) {
-    const candidateUrls = [targetWebhookUrl];
-    const cleanUrl = targetWebhookUrl.replace(/\/+$/, '');
-    if (cleanUrl.endsWith('/webhook')) {
-      candidateUrls.push(cleanUrl + '/generate-image');
-      candidateUrls.push(cleanUrl.replace(/\/webhook$/, ''));
-      candidateUrls.push(cleanUrl.replace(/\/webhook$/, '/generate-image'));
-    } else {
-      candidateUrls.push(cleanUrl + '/webhook');
-      candidateUrls.push(cleanUrl + '/generate-image');
-      candidateUrls.push(cleanUrl + '/webhook/generate-image');
-    }
-
-    const serverOrigin = (config.appUrl || '').replace(/\/+$/, '') || 'https://blogs.dailybuild.tech';
-    const payload = JSON.stringify({
-      type: 'job_created',
-      jobId: job.id,
-      articleId: job.articleId,
-      title: job.articleTitle,
-      category: categoryName,
-      aspectRatio: job.aspectRatio,
-      prompt: job.prompt,
-      visualStyle: job.visualStyle,
-      createdAt: job.createdAt,
-      serverUrl: serverOrigin,
+    // Proactively execute MCP image synthesis directly by sending prompt to configured domain/mcp
+    executeMcpImageJob(job.id, targetWebhookUrl).catch((err) => {
+      console.warn(`[MCP Job Background Notice for ${job.id}]:`, err.message);
     });
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-Agent-Secret': cfg.secretToken,
-      'ngrok-skip-browser-warning': 'true',
-      'User-Agent': 'DailyBuild-Server/1.0',
-    };
-
-    // Dispatch asynchronously to candidates until one acknowledges
-    (async () => {
-      for (const url of candidateUrls) {
-        try {
-          const res = await fetch(url, {
-            method: 'POST',
-            headers,
-            body: payload,
-            signal: AbortSignal.timeout(4000),
-          });
-          if (res.ok) {
-            console.log(`[Webhook Dispatch] Successfully delivered job ${job.id} to ${url}`);
-            break;
-          }
-        } catch {
-          // try next candidate
-        }
-      }
-    })();
-
     dispatchedWebhook = true;
   }
 
@@ -328,81 +392,19 @@ router.put('/settings', authenticate, requireRole(['admin']), async (req, res, n
   }
 });
 
-// POST /api/automation/test-webhook - Test ping to configured or provided webhook URL
+// POST /api/automation/test-webhook - Test connection to configured domain / MCP endpoint (/mcp)
 router.post('/test-webhook', authenticate, requireRole(['admin', 'editor']), async (req, res, next) => {
   try {
-    const { url, secret } = req.body;
+    const { url } = req.body;
     const cfg = await getAutomationConfig();
     const targetUrl = (url || cfg.webhookUrl || '').trim();
-    const targetSecret = (secret || cfg.secretToken || DEFAULT_SECRET).trim();
 
     if (!targetUrl) {
-      return res.status(400).json({ error: 'BadRequest', message: 'No webhook URL provided or configured.' });
+      return res.status(400).json({ error: 'BadRequest', message: 'No domain or webhook URL provided or configured.' });
     }
 
-    const startTime = Date.now();
-    const testPayload = {
-      type: 'ping',
-      timestamp: new Date().toISOString(),
-      message: 'Daily Build Blogs Webhook Verification Probe',
-      source: 'DailyBuildServer',
-    };
-
-    try {
-      let response = await fetch(targetUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Agent-Secret': targetSecret,
-        },
-        body: JSON.stringify(testPayload),
-        signal: AbortSignal.timeout(8000), // 8 seconds timeout
-      });
-
-      // If 404 and ends with /webhook, gracefully try /generate-image
-      if (response.status === 404 && targetUrl.replace(/\/+$/, '').endsWith('/webhook')) {
-        try {
-          const altResponse = await fetch(targetUrl.replace(/\/+$/, '') + '/generate-image', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Agent-Secret': targetSecret,
-            },
-            body: JSON.stringify(testPayload),
-            signal: AbortSignal.timeout(6000),
-          });
-          if (altResponse.ok) {
-            response = altResponse;
-          }
-        } catch {}
-      }
-
-      const latencyMs = Date.now() - startTime;
-      const respText = await response.text().catch(() => '');
-
-      if (response.ok) {
-        return res.json({
-          success: true,
-          message: `Webhook probe reached agent successfully in ${latencyMs}ms (HTTP ${response.status}).`,
-          latencyMs,
-          responseStatus: response.status,
-          responseBody: respText.slice(0, 300),
-        });
-      } else {
-        return res.json({
-          success: false,
-          message: `Webhook returned HTTP status ${response.status}: ${respText.slice(0, 200)}`,
-          latencyMs,
-          responseStatus: response.status,
-        });
-      }
-    } catch (fetchErr: any) {
-      return res.json({
-        success: false,
-        message: `Failed to connect to ${targetUrl}: ${fetchErr.message}. Ensure local agent and ngrok are running.`,
-        error: fetchErr.message,
-      });
-    }
+    const testRes = await mcpImageClient.testConnection(targetUrl);
+    return res.json(testRes);
   } catch (err) {
     next(err);
   }
@@ -507,24 +509,12 @@ router.post('/jobs/:id/retry', authenticate, requireRole(['admin', 'editor']), a
 
     const cfg = await getAutomationConfig();
     if (cfg.isEnabled && cfg.webhookUrl) {
-      fetch(cfg.webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Agent-Secret': cfg.secretToken,
-        },
-        body: JSON.stringify({
-          type: 'job_created',
-          jobId: existing.id,
-          articleId: existing.articleId,
-          title: existing.articleTitle,
-          prompt: existing.prompt,
-        }),
-        signal: AbortSignal.timeout(3000),
-      }).catch(() => {});
+      executeMcpImageJob(existing.id, cfg.webhookUrl).catch((err) => {
+        console.warn(`[Retry MCP Job Notice for ${existing.id}]:`, err.message);
+      });
     }
 
-    res.json({ success: true, message: 'Job reset to pending status.' });
+    res.json({ success: true, message: 'Job reset to pending status and triggered on MCP server.' });
   } catch (err) {
     next(err);
   }

@@ -366,7 +366,7 @@ Formatting Guidelines:
                 try {
                   console.log(`[Workflow Engine] Attempting Image Tier ${tier.level} (${tier.provider} • ${tier.model}) for "${title}"`);
 
-                  if (tier.provider === 'local_agent' || tier.provider === 'webhook' || tier.provider === 'chatgpt_local') {
+                  if (tier.provider === 'mcp' || tier.provider === 'local_agent' || tier.provider === 'webhook' || tier.provider === 'chatgpt_local') {
                     const { queueLocalImageJob } = await import('../../routes/automation.js');
                     const { job, dispatchedWebhook } = await queueLocalImageJob({
                       articleId: runtimeContext.createdArticleId || null,

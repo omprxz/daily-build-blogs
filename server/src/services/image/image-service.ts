@@ -11,6 +11,7 @@ import * as schema from '../../database/schema.js';
 import { decryptApiKey } from '../../utils/security.js';
 import { eq } from 'drizzle-orm';
 import { processFeaturedImageWatermark } from './featured-watermark.js';
+import { mcpImageClient } from './mcp-image-client.js';
 
 export function buildFeaturedImagePrompt(title: string, category: string = 'Technology'): string {
   const safeTitle = (title || 'Technology Innovation').trim();
@@ -248,6 +249,60 @@ img.save(r"${targetPath.replace(/\\/g, '\\\\')}", format="PNG")
 
     // Prioritize existing customPrompt; otherwise build using standard minimalist hand-drawn editorial prompt
     const visualPrompt = customPrompt?.trim() || buildFeaturedImagePrompt(titleClean, catClean);
+
+    // 0. Local ChatGPT via MCP Server (/mcp)
+    if (provider === 'mcp' || provider === 'chatgpt_mcp' || provider === 'local_agent') {
+      const logs: string[] = [
+        `[${new Date().toLocaleTimeString()}] Initializing MCP image generation for: "${titleClean}"`,
+      ];
+      try {
+        const mcpRes = await mcpImageClient.generateImage({
+          prompt: visualPrompt,
+          articleId,
+        });
+
+        const publicUrl = mcpRes.imageUrl;
+        const altText = `Conceptual editorial illustration for ${titleClean} generated via MCP`;
+
+        try {
+          await db.insert(schema.generatedImages).values({
+            articleId: articleId || null,
+            prompt: visualPrompt,
+            imageUrl: publicUrl,
+            altText,
+            providerSlug: 'mcp',
+            modelId: modelId || 'chatgpt-dalle-mcp',
+            status: 'completed',
+            metadataJson: {
+              prompt: visualPrompt,
+              style: styleDesc,
+              originalUrl: mcpRes.originalImageUrl,
+              requestId: mcpRes.requestId,
+              durationMs: mcpRes.durationMs,
+              provider: 'mcp-chatgpt',
+              format: 'webp',
+            },
+          });
+        } catch (dbErr: any) {
+          console.warn(`[MCP Image DB Record Warning]: ${dbErr.message}`);
+        }
+
+        logs.push(...mcpRes.logs);
+        return {
+          imageUrl: publicUrl,
+          altText,
+          prompt: visualPrompt,
+          providerSlug: 'mcp',
+          modelId: modelId || 'chatgpt-dalle-mcp',
+          logs,
+        };
+      } catch (mcpErr: any) {
+        if (provider === 'mcp' || provider === 'chatgpt_mcp') {
+          throw mcpErr;
+        }
+        console.warn(`[MCP Image Synthesis Notice]: ${mcpErr.message}. Falling through...`);
+      }
+    }
 
     // 1. Codex CLI: image generation — save the generated image in PNG/JPG format
     // Template: codex exec --sandbox workspace-write --skip-git-repo-check -
