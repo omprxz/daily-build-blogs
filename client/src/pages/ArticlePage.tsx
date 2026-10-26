@@ -1,12 +1,16 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api.js';
 import { ArticleCard, ArticleItem } from '../components/ArticleCard.js';
 import { 
   Clock, Calendar, Share2, ExternalLink, ChevronRight, Sparkles, 
-  BookOpen, Bookmark, Check, ShieldCheck, Printer
+  BookOpen, Bookmark, Check, ShieldCheck, Printer, Heart, ThumbsUp,
+  MessageSquare, ArrowLeft, ArrowUp
 } from 'lucide-react';
 import { getCategoryTheme } from '../utils/editorialPrompt.js';
+import { ScrollProgress, ScrollProgressSection } from '../components/ui/rare/scroll-progress.js';
+import { RailToc, RailTocItem } from '../components/ui/rare/rail-toc.js';
+import { EmojiReaction } from '../components/ui/rare/emoji-reaction.js';
 
 export const ArticlePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -22,7 +26,8 @@ export const ArticlePage: React.FC = () => {
   const [loading, setLoading] = useState(!initialArticle);
   const [copiedShare, setCopiedShare] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [readingProgress, setReadingProgress] = useState(0);
+  const [reactionFeedback, setReactionFeedback] = useState<string | null>(null);
+  const articleContentRef = useRef<HTMLDivElement>(null);
   const viewTrackedRef = useRef<string | null>(null);
 
   // Check bookmark status
@@ -50,19 +55,6 @@ export const ArticlePage: React.FC = () => {
     }
   };
 
-  // Scroll reading progress indicator
-  useEffect(() => {
-    const handleScroll = () => {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalHeight > 0) {
-        const progress = Math.min(100, Math.max(0, (window.scrollY / totalHeight) * 100));
-        setReadingProgress(progress);
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   // 1. Fetch Article & Count View per Detail Page Visit/Refresh
   useEffect(() => {
     if (slug) {
@@ -78,7 +70,6 @@ export const ArticlePage: React.FC = () => {
           .finally(() => setLoading(false));
       }
 
-      // Guard against React.StrictMode double-mount: count view exactly once per visit/refresh
       if (viewTrackedRef.current !== slug) {
         viewTrackedRef.current = slug;
         api.incrementArticleView(slug)
@@ -124,34 +115,34 @@ export const ArticlePage: React.FC = () => {
       .catch(() => {});
   }, [article?.id, article?.category?.slug, slug]);
 
-  // 3. Real Human View Verification
-  useEffect(() => {
-    if (!article?.id) return;
+  // 3. Extract Table of Contents Sections & Inject Anchors
+  const { processedHtml, tocItems } = useMemo(() => {
+    if (!article?.contentHtml) return { processedHtml: '', tocItems: [] };
 
-    let sessionToken = typeof window !== 'undefined' ? sessionStorage.getItem('db_reader_token') : null;
-    if (!sessionToken && typeof window !== 'undefined') {
-      sessionToken = 'r_' + Math.random().toString(36).substring(2) + '_' + Date.now();
-      sessionStorage.setItem('db_reader_token', sessionToken);
-    }
+    let html = article.contentHtml;
+    const items: RailTocItem[] = [];
+    const parserRegex = /<(h[23])([^>]*)>(.*?)<\/\1>/gi;
+    let match;
+    let index = 0;
 
-    let dwellSeconds = 0;
-    const dwellInterval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        dwellSeconds += 1;
+    // First collect all headings
+    html = html.replace(parserRegex, (fullMatch: string, tag: string, attrs: string, innerText: string) => {
+      // Strip any nested html tags for the clean label
+      const cleanLabel = innerText.replace(/<[^>]*>?/gm, '').trim();
+      const existingIdMatch = attrs.match(/id=["']([^"']+)["']/i);
+      const id = existingIdMatch ? existingIdMatch[1] : `section-${index++}-${cleanLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+      const depth = tag.toLowerCase() === 'h3' ? 1 : 0;
+
+      items.push({ id, label: cleanLabel, depth });
+
+      if (existingIdMatch) {
+        return fullMatch;
       }
-    }, 1000);
+      return `<${tag}${attrs} id="${id}">${innerText}</${tag}>`;
+    });
 
-    const viewTimer = setTimeout(() => {
-      if (document.visibilityState === 'visible' && dwellSeconds >= 4) {
-        api.recordArticleView(article.id, dwellSeconds, sessionToken || undefined).catch(() => {});
-      }
-    }, 5000);
-
-    return () => {
-      clearInterval(dwellInterval);
-      clearTimeout(viewTimer);
-    };
-  }, [article?.id]);
+    return { processedHtml: html, tocItems: items };
+  }, [article?.contentHtml]);
 
   const handleShare = () => {
     if (article?.id) {
@@ -186,16 +177,28 @@ export const ArticlePage: React.FC = () => {
     window.print();
   };
 
+  const handleEmojiReact = (emojiName: string) => {
+    setReactionFeedback(`Thank you for reacting!`);
+    setTimeout(() => setReactionFeedback(null), 3000);
+    if (article?.id) {
+      api.recordAction({
+        eventType: 'reaction',
+        articleId: article.id,
+        path: `/article/${slug}`,
+        details: emojiName,
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12 animate-pulse space-y-6">
-        <div className="h-4 w-36 bg-ink-200 dark:bg-white/[0.08] rounded"></div>
-        <div className="h-10 w-3/4 bg-ink-200 dark:bg-white/[0.08] rounded"></div>
-        <div className="aspect-video w-full bg-ink-200 dark:bg-white/[0.08] rounded-2xl"></div>
+        <div className="h-4 w-36 bg-ink-200 dark:bg-white/[0.08] rounded-full"></div>
+        <div className="h-10 w-3/4 bg-ink-200 dark:bg-white/[0.08] rounded-2xl"></div>
+        <div className="aspect-video w-full bg-ink-200 dark:bg-white/[0.08] rounded-3xl"></div>
         <div className="space-y-3 pt-4">
-          <div className="h-4 w-full bg-ink-200 dark:bg-white/[0.08] rounded"></div>
-          <div className="h-4 w-5/6 bg-ink-200 dark:bg-white/[0.08] rounded"></div>
-          <div className="h-4 w-4/6 bg-ink-200 dark:bg-white/[0.08] rounded"></div>
+          <div className="h-4 w-full bg-ink-200 dark:bg-white/[0.08] rounded-xl"></div>
+          <div className="h-4 w-5/6 bg-ink-200 dark:bg-white/[0.08] rounded-xl"></div>
         </div>
       </div>
     );
@@ -203,12 +206,12 @@ export const ArticlePage: React.FC = () => {
 
   if (!article) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-20 text-center editorial-card rounded-2xl my-12 p-8">
-        <h1 className="text-2xl font-bold mb-2 text-ink-950 dark:text-white">Article Not Found</h1>
+      <div className="max-w-2xl mx-auto px-4 py-20 text-center editorial-card rounded-3xl my-12 p-8 border border-ink-200 dark:border-white/10 bg-white dark:bg-[#0c1220]">
+        <h1 className="text-2xl font-black mb-2 text-ink-950 dark:text-white">Article Not Found</h1>
         <p className="text-ink-500 mb-6 text-sm">The article you requested may have been relocated, renamed, or unpublished.</p>
-        <a href="/" className="inline-block px-5 py-2.5 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
+        <Link to="/" className="inline-block px-5 py-2.5 bg-primary text-primary-foreground text-xs font-bold rounded-xl shadow-sm hover:opacity-90 transition-opacity">
           Return to Editorial Homepage
-        </a>
+        </Link>
       </div>
     );
   }
@@ -219,65 +222,69 @@ export const ArticlePage: React.FC = () => {
 
   const categoryTheme = getCategoryTheme(article.category?.slug);
 
+  const scrollSections: ScrollProgressSection[] = tocItems.map(item => ({
+    id: item.id,
+    label: item.label,
+  }));
+
   return (
     <>
-      {/* Scroll Reading Progress Bar with Electric Editorial Gradient */}
-      <div 
-        className="reading-progress-bar" 
-        style={{ width: `${readingProgress}%` }} 
-      />
+      {/* Rare UI ScrollProgress Floating Reading Bar */}
+      <div className="fixed bottom-6 right-6 z-40 hidden md:block">
+        <ScrollProgress sections={scrollSections} />
+      </div>
 
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <article className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         
         {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-ink-500 dark:text-ink-400 mb-5 sm:mb-6">
-          <a href="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 font-medium">Home</a>
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-ink-500 dark:text-ink-400 mb-6">
+          <Link to="/" className="hover:text-primary font-medium">Home</Link>
           <ChevronRight className="w-3 h-3 text-ink-400" />
           {article.category && (
             <>
-              <a 
-                href={`/category/${article.category.slug}`} 
-                className="hover:text-indigo-600 dark:hover:text-indigo-400 font-medium"
+              <Link 
+                to={`/category/${article.category.slug}`} 
+                className="hover:text-primary font-medium"
               >
                 {article.category.name}
-              </a>
+              </Link>
               <ChevronRight className="w-3 h-3 text-ink-400" />
             </>
           )}
-          <span className="truncate max-w-[220px] text-ink-800 dark:text-ink-200 font-semibold">
+          <span className="truncate max-w-[240px] text-ink-800 dark:text-ink-200 font-semibold">
             {article.title}
           </span>
         </nav>
 
-        {/* Article Header & Editorial Title */}
-        <header className="mb-8">
+        {/* Article Header & Editorial Masthead */}
+        <header className="mb-8 space-y-4">
           {article.category && (
-            <div className="flex items-center gap-2 mb-3.5">
-              <a
-                href={`/category/${article.category.slug}`}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold ${categoryTheme.badgeBgLight} ${categoryTheme.badgeBgDark} ${categoryTheme.badgeTextLight} ${categoryTheme.badgeTextDark} border ${categoryTheme.badgeBorderLight} ${categoryTheme.badgeBorderDark} transition-colors`}
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <Link
+                to={`/category/${article.category.slug}`}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${categoryTheme.badgeBgLight} ${categoryTheme.badgeBgDark} ${categoryTheme.badgeTextLight} ${categoryTheme.badgeTextDark} border ${categoryTheme.badgeBorderLight} ${categoryTheme.badgeBorderDark} transition-colors`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${categoryTheme.dotColor}`} />
                 {article.category.name}
-              </a>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-900/40">
-                <ShieldCheck className="w-3 h-3 text-emerald-500" /> Verified Editorial
+              </Link>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-900/40">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Verified Primary Source
               </span>
             </div>
           )}
 
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-ink-950 dark:text-white tracking-tight leading-[1.18] mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-ink-950 dark:text-white tracking-tight leading-[1.15]">
             {article.title}
           </h1>
 
           {article.excerpt && (
-            <p className="text-base sm:text-lg md:text-xl text-ink-600 dark:text-ink-300 leading-relaxed mb-6 font-normal">
+            <p className="text-base sm:text-lg md:text-xl text-ink-600 dark:text-ink-300 leading-relaxed font-normal">
               {article.excerpt}
             </p>
           )}
 
           {/* Clean Metadata & Reader Controls Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-y border-ink-200/80 dark:border-white/[0.08] py-3 text-xs text-ink-500 dark:text-ink-400">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-y border-ink-200/80 dark:border-white/[0.08] py-3.5 text-xs text-ink-500 dark:text-ink-400">
             <div className="flex items-center gap-4 flex-wrap">
               <span className="flex items-center gap-1.5 font-medium">
                 <Calendar className="w-3.5 h-3.5 text-ink-400" />
@@ -285,32 +292,32 @@ export const ArticlePage: React.FC = () => {
               </span>
               <span>•</span>
               <span className="flex items-center gap-1.5 font-medium">
-                <Clock className="w-3.5 h-3.5 text-indigo-500" />
+                <Clock className="w-3.5 h-3.5 text-primary" />
                 {article.readingTimeMins} min read
               </span>
               <span>•</span>
               <span className="text-ink-600 dark:text-ink-300 font-medium">
-                By Daily Build Technology Desk
+                By Daily Build Tech Desk
               </span>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={toggleBookmark}
-                className={`px-2.5 py-1 rounded-lg border flex items-center gap-1.5 text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-xl border flex items-center gap-1.5 text-xs font-medium transition-all ${
                   isBookmarked
-                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40'
+                    ? 'border-primary text-primary bg-primary/10 shadow-2xs'
                     : 'border-ink-200 dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-white/[0.06] text-ink-700 dark:text-ink-300'
                 }`}
                 title={isBookmarked ? 'Bookmarked' : 'Save story'}
               >
                 <Bookmark className="w-3.5 h-3.5 fill-current" />
-                <span className="hidden sm:inline">{isBookmarked ? 'Saved' : 'Save'}</span>
+                <span>{isBookmarked ? 'Saved' : 'Save'}</span>
               </button>
 
               <button
                 onClick={handlePrint}
-                className="px-2.5 py-1 rounded-lg border border-ink-200 dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-white/[0.06] flex items-center gap-1.5 text-xs font-medium text-ink-700 dark:text-ink-300 transition-colors"
+                className="px-3 py-1.5 rounded-xl border border-ink-200 dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-white/[0.06] flex items-center gap-1.5 text-xs font-medium text-ink-700 dark:text-ink-300 transition-all"
                 title="Print story"
               >
                 <Printer className="w-3.5 h-3.5" />
@@ -319,11 +326,11 @@ export const ArticlePage: React.FC = () => {
 
               <button
                 onClick={handleShare}
-                className="px-2.5 py-1 rounded-lg border border-ink-200 dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-white/[0.06] flex items-center gap-1.5 text-xs font-medium text-ink-700 dark:text-ink-300 transition-colors"
+                className="px-3 py-1.5 rounded-xl border border-ink-200 dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-white/[0.06] flex items-center gap-1.5 text-xs font-medium text-ink-700 dark:text-ink-300 transition-all"
                 aria-label="Share article"
               >
                 {copiedShare ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Share2 className="w-3.5 h-3.5" />}
-                <span>{copiedShare ? 'Copied!' : 'Share'}</span>
+                <span>{copiedShare ? 'Copied Link' : 'Share'}</span>
               </button>
             </div>
           </div>
@@ -331,8 +338,8 @@ export const ArticlePage: React.FC = () => {
 
         {/* 16:9 Featured Hero Media Showcase */}
         {article.featuredImage && (
-          <section aria-label="Featured Media" className="mb-8">
-            <div className="hero-editorial-frame aspect-video w-full bg-slate-950 flex items-center justify-center p-2 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800">
+          <section aria-label="Featured Media" className="mb-10">
+            <div className="aspect-video w-full bg-slate-950 flex items-center justify-center p-3 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-md">
               <img
                 src={article.featuredImage}
                 alt={article.featuredImageAlt || article.title}
@@ -342,21 +349,21 @@ export const ArticlePage: React.FC = () => {
             </div>
 
             {article.featuredImageAlt && (
-              <figcaption className="mt-2.5 text-xs italic text-ink-400">
+              <figcaption className="mt-2.5 text-xs italic text-ink-400 text-center">
                 {article.featuredImageAlt}
               </figcaption>
             )}
           </section>
         )}
 
-        {/* Key Architectural Takeaways (Rendered only when distinct takeaways exist in metadata) */}
+        {/* Key Architectural Takeaways Box */}
         {article.aiMetadata?.takeaways && Array.isArray(article.aiMetadata.takeaways) && article.aiMetadata.takeaways.length > 0 && (
-          <div className="mb-8 p-5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-900/40 shadow-xs">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 mb-2">
-              <BookOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              Key Architectural Takeaways
+          <div className="mb-10 p-6 rounded-3xl bg-primary/5 border border-primary/20 shadow-xs">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary mb-3">
+              <BookOpen className="w-4 h-4 text-primary" />
+              <span>Key Architectural Takeaways</span>
             </div>
-            <ul className="list-disc pl-5 space-y-1.5 text-sm text-ink-800 dark:text-ink-200">
+            <ul className="list-disc pl-5 space-y-2 text-sm text-ink-800 dark:text-ink-200">
               {article.aiMetadata.takeaways.map((t: string, i: number) => (
                 <li key={i}>{t}</li>
               ))}
@@ -364,51 +371,92 @@ export const ArticlePage: React.FC = () => {
           </div>
         )}
 
-        {/* Formatted Article Body */}
-        <div
-          className="prose-editorial mb-10"
-          dangerouslySetInnerHTML={{ __html: article.contentHtml }}
-        />
+        {/* Article Body with Optional Rail TOC (Sidebar for Large Screens) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+          {/* Main Prose Content */}
+          <div className={tocItems.length >= 3 ? "lg:col-span-8" : "lg:col-span-12"}>
+            <div
+              ref={articleContentRef}
+              className="prose-editorial"
+              dangerouslySetInnerHTML={{ __html: processedHtml }}
+            />
+          </div>
+
+          {/* Rare UI Rail TOC Navigation for Long-Form Articles */}
+          {tocItems.length >= 3 && (
+            <aside aria-label="Table of Contents" className="hidden lg:block lg:col-span-4 sticky top-24 pl-4 border-l border-ink-150 dark:border-white/[0.08]">
+              <div className="mb-3 text-xs font-bold font-mono uppercase tracking-wider text-ink-400 dark:text-ink-500">
+                Table of Contents
+              </div>
+              <RailToc items={tocItems} className="max-h-[70vh] overflow-y-auto" />
+            </aside>
+          )}
+        </div>
+
+        {/* Rare UI Tapback Emoji Reaction Bar */}
+        <section aria-label="Article Feedback & Reactions" className="mb-10 p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#0c1220] border border-ink-200/80 dark:border-white/[0.08] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="space-y-1 text-center sm:text-left">
+            <h3 className="text-base font-bold text-ink-950 dark:text-white">
+              How did you find this technical analysis?
+            </h3>
+            <p className="text-xs text-ink-500 dark:text-ink-400">
+              Tap an emoji reaction to share instant feedback with our editorial team.
+            </p>
+            {reactionFeedback && (
+              <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in pt-1">
+                {reactionFeedback}
+              </div>
+            )}
+          </div>
+
+          <div className="flex-shrink-0">
+            <EmojiReaction
+              onReact={handleEmojiReact}
+              size="md"
+              align="center"
+            />
+          </div>
+        </section>
 
         {/* Article Tags */}
         {article.tags && article.tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-8 pt-5 border-t border-ink-200/80 dark:border-white/[0.08]">
+          <div className="flex flex-wrap items-center gap-2 mb-10 pt-6 border-t border-ink-200/80 dark:border-white/[0.08]">
             <span className="text-xs font-semibold text-ink-400 uppercase tracking-wider mr-1">Filed Under:</span>
             {article.tags.map((tag: string, idx: number) => (
-              <a
+              <Link
                 key={idx}
-                href={`/search?q=${encodeURIComponent(tag)}`}
-                className="px-3 py-1 rounded-lg text-xs bg-ink-100/80 dark:bg-white/[0.06] text-ink-700 dark:text-ink-300 font-medium hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors border border-transparent hover:border-indigo-200/50"
+                to={`/search?q=${encodeURIComponent(tag)}`}
+                className="px-3.5 py-1.5 rounded-xl text-xs bg-ink-100/80 dark:bg-white/[0.06] text-ink-700 dark:text-ink-300 font-medium hover:bg-primary/10 hover:text-primary transition-all border border-transparent hover:border-primary/20"
               >
                 #{tag}
-              </a>
+              </Link>
             ))}
           </div>
         )}
 
         {/* Verified Sources & References Box */}
         {article.sources && article.sources.length > 0 && (
-          <section aria-label="Article References" className="editorial-card rounded-2xl p-6 mb-10">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-ink-100 dark:border-white/[0.06]">
+          <section aria-label="Article References" className="editorial-card rounded-3xl p-6 sm:p-8 mb-10 border border-ink-200/80 dark:border-white/[0.08] bg-white dark:bg-[#0c1220]">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-ink-100 dark:border-white/[0.06]">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-500" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink-950 dark:text-white">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-ink-950 dark:text-white font-mono">
                   Primary References &amp; Verified Sources
                 </h3>
               </div>
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200/60 dark:border-emerald-800/40">
+              <span className="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200/60 dark:border-emerald-800/40">
                 Verified
               </span>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {article.sources.map((src: any) => (
-                <div key={src.id} className="text-xs border-l-2 border-indigo-500 pl-3.5 py-1">
+                <div key={src.id} className="text-xs border-l-2 border-primary pl-4 py-1">
                   <a
                     href={src.url}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1.5"
+                    className="font-bold text-primary hover:underline inline-flex items-center gap-1.5"
                   >
                     <span>{src.sourceName}</span>
                     <ExternalLink className="w-3 h-3" />
@@ -425,55 +473,51 @@ export const ArticlePage: React.FC = () => {
         )}
 
         {/* Editorial Desk Byline Signature Card */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-[#0c1220] border border-ink-200/80 dark:border-white/[0.08] mb-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white font-serif font-black text-lg shadow-sm flex-shrink-0">
+        <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#0c1220] border border-ink-200/80 dark:border-white/[0.08] mb-14 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-xs">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center text-white font-serif font-black text-xl shadow-sm flex-shrink-0">
               DB
             </div>
             <div>
               <h4 className="text-sm font-bold text-ink-950 dark:text-white">
                 Daily Build Technology Desk
               </h4>
-              <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5">
-                Reporting on autonomous systems, developer tooling, and modern distributed infrastructure.
+              <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5 max-w-md">
+                Reporting on autonomous systems, developer tooling, and modern distributed infrastructure. Fact-checked against original research.
               </p>
             </div>
           </div>
-          <a
-            href="/editorial-policy"
-            className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline whitespace-nowrap"
+          <Link
+            to="/editorial-policy"
+            className="text-xs font-bold text-primary hover:underline whitespace-nowrap px-4 py-2 rounded-xl bg-primary/10"
           >
-            Read Editorial Standards &rarr;
-          </a>
+            Editorial Standards &rarr;
+          </Link>
         </div>
 
-        {/* Related Articles Section (16:9 Grid - Up to 10 Articles) */}
+        {/* Related Articles Bento Grid */}
         {relatedArticles.length > 0 && (
-          <section aria-label="Related Articles" className="pt-8 border-t border-ink-200/80 dark:border-white/[0.08] space-y-5">
+          <section aria-label="Related Stories" className="pt-8 border-t border-ink-200/80 dark:border-white/[0.08] space-y-6">
             <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[11px] font-mono uppercase tracking-widest text-indigo-600 dark:text-indigo-400 font-semibold">Keep Reading</span>
-                <h3 className="text-xl sm:text-2xl font-bold text-ink-950 dark:text-white tracking-tight">
-                  Related Stories &amp; Further Reading
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-primary" />
+                <h3 className="text-base font-bold text-ink-950 dark:text-white font-mono uppercase tracking-wider">
+                  Further Reading on This Topic
                 </h3>
               </div>
-              {article.category && (
-                <a
-                  href={`/category/${article.category.slug}`}
-                  className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
-                >
-                  More in {article.category.name} &rarr;
-                </a>
-              )}
+              <Link to="/" className="text-xs text-primary font-semibold hover:underline">
+                View All &rarr;
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedArticles.map((rel) => (
-                <ArticleCard key={rel.id} article={rel} variant="standard" />
+              {relatedArticles.slice(0, 6).map((item) => (
+                <ArticleCard key={item.id} article={item} variant="standard" />
               ))}
             </div>
           </section>
         )}
+
       </article>
     </>
   );

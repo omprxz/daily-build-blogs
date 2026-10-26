@@ -17,6 +17,7 @@
     "hooks": "@/hooks"
   },
   "registries": {
-    "@iconiq": "https://iconiqui.com/r/{name}.json"
+    "@iconiq": "https://iconiqui.com/r/{name}.json",
+    "@rare-ui": "https://raw.githubusercontent.com/swamimalode07/rare-ui/main/public/r/{name}.json"
   }
 }
