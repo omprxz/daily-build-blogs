@@ -1,29 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileText,
   Sparkles,
   Bot,
-  Image as ImageIcon,
   Workflow,
-  Radio,
   Layers,
   Search,
   Mail,
   BarChart3,
-  Palette,
-  Power,
   LogOut,
   ChevronLeft,
   ChevronRight,
   Eye,
-  ShieldAlert,
   GraduationCap,
   Menu,
   X,
-  Sun,
-  Moon,
   Globe,
   Key,
   Lock,
@@ -35,8 +28,26 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../store/themeContext.js';
 import { api } from '../services/api.js';
+import { Button } from '@/components/ui/button.js';
+import { Input } from '@/components/ui/input.js';
+import { StatusDot } from '@/components/ui/status-dot.js';
+import { Avatar, AvatarFallback, AvatarBadge } from '@/components/ui/avatar.js';
+import { ThemeToggle } from '@/components/ui/theme-toggle.js';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog.js';
 
-const ChangePasswordModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+interface ChangePasswordModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClose }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -46,8 +57,6 @@ const ChangePasswordModal: React.FC<{ isOpen: boolean; onClose: () => void }> = 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
-  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +82,7 @@ const ChangePasswordModal: React.FC<{ isOpen: boolean; onClose: () => void }> = 
       setTimeout(() => {
         onClose();
         setSuccess(null);
-      }, 1800);
+      }, 1600);
     } catch (err: any) {
       setError(err.message || 'Failed to update password. Please check your current password.');
     } finally {
@@ -82,63 +91,57 @@ const ChangePasswordModal: React.FC<{ isOpen: boolean; onClose: () => void }> = 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#0c1220] text-slate-900 dark:text-white max-w-md w-full p-6 rounded-2xl border border-slate-200 dark:border-white/[0.08] shadow-2xl space-y-5 animate-in fade-in duration-150">
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-2xs">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent onClose={onClose} className="max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-2xs">
               <Key className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm">Change Admin Password</h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Overrides environment and seed defaults</p>
+              <DialogTitle>Change Admin Password</DialogTitle>
+              <DialogDescription>
+                Updates PostgreSQL credentials; overrides .env defaults
+              </DialogDescription>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+        </DialogHeader>
 
         {/* Priority notice banner */}
-        <div className="p-3 bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl flex items-start gap-2.5 text-[11px] text-indigo-900 dark:text-indigo-300">
-          <ShieldCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-          <span>Your updated password will be committed to PostgreSQL and will permanently override defaults configured in <code className="font-mono font-semibold">.env</code>.</span>
+        <div className="p-3 bg-primary/5 border border-primary/20 rounded-xl flex items-start gap-2.5 text-xs text-foreground mb-4">
+          <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+          <span>Your updated password will be committed to the database and will permanently override defaults configured in <code className="font-mono font-semibold">.env</code>.</span>
         </div>
 
         {success && (
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs flex items-start gap-2">
+          <div className="p-3 mb-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs flex items-start gap-2">
             <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
             <div>{success}</div>
           </div>
         )}
 
         {error && (
-          <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 rounded-xl text-xs flex items-start gap-2">
+          <div className="p-3 mb-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 rounded-xl text-xs flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
             <div>{error}</div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Current Password</label>
             <div className="relative">
-              <input
+              <Input
                 type={showCurrent ? 'text' : 'password'}
                 required
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter current password"
-                className="w-full px-3 py-2 pr-9 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
               />
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 {showCurrent ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               </button>
@@ -148,18 +151,17 @@ const ChangePasswordModal: React.FC<{ isOpen: boolean; onClose: () => void }> = 
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">New Password (Min 8 characters)</label>
             <div className="relative">
-              <input
+              <Input
                 type={showNew ? 'text' : 'password'}
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Min 8 characters"
-                className="w-full px-3 py-2 pr-9 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
               />
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 {showNew ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               </button>
@@ -169,44 +171,47 @@ const ChangePasswordModal: React.FC<{ isOpen: boolean; onClose: () => void }> = 
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Confirm New Password</label>
             <div className="relative">
-              <input
+              <Input
                 type={showConfirm ? 'text' : 'password'}
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Re-type new password"
-                className="w-full px-3 py-2 pr-9 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 {showConfirm ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-            <button
+          <DialogFooter>
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={onClose}
-              className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={loading || !currentPassword || !newPassword || !confirmPassword}
-              className="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white flex items-center gap-1.5 transition-colors shadow-xs"
+              variant="default"
+              size="sm"
+              loading={loading}
+              loadingText="Updating..."
+              disabled={!currentPassword || !newPassword || !confirmPassword}
+              icon={<Lock className="w-3.5 h-3.5" />}
             >
-              <Lock className="w-3.5 h-3.5" />
-              {loading ? 'Updating...' : 'Update Password'}
-            </button>
-          </div>
+              Update Password
+            </Button>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -220,7 +225,6 @@ export const AdminLayout: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Check authentication
     const token = localStorage.getItem('dailybuild_token');
     if (!token) {
       navigate('/admin/login');
@@ -237,7 +241,6 @@ export const AdminLayout: React.FC = () => {
       });
   }, [navigate]);
 
-  // Close mobile drawer on route navigation
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
@@ -264,14 +267,14 @@ export const AdminLayout: React.FC = () => {
   ];
 
   return (
-    <div className={`admin-layout min-h-screen flex bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 ${appearance.density === 'compact' ? 'text-xs' : 'text-sm'}`}>
-      {/* Desktop Flat Sidebar */}
+    <div className={`admin-layout min-h-screen flex bg-slate-100 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 ${appearance.density === 'compact' ? 'text-xs' : 'text-sm'}`}>
+      {/* Desktop Sidebar */}
       <aside
-        className={`hidden md:flex ${collapsed ? 'w-20' : 'w-64'} transition-all duration-200 flex-col justify-between bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-800 flex-shrink-0 z-30`}
+        className={`hidden md:flex ${collapsed ? 'w-20' : 'w-64'} transition-all duration-200 flex-col justify-between bg-white dark:bg-[#0c1220] text-slate-700 dark:text-slate-300 border-r border-slate-200/80 dark:border-white/[0.08] shrink-0 z-30 shadow-xs`}
       >
         <div>
           {/* Logo & Header */}
-          <div className={`h-16 flex items-center ${collapsed ? 'justify-center px-2' : 'justify-between px-4'} border-b border-slate-200 dark:border-slate-800`}>
+          <div className={`h-16 flex items-center ${collapsed ? 'justify-center px-2' : 'justify-between px-4'} border-b border-slate-200/80 dark:border-white/[0.08]`}>
             {!collapsed ? (
               <>
                 <Link to="/admin" className="flex items-center gap-2">
@@ -282,7 +285,7 @@ export const AdminLayout: React.FC = () => {
                   href="/"
                   target="_blank"
                   rel="noreferrer"
-                  className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors flex items-center justify-center"
                   title="View Live Website"
                   aria-label="View Live Website"
                 >
@@ -294,7 +297,7 @@ export const AdminLayout: React.FC = () => {
                 href="/"
                 target="_blank"
                 rel="noreferrer"
-                className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors flex items-center justify-center"
                 title="View Live Website"
                 aria-label="View Live Website"
               >
@@ -303,23 +306,24 @@ export const AdminLayout: React.FC = () => {
             )}
           </div>
 
-          {/* Navigation Links - Flat Design */}
-          <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-8rem)]">
+          {/* Navigation Links */}
+          <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-8.5rem)]">
             {navItems.map((item) => {
-              const active = location.pathname === item.path;
+              const active = location.pathname === item.path ||
+                (item.path !== '/admin' && location.pathname.startsWith(item.path));
               const Icon = item.icon;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors font-medium text-xs ${
+                  className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all font-semibold text-xs ${
                     active
-                      ? 'bg-indigo-600 text-white font-semibold'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/70'
+                      ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10'
                   }`}
                   title={collapsed ? item.label : undefined}
                 >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <Icon className="w-4 h-4 shrink-0" />
                   {!collapsed && <span className="truncate">{item.label}</span>}
                 </Link>
               );
@@ -327,24 +331,28 @@ export const AdminLayout: React.FC = () => {
           </nav>
         </div>
 
-        {/* User Footer in Sidebar - Flat */}
-        <div className="p-3 border-t border-slate-200 dark:border-slate-800">
+        {/* User Footer in Sidebar */}
+        <div className="p-3 border-t border-slate-200/80 dark:border-white/[0.08] bg-slate-50/50 dark:bg-[#090e1a]/60">
           <div className="flex items-center justify-between">
             {!collapsed && (
               <div className="flex items-center gap-2.5 overflow-hidden">
-                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                  {user?.name ? user.name.charAt(0) : 'A'}
-                </div>
+                <Avatar name={user?.name || 'Administrator'} size="default" className="shrink-0">
+                  <AvatarFallback>{user?.name ? user.name.charAt(0) : 'A'}</AvatarFallback>
+                  <AvatarBadge variant="online" />
+                </Avatar>
                 <div className="truncate">
-                  <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">{user?.name || 'Administrator'}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 capitalize">{user?.role || 'admin'}</div>
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{user?.name || 'Administrator'}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 capitalize flex items-center gap-1">
+                    <StatusDot size="xs" tone="success" />
+                    <span>{user?.role || 'admin'}</span>
+                  </div>
                 </div>
               </div>
             )}
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setShowPasswordModal(true)}
-                className="p-2 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors"
                 title="Change Admin Password"
                 aria-label="Change Admin Password"
               >
@@ -352,7 +360,7 @@ export const AdminLayout: React.FC = () => {
               </button>
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                 title="Log out"
                 aria-label="Log out"
               >
@@ -363,26 +371,24 @@ export const AdminLayout: React.FC = () => {
         </div>
       </aside>
 
-      {/* Mobile Drawer - Flat Design */}
+      {/* Mobile Drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
-          {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-slate-900/50 transition-opacity"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
             onClick={() => setMobileOpen(false)}
           />
 
-          {/* Drawer content */}
-          <div className="relative w-72 max-w-[85vw] bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col justify-between z-10 p-4 border-r border-slate-200 dark:border-slate-800 shadow-xl">
+          <div className="relative w-72 max-w-[85vw] bg-white dark:bg-[#0c1220] text-slate-800 dark:text-slate-200 flex flex-col justify-between z-10 p-4 border-r border-slate-200/80 dark:border-white/[0.08] shadow-2xl">
             <div>
-              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 dark:border-white/[0.08]">
                 <Link to="/admin" onClick={() => setMobileOpen(false)}>
                   <img src="/logo-light.png" alt="Daily Build" className="h-6 w-auto object-contain dark:hidden" />
                   <img src="/logo-dark.png" alt="Daily Build" className="h-6 w-auto object-contain hidden dark:block" />
                 </Link>
                 <button
                   onClick={() => setMobileOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -397,13 +403,13 @@ export const AdminLayout: React.FC = () => {
                       key={item.path}
                       to={item.path}
                       onClick={() => setMobileOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                         active
-                          ? 'bg-indigo-600 text-white font-semibold'
-                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                          ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                          : 'text-slate-600 dark:text-slate-300 hover:bg-primary/5 dark:hover:bg-primary/10 hover:text-primary'
                       }`}
                     >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <Icon className="w-4 h-4 shrink-0" />
                       <span>{item.label}</span>
                     </Link>
                   );
@@ -411,13 +417,14 @@ export const AdminLayout: React.FC = () => {
               </nav>
             </div>
 
-            <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2 truncate">
-                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                  {user?.name ? user.name.charAt(0) : 'A'}
-                </div>
+            <div className="pt-3 border-t border-slate-200/80 dark:border-white/[0.08] flex items-center justify-between">
+              <div className="flex items-center gap-2.5 truncate">
+                <Avatar name={user?.name || 'Administrator'} size="default" className="shrink-0">
+                  <AvatarFallback>{user?.name ? user.name.charAt(0) : 'A'}</AvatarFallback>
+                  <AvatarBadge variant="online" />
+                </Avatar>
                 <div className="truncate">
-                  <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">{user?.name || 'Administrator'}</div>
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{user?.name || 'Administrator'}</div>
                   <div className="text-[10px] text-slate-500 dark:text-slate-400 capitalize">{user?.role || 'admin'}</div>
                 </div>
               </div>
@@ -427,17 +434,15 @@ export const AdminLayout: React.FC = () => {
                     setMobileOpen(false);
                     setShowPasswordModal(true);
                   }}
-                  className="p-2 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  title="Change Admin Password"
-                  aria-label="Change Admin Password"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors"
+                  title="Change Password"
                 >
                   <Key className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 transition-colors"
                   title="Log out"
-                  aria-label="Log out"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -450,12 +455,12 @@ export const AdminLayout: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Top Navigation Bar */}
-        <header className="h-16 bg-white/95 dark:bg-[#0c1220]/95 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20 shadow-[0_4px_16px_rgba(180,192,216,0.12)] dark:shadow-none border-b border-slate-200/80 dark:border-white/[0.08]">
-          <div className="flex items-center gap-2 sm:gap-3">
+        <header className="h-16 bg-white/90 dark:bg-[#0c1220]/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20 shadow-[0_1px_3px_0_rgba(0,0,0,0.04)] dark:shadow-none border-b border-slate-200/80 dark:border-white/[0.08]">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Mobile Hamburger Menu */}
             <button
               onClick={() => setMobileOpen(true)}
-              className="p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white md:hidden transition-colors"
+              className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white md:hidden transition-colors"
               aria-label="Toggle mobile menu"
             >
               <Menu className="w-5 h-5" />
@@ -468,43 +473,39 @@ export const AdminLayout: React.FC = () => {
                 setCollapsed(next);
                 updateAppearance({ sidebarCollapsed: next });
               }}
-              className="hidden md:flex p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-white/[0.06] rounded-lg transition-colors items-center justify-center focus:outline-none"
+              className="hidden md:flex p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] rounded-xl transition-colors items-center justify-center focus:outline-none"
               title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
-              {collapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+              {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
+
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Quick Action: Change Password */}
-            <button
+            <Button
+              variant="outline"
+              size="xs"
               onClick={() => setShowPasswordModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors text-xs font-semibold shadow-xs"
-              title="Change Admin Password"
+              icon={<Key className="w-3.5 h-3.5 text-primary" />}
+              className="hidden sm:inline-flex"
             >
-              <Key className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              <span className="hidden sm:inline">Change Password</span>
-            </button>
-
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              aria-label="Toggle color theme"
-            >
-              {isDark ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-indigo-600" />
-              )}
-            </button>
+              Change Password
+            </Button>
+            {/* Iconiq UI Theme Toggle */}
+            <ThemeToggle
+              pressed={isDark}
+              onPressedChange={toggleTheme}
+              size="sm"
+              applyToDocument={false}
+              persist={false}
+            />
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="p-4 sm:p-6 md:p-8 flex-1">
+        <main className="p-4 sm:p-6 md:p-8 flex-1 max-w-[1600px] w-full mx-auto">
           <Outlet />
         </main>
       </div>
@@ -517,3 +518,5 @@ export const AdminLayout: React.FC = () => {
     </div>
   );
 };
+
+export default AdminLayout;

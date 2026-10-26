@@ -15,6 +15,11 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button.js';
+import { Badge } from '@/components/ui/badge.js';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card.js';
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table.js';
+import { Input } from '@/components/ui/input.js';
 
 interface BulkFeedItem {
   rawUrl: string;
@@ -303,69 +308,67 @@ export const SourcesManager: React.FC = () => {
   return (
     <div className="space-y-6 w-full max-w-7xl">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/80 dark:border-white/[0.08]">
         <div>
-          <h1 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Radio className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            RSS Feeds &amp; Sources
+          <h1 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Radio className="w-5 h-5 text-primary" />
+            <span>RSS Feeds &amp; Ingestion</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Manage industry publications and newsfeeds polled by the automated research engine.
+            Industry publications polled by the research engine.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           {selectedIds.size > 0 && (
-            <button
+            <Button
+              variant="destructive"
+              size="xs"
               onClick={handleBulkDelete}
               disabled={isDeletingBulk}
-              className="px-3 py-1.5 text-xs font-medium rounded border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 flex items-center gap-1.5 transition-colors"
+              loading={isDeletingBulk}
+              icon={<Trash2 className="w-3.5 h-3.5" />}
             >
-              {isDeletingBulk ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-              <span>Delete ({selectedIds.size})</span>
-            </button>
+              Delete ({selectedIds.size})
+            </Button>
           )}
 
-          <button
+          <Button
+            variant="default"
+            size="xs"
             onClick={() => {
               setShowAdd(!showAdd);
               if (!showAdd) setSingleInspectError(null);
             }}
-            className="px-3.5 py-1.5 text-xs font-semibold rounded bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 transition-colors"
+            icon={<Plus className="w-3.5 h-3.5" />}
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>{showAdd ? 'Close' : 'Add Sources'}</span>
-          </button>
+            {showAdd ? 'Close' : 'Add Sources'}
+          </Button>
         </div>
       </div>
 
       {/* Add / Bulk Import Drawer */}
       {showAdd && (
-        <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <Card className="p-4 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/[0.06] pb-3">
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 type="button"
+                variant={addMode === 'single' ? 'default' : 'ghost'}
+                size="xs"
                 onClick={() => setAddMode('single')}
-                className={`px-3 py-1 text-xs font-semibold rounded transition-colors ${
-                  addMode === 'single'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
               >
                 Single URL
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant={addMode === 'bulk' ? 'default' : 'ghost'}
+                size="xs"
                 onClick={() => setAddMode('bulk')}
-                className={`px-3 py-1 text-xs font-semibold rounded flex items-center gap-1 transition-colors ${
-                  addMode === 'bulk'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
+                icon={<Layers className="w-3.5 h-3.5" />}
               >
-                <Layers className="w-3.5 h-3.5" /> Bulk Import
-              </button>
+                Bulk Import
+              </Button>
             </div>
           </div>
 
@@ -377,13 +380,13 @@ export const SourcesManager: React.FC = () => {
                   <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Feed URL
                   </label>
-                  <input
+                  <Input
                     type="url"
                     required
                     placeholder="https://example.com/rss.xml"
                     value={newFeedUrl}
                     onChange={(e) => handleSingleUrlChange(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-indigo-500"
+                    className="font-mono text-xs"
                   />
                   {singleInspectError && (
                     <p className="text-[11px] text-amber-600 mt-1 flex items-center gap-1">
@@ -396,37 +399,39 @@ export const SourcesManager: React.FC = () => {
                   <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
                     <span>Feed Name</span>
                     {isInspectingSingle && (
-                      <span className="text-[10px] text-indigo-600 flex items-center gap-1">
+                      <span className="text-[10px] text-primary flex items-center gap-1">
                         <Loader2 className="w-3 h-3 animate-spin" /> Detecting...
                       </span>
                     )}
                   </label>
-                  <input
+                  <Input
                     type="text"
                     required
                     placeholder="e.g. Tech Weekly"
                     value={newFeedName}
                     onChange={(e) => setNewFeedName(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-indigo-500"
+                    className="text-xs"
                   />
                 </div>
               </div>
 
               <div className="flex justify-end gap-2 pt-1">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="xs"
                   onClick={() => setShowAdd(false)}
-                  className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  variant="default"
+                  size="xs"
                   disabled={!newFeedUrl.trim()}
-                  className="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors"
                 >
                   Save Feed
-                </button>
+                </Button>
               </div>
             </form>
           )}
@@ -439,32 +444,34 @@ export const SourcesManager: React.FC = () => {
                 value={bulkRawText}
                 onChange={(e) => setBulkRawText(e.target.value)}
                 placeholder="Paste feed URLs (one per line)..."
-                className="w-full p-2.5 text-xs font-mono border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-indigo-500 resize-y"
+                className="w-full p-2.5 text-xs font-mono border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-primary resize-y"
               />
 
               <div className="flex items-center justify-between">
                 <span className="text-xs text-slate-500">
                   {bulkItems.length > 0 ? `${bulkItems.length} feeds parsed` : 'One URL per line'}
                 </span>
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="xs"
                   onClick={handleParseAndInspectBulk}
                   disabled={isInspectingBulk || !bulkRawText.trim()}
-                  className="px-3 py-1.5 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-slate-200 flex items-center gap-1.5 transition-colors"
+                  loading={isInspectingBulk}
+                  icon={<Sparkles className="w-3.5 h-3.5" />}
                 >
-                  {isInspectingBulk ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                   Parse Feeds
-                </button>
+                </Button>
               </div>
 
               {/* Bulk Items Preview */}
               {bulkItems.length > 0 && (
-                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/[0.06]">
                   <div className="max-h-56 overflow-y-auto space-y-1.5">
                     {bulkItems.map((item, idx) => (
                       <div
                         key={idx}
-                        className={`p-2 rounded border flex items-center gap-2 text-xs ${
+                        className={`p-2 rounded-xl border flex items-center gap-2 text-xs ${
                           item.selected !== false
                             ? 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950'
                             : 'border-slate-100 dark:border-slate-900 opacity-60'
@@ -474,13 +481,13 @@ export const SourcesManager: React.FC = () => {
                           type="checkbox"
                           checked={item.selected !== false}
                           onChange={(e) => handleUpdateBulkItem(idx, 'selected', e.target.checked)}
-                          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 shrink-0"
+                          className="rounded border-slate-300 text-primary focus:ring-primary shrink-0"
                         />
                         <input
                           type="text"
                           value={item.name}
                           onChange={(e) => handleUpdateBulkItem(idx, 'name', e.target.value)}
-                          className="w-1/3 px-2 py-1 text-xs border border-slate-200 dark:border-slate-700 rounded bg-transparent"
+                          className="w-1/3 px-2 py-1 text-xs border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent"
                         />
                         <span className="flex-1 truncate font-mono text-[11px] text-slate-500">
                           {item.feedUrl}
@@ -497,166 +504,169 @@ export const SourcesManager: React.FC = () => {
                   </div>
 
                   <div className="flex justify-end gap-2 pt-2">
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="xs"
                       onClick={() => setBulkItems([])}
-                      className="px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
                     >
                       Clear
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      variant="default"
+                      size="xs"
                       onClick={handleSaveBulkFeeds}
                       disabled={isSubmittingBulk || bulkItems.filter(b => b.selected !== false).length === 0}
-                      className="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors"
+                      loading={isSubmittingBulk}
                     >
-                      {isSubmittingBulk ? 'Saving...' : 'Add Selected'}
-                    </button>
+                      Add Selected
+                    </Button>
                   </div>
                 </div>
               )}
             </div>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Active Feeds Table */}
-      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+      <Card className="overflow-hidden">
+        <CardHeader className="py-3 px-4 border-b border-slate-100 dark:border-white/[0.06] flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
               Active Feeds ({sources.length})
             </span>
             {selectedIds.size > 0 && (
-              <span className="px-2 py-0.5 text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 rounded">
+              <Badge variant="default" size="sm">
                 {selectedIds.size} selected
-              </span>
+              </Badge>
             )}
           </div>
 
-          <button
+          <Button
+            variant="ghost"
+            size="xs"
             onClick={() => api.pollAllSources().then(() => loadData())}
-            className="px-2.5 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 rounded flex items-center gap-1 transition-colors"
+            icon={<RefreshCw className="w-3.5 h-3.5" />}
           >
-            <RefreshCw className="w-3 h-3" /> Poll All
-          </button>
-        </div>
+            Poll All
+          </Button>
+        </CardHeader>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-500 uppercase font-semibold border-b border-slate-200 dark:border-slate-800">
-              <tr>
-                <th className="py-2.5 px-3 w-8 text-center">
-                  <button
-                    type="button"
-                    onClick={handleToggleSelectAll}
-                    className="text-slate-400 hover:text-slate-700 dark:hover:text-white"
-                  >
-                    {allSelected ? (
-                      <CheckSquare className="w-3.5 h-3.5 text-indigo-600" />
-                    ) : (
-                      <Square className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                </th>
-                <th className="py-2.5 px-3">Name</th>
-                <th className="py-2.5 px-3">Feed URL</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3">Last Checked</th>
-                <th className="py-2.5 px-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {sources.length === 0 && !loading && (
-                <tr>
-                  <td colSpan={6} className="py-6 text-center text-slate-400 text-xs">
-                    No RSS feeds configured. Click "Add Sources" above to connect feeds.
-                  </td>
-                </tr>
-              )}
-              {sources.map((s) => {
-                const isSelected = selectedIds.has(s.id);
-                return (
-                  <tr
-                    key={s.id}
-                    className={`transition-colors ${
-                      isSelected
-                        ? 'bg-indigo-50/40 dark:bg-indigo-950/20'
-                        : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/40'
-                    }`}
-                  >
-                    <td className="py-2.5 px-3 text-center">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => handleToggleSelect(s.id)}
-                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                    </td>
-                    <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white">
-                      {s.name}
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-500 max-w-xs truncate font-mono text-[11px]">
-                      <a
-                        href={s.feedUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="hover:underline flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-8 text-center">
+                <button
+                  type="button"
+                  onClick={handleToggleSelectAll}
+                  className="text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                >
+                  {allSelected ? (
+                    <CheckSquare className="w-3.5 h-3.5 text-primary" />
+                  ) : (
+                    <Square className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Feed URL</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Last Checked</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sources.length === 0 && !loading && (
+              <TableRow>
+                <TableCell colSpan={6} className="py-8 text-center text-slate-400 text-xs">
+                  No RSS feeds configured. Click "Add Sources" above to connect feeds.
+                </TableCell>
+              </TableRow>
+            )}
+            {sources.map((s) => {
+              const isSelected = selectedIds.has(s.id);
+              return (
+                <TableRow
+                  key={s.id}
+                  className={isSelected ? 'bg-primary/5' : undefined}
+                >
+                  <TableCell className="text-center">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleToggleSelect(s.id)}
+                      className="rounded border-slate-300 text-primary focus:ring-primary"
+                    />
+                  </TableCell>
+                  <TableCell className="font-semibold text-slate-900 dark:text-white">
+                    {s.name}
+                  </TableCell>
+                  <TableCell className="text-slate-500 max-w-xs truncate font-mono text-[11px]">
+                    <a
+                      href={s.feedUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="hover:underline flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-primary"
+                    >
+                      <span className="truncate">{s.feedUrl}</span>
+                      <ExternalLink className="w-2.5 h-2.5 shrink-0" />
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        s.lastStatus === 'success'
+                          ? 'success'
+                          : s.lastStatus === 'error'
+                          ? 'destructive'
+                          : 'secondary'
+                      }
+                      size="sm"
+                    >
+                      {s.lastStatus || 'pending'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-slate-500 text-[11px]">
+                    {s.lastFetchedAt ? new Date(s.lastFetchedAt).toLocaleTimeString() : 'Never'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        onClick={() => handlePollSingle(s.id)}
+                        disabled={pollingId === s.id}
+                        className="text-primary hover:text-primary"
                       >
-                        <span className="truncate">{s.feedUrl}</span>
-                        <ExternalLink className="w-2.5 h-2.5 shrink-0" />
-                      </a>
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${
-                          s.lastStatus === 'success'
-                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
-                            : s.lastStatus === 'error'
-                            ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300'
-                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
-                        }`}
+                        {pollingId === s.id ? 'Polling...' : 'Poll'}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => handleDeleteSingle(s.id, s.name)}
+                        title="Delete Feed"
                       >
-                        {s.lastStatus || 'pending'}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-500 text-[11px]">
-                      {s.lastFetchedAt ? new Date(s.lastFetchedAt).toLocaleTimeString() : 'Never'}
-                    </td>
-                    <td className="py-2.5 px-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => handlePollSingle(s.id)}
-                          disabled={pollingId === s.id}
-                          className="px-2 py-0.5 text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
-                        >
-                          {pollingId === s.id ? 'Polling...' : 'Poll'}
-                        </button>
-                        <button
-                          onClick={() => handleDeleteSingle(s.id, s.name)}
-                          className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors"
-                          title="Delete Feed"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                        <Trash2 className="w-3 h-3 text-rose-500" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </Card>
 
       {/* Discovered Stories Stream */}
-      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+      <Card className="p-4">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
           Discovered Research Stories ({discovered.length})
         </h3>
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="divide-y divide-slate-100 dark:divide-white/[0.06]">
           {discovered.length === 0 && (
             <p className="text-xs text-slate-400 py-3">No stories fetched yet. Click "Poll All" to gather latest headlines.</p>
           )}
@@ -667,7 +677,7 @@ export const SourcesManager: React.FC = () => {
                   href={item.canonicalUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="font-semibold text-xs text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 truncate"
+                  className="font-semibold text-xs text-slate-900 dark:text-white hover:text-primary flex items-center gap-1 truncate"
                 >
                   <span className="truncate">{item.headline}</span>
                   <ExternalLink className="w-2.5 h-2.5 text-slate-400 shrink-0" />
@@ -677,17 +687,19 @@ export const SourcesManager: React.FC = () => {
                 </p>
               </div>
 
-              <button
+              <Button
+                variant="ghost"
+                size="xs"
                 onClick={() => navigate('/admin/studio')}
-                className="px-2.5 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 rounded flex items-center gap-1 shrink-0 self-start sm:self-auto transition-colors"
+                className="text-primary hover:text-primary gap-1 shrink-0 self-start sm:self-auto"
               >
                 <span>Draft</span>
                 <ChevronRight className="w-3 h-3" />
-              </button>
+              </Button>
             </div>
           ))}
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

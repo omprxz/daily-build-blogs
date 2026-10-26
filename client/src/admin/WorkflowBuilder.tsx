@@ -41,6 +41,9 @@ import {
   TestLogEntry,
 } from './workflow/TestExecutionPanel.js';
 import { FlowToggleSwitch } from './components/FlowToggleSwitch.js';
+import { Button } from '../components/ui/button.js';
+import { Badge } from '../components/ui/badge.js';
+import { StatusDot } from '../components/ui/status-dot.js';
 
 const DEFAULT_AVAILABLE_PROVIDERS = [
   { slug: 'antigravity', name: 'Google Antigravity CLI (agy)' },
@@ -852,9 +855,9 @@ export const WorkflowBuilder: React.FC = () => {
   return (
     <div className="space-y-3 w-full h-[calc(100vh-95px)] flex flex-col text-left font-sans">
       {/* COMPACT SINGLE-LINE TOOLBAR */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-white dark:bg-[#0c1220] px-3.5 py-2.5 rounded-2xl border border-slate-200/80 dark:border-white/[0.08] shadow-xs">
         {/* Left: Title & Status */}
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0">
           {workflows.length > 1 && (
             <select
               value={currentWorkflow?.id || ''}
@@ -863,7 +866,7 @@ export const WorkflowBuilder: React.FC = () => {
                 if (target) selectWorkflow(target);
               }}
               title="Switch workflow"
-              className="text-xs bg-slate-50 border border-slate-200 text-slate-700 font-semibold rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-500 max-w-[140px] truncate shrink-0"
+              className="text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary max-w-[140px] truncate shrink-0"
             >
               {workflows.map((w, idx) => (
                 <option key={w.id} value={w.id}>
@@ -877,25 +880,28 @@ export const WorkflowBuilder: React.FC = () => {
             type="text"
             value={currentWorkflow?.name || ''}
             onChange={(e) => setCurrentWorkflow({ ...currentWorkflow, name: e.target.value })}
-            className="font-bold text-sm text-slate-900 bg-transparent border-b border-transparent hover:border-slate-300 px-1 py-0.5 focus:border-indigo-600 focus:outline-none min-w-[120px] max-w-[260px] truncate"
+            className="font-bold text-sm text-slate-900 dark:text-white bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-slate-700 px-1 py-0.5 focus:border-primary focus:outline-none min-w-[120px] max-w-[260px] truncate"
           />
 
-          <FlowToggleSwitch
-            checked={Boolean(currentWorkflow?.isActive)}
-            onChange={handleToggleWorkflowActive}
-            size="sm"
-          />
+          <div className="flex items-center gap-1.5">
+            <StatusDot status={currentWorkflow?.isActive ? 'active' : 'neutral'} size="xs" />
+            <FlowToggleSwitch
+              checked={Boolean(currentWorkflow?.isActive)}
+              onChange={handleToggleWorkflowActive}
+              size="sm"
+            />
+          </div>
         </div>
 
         {/* Right: Controls in a single tight line with no wrapping */}
-        <div className="flex items-center gap-1.5 shrink-0 flex-wrap sm:flex-nowrap justify-end">
-          <div className="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50 text-slate-600">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap justify-end">
+          <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-xl p-0.5 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
             <button
               type="button"
               onClick={handleUndo}
               disabled={history.length === 0}
               title="Undo (Ctrl+Z)"
-              className="p-1 hover:bg-white hover:text-slate-900 rounded disabled:opacity-30 transition-colors"
+              className="p-1.5 hover:bg-white dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white rounded-lg disabled:opacity-30 transition-colors"
             >
               <Undo2 className="w-3.5 h-3.5" />
             </button>
@@ -904,64 +910,51 @@ export const WorkflowBuilder: React.FC = () => {
               onClick={handleRedo}
               disabled={future.length === 0}
               title="Redo (Ctrl+Y)"
-              className="p-1 hover:bg-white hover:text-slate-900 rounded disabled:opacity-30 transition-colors"
+              className="p-1.5 hover:bg-white dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white rounded-lg disabled:opacity-30 transition-colors"
             >
               <Redo2 className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={handleOpenExecutions}
-            className="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center gap-1 transition-colors shrink-0 whitespace-nowrap"
+            className="gap-1.5 shrink-0"
           >
-            <History className="w-3.5 h-3.5 text-slate-500" /> Logs
-          </button>
+            <History className="w-3.5 h-3.5 text-slate-500" />
+            <span>Logs</span>
+          </Button>
 
-          <a
-            href="/"
-            target="_blank"
-            rel="noreferrer"
-            className="p-1 rounded-lg border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors flex items-center justify-center shrink-0"
-            title="View Live Site in New Tab"
-            aria-label="View Live Site in New Tab"
-          >
-            <Eye className="w-3.5 h-3.5" />
-          </a>
-
-          <button
+          <Button
             type="button"
+            size="sm"
             onClick={handleTestRun}
             disabled={isRunning}
-            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-lg flex items-center gap-1 transition-colors shadow-2xs shrink-0 whitespace-nowrap"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shrink-0"
           >
             {isRunning ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
               <Play className="w-3.5 h-3.5" />
             )}
-            {isRunning ? 'Running...' : 'Test Run'}
-          </button>
+            <span>{isRunning ? 'Running...' : 'Test Run'}</span>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            variant={saveStatus === 'error' ? 'destructive' : 'outline'}
+            size="sm"
             onClick={() => handleSaveWorkflow(true)}
             disabled={saveStatus === 'saving'}
             title="Save Workflow"
-            className={`px-2 py-0.5 text-[11px] font-medium rounded-md border flex items-center gap-1 transition-all shrink-0 whitespace-nowrap ${
-              saveStatus === 'saving'
-                ? 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed'
-                : saveStatus === 'saved'
-                ? 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-                : saveStatus === 'error'
-                ? 'border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100'
-                : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
-            }`}
+            className="gap-1.5 shrink-0"
           >
             {saveStatus === 'saving' ? (
               <Loader2 className="w-3 h-3 animate-spin text-slate-500 dark:text-slate-400" />
             ) : saveStatus === 'saved' ? (
-              <Check className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+              <Check className="w-3 h-3 text-emerald-500" />
             ) : saveStatus === 'error' ? (
               <AlertCircle className="w-3 h-3 text-rose-500" />
             ) : (
@@ -970,32 +963,34 @@ export const WorkflowBuilder: React.FC = () => {
             <span>
               {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save'}
             </span>
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="icon"
             onClick={handleExportJson}
             title="Export JSON"
-            className="p-1 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg shrink-0"
+            className="shrink-0 h-8 w-8"
           >
             <Download className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* MAIN TWO-COLUMN CANVAS LAYOUT (FLEX ROW PREVENTS COLUMN CRAMPING) */}
       <div className="flex-1 flex flex-col lg:flex-row gap-3 min-h-0">
         {/* Left Drawer (Stable 300px width prevents tabs from wrapping) */}
-        <div className="w-full lg:w-72 xl:w-80 shrink-0 bg-white border border-slate-200 rounded-xl p-3 overflow-y-auto space-y-3 flex flex-col shadow-2xs">
+        <div className="w-full lg:w-72 xl:w-80 shrink-0 bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] rounded-xl p-3 overflow-y-auto space-y-3 flex flex-col shadow-xs">
           {/* Clean 3-Tab Segmented Switcher */}
-          <div className="grid grid-cols-3 gap-1 p-0.5 bg-slate-100 rounded-lg text-xs font-semibold">
+          <div className="grid grid-cols-3 gap-1 p-0.5 bg-slate-100 dark:bg-[#070b14] rounded-lg text-xs font-semibold">
             <button
               type="button"
               onClick={() => setActiveTab('palette')}
-              className={`py-1 px-1 text-center truncate whitespace-nowrap rounded-md transition-all ${
+              className={`py-1.5 px-1 text-center truncate whitespace-nowrap rounded-md transition-all ${
                 activeTab === 'palette'
-                  ? 'bg-white text-indigo-600 font-bold shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#0c1220] text-primary font-bold shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Nodes
@@ -1003,10 +998,10 @@ export const WorkflowBuilder: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('config')}
-              className={`py-1 px-1 text-center truncate whitespace-nowrap rounded-md transition-all ${
+              className={`py-1.5 px-1 text-center truncate whitespace-nowrap rounded-md transition-all ${
                 activeTab === 'config'
-                  ? 'bg-white text-indigo-600 font-bold shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#0c1220] text-primary font-bold shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Config
@@ -1014,10 +1009,10 @@ export const WorkflowBuilder: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('scheduler')}
-              className={`py-1 px-1 text-center truncate whitespace-nowrap rounded-md transition-all ${
+              className={`py-1.5 px-1 text-center truncate whitespace-nowrap rounded-md transition-all ${
                 activeTab === 'scheduler'
-                  ? 'bg-white text-indigo-600 font-bold shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#0c1220] text-primary font-bold shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Schedule

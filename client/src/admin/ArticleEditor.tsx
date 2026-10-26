@@ -25,6 +25,12 @@ import {
   Wand2,
 } from 'lucide-react';
 import { RichTextEditor } from './components/RichTextEditor.js';
+import { Button } from '../components/ui/button.js';
+import { Badge } from '../components/ui/badge.js';
+import { Input } from '../components/ui/input.js';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card.js';
+import { StatusDot } from '../components/ui/status-dot.js';
+import { Alert, AlertTitle, AlertDescription } from '../components/ui/alert.js';
 
 export const ArticleEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -344,58 +350,71 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
   return (
     <form onSubmit={handleSave} className="space-y-8 w-full pb-16">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-white/[0.08]">
         <div className="flex items-center gap-3">
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="icon"
             onClick={() => navigate('/admin/articles')}
-            className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors shadow-xs"
+            title="Back to Articles"
           >
             <ArrowLeft className="w-4 h-4" />
-          </button>
+          </Button>
           <div>
-            <h1 className="text-xl font-black text-slate-900 dark:text-white">
-              {isNew ? 'Create New Article' : 'Edit Article'}
-            </h1>
-            <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Editorial CMS &amp; SEO Engine</div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-black text-slate-900 dark:text-white">
+                {isNew ? 'Create New Article' : 'Edit Article'}
+              </h1>
+              <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-wider">
+                {isNew ? 'Drafting' : 'Editorial CMS'}
+              </Badge>
+            </div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Editorial CMS & SEO Optimization Engine</div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {(slug || (!isNew && id)) && (
             <a
               href={`/article/${slug || id}`}
               target="_blank"
               rel="noreferrer"
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors shadow-xs flex items-center justify-center shrink-0"
-              title="View Live Article in New Tab"
               aria-label="View Live Article in New Tab"
+              title="View Live Article in New Tab"
+              className="inline-flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-white/[0.08] dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 transition-colors"
             >
               <Eye className="w-4 h-4" />
             </a>
           )}
 
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white cursor-pointer shadow-xs focus:ring-1 focus:ring-indigo-500"
-          >
-            <option value="draft">Draft</option>
-            <option value="in_review">In Review</option>
-            <option value="approved">Approved</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="published">Published</option>
-            <option value="rejected">Rejected</option>
-          </select>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xs">
+            <StatusDot 
+              status={status === 'published' ? 'active' : status === 'scheduled' ? 'pending' : 'neutral'} 
+              size="xs" 
+            />
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="text-xs font-bold bg-transparent text-slate-900 dark:text-white cursor-pointer focus:outline-none"
+            >
+              <option value="draft">Draft</option>
+              <option value="in_review">In Review</option>
+              <option value="approved">Approved</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="published">Published</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
 
-          <button
+          <Button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 shadow-xs transition-colors"
+            className="gap-1.5"
           >
             <Save className="w-4 h-4" />
             {saving ? 'Saving...' : 'Save Article'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -416,7 +435,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                     handleGenerateTitles();
                   }
                 }}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/15 px-2.5 py-1 rounded-lg border border-primary/20 transition-colors"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>AI Titles</span>
@@ -428,14 +447,14 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Breakthrough in Sub-Nanosecond Reasoning Architectures"
-              className="w-full px-4 py-3 text-base font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
+              className="w-full px-4 py-3 text-base font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-xs"
             />
 
             {/* Title Generation Instructions */}
             <div className="mt-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-1.5">
               <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
                 <span className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
                   Title Generation Instructions
                 </span>
                 <span className="text-[10px] text-slate-400 font-normal">Tone, Length, Keywords &amp; SEO Intent</span>
@@ -448,7 +467,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                   localStorage.setItem('db_last_title_instructions', e.target.value);
                 }}
                 placeholder="e.g., Focus on distributed system reliability, keep under 65 characters, active voice, include key technical keywords, avoid buzzwords like 'revolutionary' or 'game-changer'..."
-                className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
               <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
                 Controls AI headline synthesis for this article across Create and Edit operations.
@@ -468,7 +487,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="leave blank to auto-generate from headline"
-                className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
+                className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-xs"
               />
             </div>
           </div>
@@ -484,7 +503,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               placeholder="Concise, captivating 2-sentence technical summary..."
-              className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-serif leading-relaxed focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-serif leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-xs"
             />
           </div>
 
@@ -521,7 +540,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
               <button
                 type="button"
                 onClick={handleAddSource}
-                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                className="text-xs font-semibold text-primary hover:underline"
               >
                 + Add Source Citation
               </button>
@@ -580,7 +599,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary shadow-xs"
               >
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -595,7 +614,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
                 placeholder="AI, LLMs, Linux, Rust"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-xs"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary shadow-xs"
               />
             </div>
 
@@ -605,7 +624,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                   type="checkbox"
                   checked={isFeaturedLead}
                   onChange={(e) => setIsFeaturedLead(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                  className="rounded text-primary focus:ring-primary"
                 />
                 <span className="font-semibold text-slate-700 dark:text-slate-300">Featured Lead Story on Homepage</span>
               </label>
@@ -615,7 +634,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                   type="checkbox"
                   checked={isTrending}
                   onChange={(e) => setIsTrending(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                  className="rounded text-primary focus:ring-primary"
                 />
                 <span className="font-semibold text-slate-700 dark:text-slate-300">Mark as Trending Intelligence</span>
               </label>
@@ -626,7 +645,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
           <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs space-y-3 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
                 Featured Thumbnail &amp; Cover
               </h3>
               {featuredImage && (
@@ -658,7 +677,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
               </div>
             ) : (
               <div className="h-24 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center text-gray-400 text-xs">
-                <ImageIcon className="w-6 h-6 mb-1 opacity-50 text-indigo-500" />
+                <ImageIcon className="w-6 h-6 mb-1 opacity-50 text-primary" />
                 <span>No featured cover selected</span>
               </div>
             )}
@@ -670,11 +689,11 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 onClick={() => setImageOption('agent')}
                 className={`flex-1 py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1 ${
                   imageOption === 'agent'
-                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                    ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
-                <Bot className="w-3.5 h-3.5 text-indigo-500" />
+                <Bot className="w-3.5 h-3.5 text-primary" />
                 Local AI Agent
               </button>
               <button
@@ -682,7 +701,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 onClick={() => setImageOption('upload')}
                 className={`flex-1 py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1 ${
                   imageOption === 'upload'
-                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                    ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
@@ -694,7 +713,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 onClick={() => setImageOption('url')}
                 className={`flex-1 py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1 ${
                   imageOption === 'url'
-                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                    ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
@@ -726,7 +745,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                       onClick={() => setAiImageEngine('agent')}
                       className={`py-1.5 px-2 rounded-lg transition-all text-center truncate ${
                         aiImageEngine === 'agent'
-                          ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                          ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                           : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                       }`}
                     >
@@ -737,7 +756,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                       onClick={() => setAiImageEngine('codex')}
                       className={`py-1.5 px-2 rounded-lg transition-all text-center truncate ${
                         aiImageEngine === 'codex'
-                          ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                          ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                           : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                       }`}
                     >
@@ -748,7 +767,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                       onClick={() => setAiImageEngine('agy')}
                       className={`py-1.5 px-2 rounded-lg transition-all text-center truncate ${
                         aiImageEngine === 'agy'
-                          ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                          ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                           : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                       }`}
                     >
@@ -759,7 +778,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                       onClick={() => setAiImageEngine('gemini')}
                       className={`py-1.5 px-2 rounded-lg transition-all text-center truncate ${
                         aiImageEngine === 'gemini'
-                          ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                          ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                           : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                       }`}
                     >
@@ -773,12 +792,12 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                   <div className="p-2.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl space-y-1.5">
                     <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                       <span>Gemini Image Model</span>
-                      <span className="text-[10px] text-indigo-500 font-normal">Imagen & Flash Models</span>
+                      <span className="text-[10px] text-primary font-normal">Imagen & Flash Models</span>
                     </label>
                     <select
                       value={geminiImageModel}
                       onChange={(e) => setGeminiImageModel(e.target.value)}
-                      className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary"
                     >
                       <optgroup label="Imagen Variants">
                         <option value="imagen-3.0-generate-002">imagen-3.0-generate-002 (Imagen 3 High Quality)</option>
@@ -804,7 +823,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                       <button
                         type="button"
                         onClick={() => setCustomImagePrompt(getDynamicThumbnailPrompt())}
-                        className="text-[10px] text-indigo-600 hover:text-indigo-800 font-semibold"
+                        className="text-[10px] text-primary hover:underline font-semibold"
                       >
                         Reset to Headline
                       </button>
@@ -812,7 +831,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                         type="button"
                         onClick={() => setShowPromptModal(true)}
                         title="View Full Thumbnail Prompt"
-                        className="text-slate-400 hover:text-indigo-600"
+                        className="text-slate-400 hover:text-primary"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </button>
@@ -823,7 +842,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                     value={customImagePrompt || getDynamicThumbnailPrompt()}
                     onChange={(e) => setCustomImagePrompt(e.target.value)}
                     placeholder="Enter or refine visual prompt..."
-                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200 leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200 leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
 
@@ -841,8 +860,8 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 )}
 
                 {agentNotice && (
-                  <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 rounded-xl text-[11px] text-indigo-700 dark:text-indigo-300 leading-relaxed flex items-start gap-2">
-                    <Check className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+                  <div className="p-2.5 bg-primary/10 border border-primary/20 rounded-xl text-[11px] text-primary leading-relaxed flex items-start gap-2">
+                    <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                     <span>{agentNotice}</span>
                   </div>
                 )}
@@ -924,7 +943,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                           setQueueingAgent(false);
                         }
                       }}
-                      className="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-xs"
+                      className="flex-1 py-2 px-3 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-xs"
                     >
                       <Bot className={`w-3.5 h-3.5 ${queueingAgent || pollingAgentImage ? 'animate-spin' : ''}`} />
                       {queueingAgent ? 'Queueing Job for Agent...' : pollingAgentImage ? 'ChatGPT Generating Image... (Auto-refreshing)' : 'Generate with Local AI Agent (16:9 ChatGPT)'}
@@ -935,7 +954,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                       onClick={() => setShowPromptModal(true)}
                       title="Preview full dynamic 16:9 thumbnail prompt"
                       aria-label="View actual thumbnail prompt"
-                      className="p-2 rounded-xl border border-indigo-200 bg-white hover:bg-indigo-50 text-indigo-600 transition-colors shadow-2xs flex items-center justify-center"
+                      className="p-2 rounded-xl border border-primary/20 bg-white hover:bg-primary/10 text-primary transition-colors shadow-2xs flex items-center justify-center"
                     >
                       <Eye className="w-4 h-4" />
                     </button>
@@ -983,7 +1002,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                         setGeneratingImage(false);
                       }
                     }}
-                    className="w-full py-2.5 px-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-xs"
+                    className="w-full py-2.5 px-3 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-xs"
                   >
                     {generatingImage ? (
                       <>
@@ -1012,7 +1031,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                     <div className="bg-white max-w-2xl w-full p-6 space-y-4 rounded-2xl border border-slate-200 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
                       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600">
+                          <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
                             <Eye className="w-4 h-4" />
                           </div>
                           <div>
@@ -1045,7 +1064,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                           readOnly
                           value={customImagePrompt || getDynamicThumbnailPrompt()}
                           rows={12}
-                          className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
                         />
                       </div>
 
@@ -1069,9 +1088,9 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                               setPromptCopied(true);
                               setTimeout(() => setPromptCopied(false), 2000);
                             }}
-                            className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs flex items-center gap-1.5 transition-colors"
+                            className="px-4 py-1.5 text-xs font-bold text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg shadow-xs flex items-center gap-1.5 transition-colors"
                           >
-                            {promptCopied ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                            {promptCopied ? <Check className="w-3.5 h-3.5 text-primary-foreground" /> : <Copy className="w-3.5 h-3.5" />}
                             {promptCopied ? 'Prompt Copied!' : 'Copy Prompt'}
                           </button>
                         </div>
@@ -1183,7 +1202,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                     <button
                       type="button"
                       onClick={() => handleRestoreRevision(rev)}
-                      className="text-xs text-indigo-500 hover:text-indigo-600 flex items-center gap-1"
+                      className="text-xs text-primary hover:text-primary/80 flex items-center gap-1"
                       title="Restore this revision"
                     >
                       <RotateCcw className="w-3 h-3" />
@@ -1202,7 +1221,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-lg">
+                <div className="p-2 bg-primary/10 text-primary rounded-lg">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
@@ -1227,7 +1246,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 <select
                   value={titleProvider}
                   onChange={(e) => setTitleProvider(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 text-xs"
+                  className="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 text-xs focus:ring-primary focus:border-primary"
                 >
                   {aiProviders.map((p) => (
                     <option key={p.id} value={p.slug}>{p.name}</option>
@@ -1244,7 +1263,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                   <select
                     value={titleModel}
                     onChange={(e) => setTitleModel(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 text-xs"
+                    className="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 text-xs focus:ring-primary focus:border-primary"
                   >
                     {(() => {
                       const prov = aiProviders.find((p) => p.slug === titleProvider);
@@ -1275,7 +1294,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                   localStorage.setItem('db_last_title_instructions', e.target.value);
                 }}
                 placeholder="e.g., Target senior engineers, active voice, under 65 chars, highlight latency metrics, avoid hype words..."
-                className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
 
@@ -1286,7 +1305,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
               </label>
               {generatingTitles ? (
                 <div className="py-8 flex flex-col items-center justify-center text-slate-500 text-xs space-y-2">
-                  <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
                   <span>Synthesizing high-impact headlines...</span>
                 </div>
               ) : titleSuggestions.length === 0 ? (
@@ -1297,10 +1316,10 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 titleSuggestions.map((suggestion, idx) => (
                   <div
                     key={idx}
-                    className="p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between gap-3 transition-colors group cursor-pointer"
+                    className="p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-primary/5 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between gap-3 transition-colors group cursor-pointer"
                     onClick={() => handleApplyTitle(suggestion)}
                   >
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary">
                       {suggestion}
                     </span>
                     <button
@@ -1309,7 +1328,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                         e.stopPropagation();
                         handleApplyTitle(suggestion);
                       }}
-                      className="px-2.5 py-1 bg-indigo-600 text-white font-bold text-[10px] rounded-lg shrink-0 hover:bg-indigo-700"
+                      className="px-2.5 py-1 bg-primary text-primary-foreground font-bold text-[10px] rounded-lg shrink-0 hover:bg-primary/90 transition-colors"
                     >
                       Use Title
                     </button>
@@ -1323,7 +1342,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 type="button"
                 onClick={handleGenerateTitles}
                 disabled={generatingTitles}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-50"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 {generatingTitles ? 'Generating...' : titleSuggestions.length > 0 ? 'Regenerate Titles' : 'Generate Titles'}

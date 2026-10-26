@@ -145,17 +145,17 @@ export const NodeSidebar: React.FC<NodeSidebarProps> = ({ onAddNode }) => {
               key={i}
               type="button"
               onClick={() => onAddNode(tpl)}
-              className="w-full text-left px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/30 transition-colors flex items-center justify-between gap-2 group cursor-pointer"
+              className="w-full text-left px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:border-primary hover:bg-primary/5 transition-colors flex items-center justify-between gap-2 group cursor-pointer"
             >
               <div className="flex items-center gap-2 min-w-0">
-                <span className="p-1 rounded bg-slate-100 group-hover:bg-indigo-100 group-hover:text-indigo-600 text-slate-600 transition-colors shrink-0">
+                <span className="p-1 rounded bg-slate-100 group-hover:bg-primary/15 group-hover:text-primary text-slate-600 transition-colors shrink-0">
                   <Icon className="w-3.5 h-3.5" />
                 </span>
-                <span className="text-xs font-semibold text-slate-700 truncate group-hover:text-indigo-600">
+                <span className="text-xs font-semibold text-slate-700 truncate group-hover:text-primary">
                   {tpl.label}
                 </span>
               </div>
-              <Plus className="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-600 shrink-0" />
+              <Plus className="w-3.5 h-3.5 text-slate-300 group-hover:text-primary shrink-0" />
             </button>
           );
         })}

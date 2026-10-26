@@ -678,7 +678,7 @@ export const SitesManager: React.FC = () => {
     const colors = getScoreColor(score);
 
     return (
-      <div className="flex flex-col items-center p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm relative group hover:border-indigo-400 transition-all">
+      <div className="flex flex-col items-center p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm relative group hover:border-primary transition-all">
         <div className="relative w-24 h-24 flex items-center justify-center">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
             {/* Background circle */}
@@ -835,7 +835,7 @@ export const SitesManager: React.FC = () => {
       {/* ===================================================================== */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
         <div className="flex items-start gap-3.5">
-          <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 shrink-0">
+          <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
             <Globe className="w-6 h-6" />
           </div>
           <div>
@@ -843,7 +843,7 @@ export const SitesManager: React.FC = () => {
               <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
                 Sites &amp; Performance Center
               </h1>
-              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-primary/15 text-primary">
                 Automation Module
               </span>
             </div>
@@ -873,7 +873,7 @@ export const SitesManager: React.FC = () => {
           <button
             onClick={() => handleRunAudit(true)}
             disabled={auditing}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-all disabled:opacity-60 cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-sm transition-all disabled:opacity-60 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${auditing ? 'animate-spin' : ''}`} />
             <span>{auditing ? 'Auditing...' : 'Run Fast Audit'}</span>
@@ -906,7 +906,7 @@ export const SitesManager: React.FC = () => {
           onClick={() => handleTabChange('lighthouse')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all shrink-0 ${
             activeTab === 'lighthouse'
-              ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm font-bold'
+              ? 'bg-white dark:bg-slate-900 text-primary shadow-sm font-bold'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -918,7 +918,7 @@ export const SitesManager: React.FC = () => {
           onClick={() => handleTabChange('search_console')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all shrink-0 ${
             activeTab === 'search_console'
-              ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm font-bold'
+              ? 'bg-white dark:bg-slate-900 text-primary shadow-sm font-bold'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -933,7 +933,7 @@ export const SitesManager: React.FC = () => {
           onClick={() => handleTabChange('google_analytics')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all shrink-0 ${
             activeTab === 'google_analytics'
-              ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm font-bold'
+              ? 'bg-white dark:bg-slate-900 text-primary shadow-sm font-bold'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -965,7 +965,7 @@ export const SitesManager: React.FC = () => {
           onClick={() => handleTabChange('setup_guide')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all shrink-0 ${
             activeTab === 'setup_guide'
-              ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm font-bold'
+              ? 'bg-white dark:bg-slate-900 text-primary shadow-sm font-bold'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -977,7 +977,7 @@ export const SitesManager: React.FC = () => {
           onClick={() => handleTabChange('manage_sites')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all shrink-0 ${
             activeTab === 'manage_sites'
-              ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm font-bold'
+              ? 'bg-white dark:bg-slate-900 text-primary shadow-sm font-bold'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -1011,7 +1011,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setStrategyTab('mobile')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
                     strategyTab === 'mobile'
-                      ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm font-bold'
+                      ? 'bg-white dark:bg-slate-900 text-primary shadow-sm font-bold'
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
@@ -1022,7 +1022,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setStrategyTab('desktop')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
                     strategyTab === 'desktop'
-                      ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm font-bold'
+                      ? 'bg-white dark:bg-slate-900 text-primary shadow-sm font-bold'
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
@@ -1034,7 +1034,7 @@ export const SitesManager: React.FC = () => {
               <button
                 onClick={() => handleRunAudit(true)}
                 disabled={auditing}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-sm disabled:opacity-60 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold transition-all shadow-sm disabled:opacity-60 cursor-pointer"
               >
                 <Zap className={`w-3.5 h-3.5 ${auditing ? 'animate-bounce' : ''}`} />
                 <span>{auditing ? 'Analyzing...' : 'Analyze URL'}</span>
@@ -1044,16 +1044,16 @@ export const SitesManager: React.FC = () => {
 
           {/* Auditing Progress / Skeleton */}
           {auditing && (
-            <div className="p-6 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 space-y-4 animate-pulse">
-              <div className="flex items-center justify-between text-xs font-bold text-indigo-900 dark:text-indigo-200">
+            <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 space-y-4 animate-pulse">
+              <div className="flex items-center justify-between text-xs font-bold text-foreground">
                 <span className="flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" />
+                  <RefreshCw className="w-4 h-4 animate-spin text-primary" />
                   {auditProgress || 'Performing Lighthouse analysis on mobile & desktop targets...'}
                 </span>
                 <span>Parallel Speed &amp; A11y Scanner</span>
               </div>
-              <div className="w-full bg-indigo-200 dark:bg-indigo-900 h-2 rounded-full overflow-hidden">
-                <div className="bg-indigo-600 h-full w-2/3 animate-pulse rounded-full" />
+              <div className="w-full bg-primary/20 h-2 rounded-full overflow-hidden">
+                <div className="bg-primary h-full w-2/3 animate-pulse rounded-full" />
               </div>
             </div>
           )}
@@ -1090,7 +1090,7 @@ export const SitesManager: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
-                      <Activity className="w-4 h-4 text-indigo-500" />
+                      <Activity className="w-4 h-4 text-primary" />
                       Core Web Vitals Assessment ({strategyTab.toUpperCase()})
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
@@ -1185,7 +1185,7 @@ export const SitesManager: React.FC = () => {
                             </span>
                           )}
                           {opp.savingsBytes && (
-                            <span className="px-2 py-1 rounded-md text-xs font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">
+                            <span className="px-2 py-1 rounded-md text-xs font-bold bg-primary/15 text-primary">
                               ~{(opp.savingsBytes / 1024).toFixed(0)} KB saved
                             </span>
                           )}
@@ -1208,7 +1208,7 @@ export const SitesManager: React.FC = () => {
           ) : (
             /* Empty State */
             <div className="p-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
                 <Gauge className="w-6 h-6" />
               </div>
               <div className="max-w-md mx-auto space-y-1">
@@ -1221,7 +1221,7 @@ export const SitesManager: React.FC = () => {
               </div>
               <button
                 onClick={() => handleRunAudit(false)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-sm hover:bg-indigo-700 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-sm hover:bg-primary/90 transition-colors"
               >
                 <Zap className="w-3.5 h-3.5" />
                 Analyze {auditUrl || 'Target Site'}
@@ -1282,7 +1282,7 @@ export const SitesManager: React.FC = () => {
               ) : (
                 <button
                   onClick={handleConnectGoogle}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-sm transition-all cursor-pointer"
                 >
                   <Key className="w-3.5 h-3.5" />
                   <span>Connect Google Account</span>
@@ -1323,7 +1323,7 @@ export const SitesManager: React.FC = () => {
                     onClick={() => setDateRange(r)}
                     className={`px-2.5 py-1 rounded-md transition-all uppercase text-[11px] ${
                       dateRange === r
-                        ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm font-bold'
+                        ? 'bg-white dark:bg-slate-900 text-primary shadow-sm font-bold'
                         : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
@@ -1338,7 +1338,7 @@ export const SitesManager: React.FC = () => {
                   type="checkbox"
                   checked={comparePeriod}
                   onChange={(e) => setComparePeriod(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                  className="rounded text-primary focus:ring-primary"
                 />
                 <span>Compare previous period</span>
               </label>
@@ -1346,10 +1346,10 @@ export const SitesManager: React.FC = () => {
               <button
                 onClick={() => loadGscAnalytics(selectedProperty, dateRange, comparePeriod, true)}
                 disabled={loadingGsc}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-1.5 rounded-lg text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 title="Refresh Search Data"
               >
-                <RefreshCw className={`w-4 h-4 ${loadingGsc ? 'animate-spin text-indigo-600' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${loadingGsc ? 'animate-spin text-primary' : ''}`} />
               </button>
             </div>
           </div>
@@ -1408,7 +1408,7 @@ export const SitesManager: React.FC = () => {
               </p>
               <button
                 onClick={() => loadGscAnalytics(selectedProperty, dateRange, comparePeriod, true)}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm"
+                className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-sm"
               >
                 Fetch Search Console Data
               </button>
@@ -1422,7 +1422,7 @@ export const SitesManager: React.FC = () => {
               <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-2">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
                   <span>Total Clicks</span>
-                  <TrendingUp className="w-4 h-4 text-indigo-500" />
+                  <TrendingUp className="w-4 h-4 text-primary" />
                 </div>
                 <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                   {gscData.totalClicks?.toLocaleString() || 0}
@@ -1557,8 +1557,8 @@ export const SitesManager: React.FC = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-bold">
-                  <span className="flex items-center gap-1.5 text-indigo-600">
-                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-600" />
+                  <span className="flex items-center gap-1.5 text-primary">
+                    <span className="w-2.5 h-2.5 rounded-full bg-primary" />
                     Clicks
                   </span>
                   <span className="flex items-center gap-1.5 text-purple-400">
@@ -1586,7 +1586,7 @@ export const SitesManager: React.FC = () => {
                         {/* Bar */}
                         <div
                           style={{ height: `${heightPct}%` }}
-                          className="w-full rounded-t bg-indigo-600 group-hover:bg-indigo-500 transition-all"
+                          className="w-full rounded-t bg-primary group-hover:bg-primary transition-all"
                         />
                       </div>
                     );
@@ -1609,7 +1609,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setGscTableTab('queries')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     gscTableTab === 'queries'
-                      ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400'
+                      ? 'bg-primary/10 text-primary'
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
@@ -1619,7 +1619,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setGscTableTab('pages')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     gscTableTab === 'pages'
-                      ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400'
+                      ? 'bg-primary/10 text-primary'
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
@@ -1629,7 +1629,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setGscTableTab('countries')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     gscTableTab === 'countries'
-                      ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400'
+                      ? 'bg-primary/10 text-primary'
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
@@ -1639,7 +1639,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setGscTableTab('devices')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     gscTableTab === 'devices'
-                      ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400'
+                      ? 'bg-primary/10 text-primary'
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
@@ -1667,7 +1667,7 @@ export const SitesManager: React.FC = () => {
                         <td className="py-3 font-semibold text-slate-800 dark:text-slate-200">
                           {q.query}
                         </td>
-                        <td className="py-3 text-right font-bold text-indigo-600 dark:text-indigo-400">
+                        <td className="py-3 text-right font-bold text-primary">
                           {q.clicks.toLocaleString()}
                         </td>
                         <td className="py-3 text-right text-slate-500">
@@ -1703,13 +1703,13 @@ export const SitesManager: React.FC = () => {
                             href={p.page}
                             target="_blank"
                             rel="noreferrer"
-                            className="hover:text-indigo-600 flex items-center gap-1"
+                            className="hover:text-primary flex items-center gap-1"
                           >
                             <span className="truncate">{p.page}</span>
                             <ExternalLink className="w-3 h-3 shrink-0 text-slate-400" />
                           </a>
                         </td>
-                        <td className="py-3 text-right font-bold text-indigo-600 dark:text-indigo-400">
+                        <td className="py-3 text-right font-bold text-primary">
                           {p.clicks.toLocaleString()}
                         </td>
                         <td className="py-3 text-right text-slate-500">
@@ -1742,7 +1742,7 @@ export const SitesManager: React.FC = () => {
                         <td className="py-3 font-semibold text-slate-800 dark:text-slate-200">
                           {c.countryName} ({c.country})
                         </td>
-                        <td className="py-3 text-right font-bold text-indigo-600 dark:text-indigo-400">
+                        <td className="py-3 text-right font-bold text-primary">
                           {c.clicks.toLocaleString()}
                         </td>
                         <td className="py-3 text-right text-slate-500">
@@ -1768,14 +1768,14 @@ export const SitesManager: React.FC = () => {
                       <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                         {d.device}
                       </span>
-                      <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">
+                      <span className="text-xs font-black text-primary">
                         {d.percentage}%
                       </span>
                     </div>
                     <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
                       <div
                         style={{ width: `${d.percentage}%` }}
-                        className="bg-indigo-600 h-full rounded-full"
+                        className="bg-primary h-full rounded-full"
                       />
                     </div>
                     <div className="flex items-center justify-between text-[11px] text-slate-500">
@@ -1861,7 +1861,7 @@ export const SitesManager: React.FC = () => {
                     onClick={() => setGa4DateRange(r)}
                     className={`px-2.5 py-1 rounded-lg transition-all ${
                       ga4DateRange === r
-                        ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold'
+                        ? 'bg-white dark:bg-slate-900 text-primary shadow-xs font-bold'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
@@ -1876,7 +1876,7 @@ export const SitesManager: React.FC = () => {
                   type="checkbox"
                   checked={ga4ComparePeriod}
                   onChange={(e) => setGa4ComparePeriod(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                  className="rounded text-primary focus:ring-primary"
                 />
                 <span>Compare</span>
               </label>
@@ -1902,7 +1902,7 @@ export const SitesManager: React.FC = () => {
               ) : (
                 <button
                   onClick={handleConnectGA4}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-sm transition-all cursor-pointer"
                 >
                   <Lock className="w-3 h-3" />
                   <span>Connect GA4</span>
@@ -1976,7 +1976,7 @@ export const SitesManager: React.FC = () => {
               </p>
               <button
                 onClick={() => loadGA4Analytics(selectedGA4Property, ga4DateRange, ga4ComparePeriod, true)}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm"
+                className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-sm"
               >
                 Fetch Google Analytics Data
               </button>
@@ -1990,7 +1990,7 @@ export const SitesManager: React.FC = () => {
               <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                   <span>Active Users</span>
-                  <Users className="w-4 h-4 text-indigo-500" />
+                  <Users className="w-4 h-4 text-primary" />
                 </div>
                 <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                   {ga4Data.activeUsers?.toLocaleString() || 0}
@@ -2160,8 +2160,8 @@ export const SitesManager: React.FC = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-bold">
-                  <span className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
-                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-600" />
+                  <span className="flex items-center gap-1.5 text-primary">
+                    <span className="w-2.5 h-2.5 rounded-full bg-primary" />
                     Sessions
                   </span>
                   <span className="flex items-center gap-1.5 text-amber-500">
@@ -2256,7 +2256,7 @@ export const SitesManager: React.FC = () => {
                         strokeLinecap="round"
                       />
 
-                      {/* Sessions Line (Indigo) */}
+                      {/* Sessions Line (Primary) */}
                       <polyline
                         points={sessionsPoints}
                         fill="none"
@@ -2311,7 +2311,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setGa4TableTab('channels')}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
                     ga4TableTab === 'channels'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
@@ -2322,7 +2322,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setGa4TableTab('pages')}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
                     ga4TableTab === 'pages'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
@@ -2333,7 +2333,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setGa4TableTab('countries')}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
                     ga4TableTab === 'countries'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
@@ -2344,7 +2344,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setGa4TableTab('devices')}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
                     ga4TableTab === 'devices'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
@@ -2355,7 +2355,7 @@ export const SitesManager: React.FC = () => {
                   onClick={() => setGa4TableTab('events')}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
                     ga4TableTab === 'events'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
@@ -2385,10 +2385,10 @@ export const SitesManager: React.FC = () => {
                     {(ga4Data?.trafficSources || []).map((ch: any, idx: number) => (
                       <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
                         <td className="py-3 font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                          <span className="w-2 h-2 rounded-full bg-primary" />
                           {ch.channel}
                         </td>
-                        <td className="py-3 text-right font-bold text-indigo-600 dark:text-indigo-400">
+                        <td className="py-3 text-right font-bold text-primary">
                           {ch.sessions.toLocaleString()}
                         </td>
                         <td className="py-3 text-right text-slate-500">
@@ -2410,7 +2410,7 @@ export const SitesManager: React.FC = () => {
                             <div className="w-16 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                               <div
                                 style={{ width: `${ch.percentage}%` }}
-                                className="bg-indigo-600 h-full rounded-full"
+                                className="bg-primary h-full rounded-full"
                               />
                             </div>
                             <span className="font-bold text-slate-700 dark:text-slate-300 w-10 text-right">
@@ -2445,13 +2445,13 @@ export const SitesManager: React.FC = () => {
                             href={p.path.startsWith('http') ? p.path : `${currentSite?.url || ''}${p.path}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="hover:text-indigo-600 flex items-center gap-1"
+                            className="hover:text-primary flex items-center gap-1"
                           >
                             <span className="truncate">{p.path}</span>
                             <ExternalLink className="w-3 h-3 shrink-0 text-slate-400" />
                           </a>
                         </td>
-                        <td className="py-3 text-right font-bold text-indigo-600 dark:text-indigo-400">
+                        <td className="py-3 text-right font-bold text-primary">
                           {p.pageViews.toLocaleString()}
                         </td>
                         <td className="py-3 text-right text-slate-500">
@@ -2488,7 +2488,7 @@ export const SitesManager: React.FC = () => {
                           </span>
                           <span>{c.countryName}</span>
                         </td>
-                        <td className="py-3 text-right font-bold text-indigo-600 dark:text-indigo-400">
+                        <td className="py-3 text-right font-bold text-primary">
                           {c.activeUsers.toLocaleString()}
                         </td>
                         <td className="py-3 text-right text-slate-500">
@@ -2499,7 +2499,7 @@ export const SitesManager: React.FC = () => {
                             <div className="w-16 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                               <div
                                 style={{ width: `${c.percentage}%` }}
-                                className="bg-indigo-600 h-full rounded-full"
+                                className="bg-primary h-full rounded-full"
                               />
                             </div>
                             <span className="font-bold text-slate-700 dark:text-slate-300 w-10 text-right">
@@ -2529,7 +2529,7 @@ export const SitesManager: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {isMobile ? (
-                            <Smartphone className="w-4 h-4 text-indigo-500" />
+                            <Smartphone className="w-4 h-4 text-primary" />
                           ) : isTablet ? (
                             <Tablet className="w-4 h-4 text-purple-500" />
                           ) : (
@@ -2539,14 +2539,14 @@ export const SitesManager: React.FC = () => {
                             {dev.device}
                           </span>
                         </div>
-                        <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">
+                        <span className="text-xs font-black text-primary">
                           {dev.percentage}%
                         </span>
                       </div>
                       <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
                         <div
                           style={{ width: `${dev.percentage}%` }}
-                          className="bg-indigo-600 h-full rounded-full"
+                          className="bg-primary h-full rounded-full"
                         />
                       </div>
                       <div className="flex items-center justify-between text-[11px] text-slate-500">
@@ -2599,7 +2599,7 @@ export const SitesManager: React.FC = () => {
                               </span>
                             )}
                           </td>
-                          <td className="py-3 text-right font-bold text-indigo-600 dark:text-indigo-400">
+                          <td className="py-3 text-right font-bold text-primary">
                             {ev.eventCount.toLocaleString()}
                           </td>
                           <td className="py-3 text-right text-slate-500">
@@ -2624,7 +2624,7 @@ export const SitesManager: React.FC = () => {
       {/* ===================================================================== */}
       {activeTab === 'ai_insights' && (
         <div className="space-y-6">
-          <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-900/10 via-indigo-900/10 to-transparent dark:from-purple-950/40 dark:via-indigo-950/30 border border-purple-200 dark:border-purple-900/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-900/10 via-primary/5 to-transparent dark:from-purple-950/40 dark:via-primary/10 border border-purple-200 dark:border-purple-900/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
               <div className="p-2.5 rounded-xl bg-purple-600 text-white shadow-md">
                 <Sparkles className="w-6 h-6" />
@@ -2679,13 +2679,13 @@ export const SitesManager: React.FC = () => {
               {aiReport.jointAnalysis && (
                 <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-4">
                   <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-indigo-500" />
+                    <Activity className="w-4 h-4 text-primary" />
                     Cross-Cutting Performance &amp; Traffic Correlation
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 space-y-1.5">
-                      <div className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                      <div className="text-xs font-bold text-primary">
                         Speed &amp; Bounce Correlation
                       </div>
                       <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
@@ -2854,7 +2854,7 @@ export const SitesManager: React.FC = () => {
         <div className="space-y-6">
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-2">
             <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <Key className="w-5 h-5 text-indigo-500" />
+              <Key className="w-5 h-5 text-primary" />
               Google Cloud &amp; Search Console API Integration Guide
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
@@ -2879,7 +2879,7 @@ export const SitesManager: React.FC = () => {
               </div>
               <button
                 onClick={handleCopyCallbackUrl}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-colors shrink-0 cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors shrink-0 cursor-pointer"
               >
                 {copiedUrl ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedUrl ? 'Copied!' : 'Copy URI'}</span>
@@ -2922,7 +2922,7 @@ export const SitesManager: React.FC = () => {
                         href={item.cloudConsoleUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                        className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
                       >
                         Open Cloud Console <ExternalLink className="w-3 h-3" />
                       </a>
@@ -2938,7 +2938,7 @@ export const SitesManager: React.FC = () => {
                       <span className="font-bold text-slate-500 block text-[11px]">
                         Environment Variable:
                       </span>
-                      <code className="text-indigo-600 dark:text-indigo-400 font-mono text-[11px]">
+                      <code className="text-primary font-mono text-[11px]">
                         {item.envVarName}
                       </code>
                     </div>
@@ -2982,7 +2982,7 @@ export const SitesManager: React.FC = () => {
             </div>
             <button
               onClick={() => setShowAddSiteModal(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-sm transition-all"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add New Site</span>
@@ -3002,7 +3002,7 @@ export const SitesManager: React.FC = () => {
                         {site.name}
                       </h3>
                       {site.isDefault && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-primary/15 text-primary">
                           Primary
                         </span>
                       )}
@@ -3011,7 +3011,7 @@ export const SitesManager: React.FC = () => {
                       href={site.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs text-indigo-600 dark:text-indigo-400 font-medium hover:underline flex items-center gap-1"
+                      className="text-xs text-primary font-medium hover:underline flex items-center gap-1"
                     >
                       {site.url} <ExternalLink className="w-3 h-3" />
                     </a>
@@ -3043,7 +3043,7 @@ export const SitesManager: React.FC = () => {
                       setAuditUrl(site.url);
                       setActiveTab('lighthouse');
                     }}
-                    className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                    className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
                   >
                     Inspect Lighthouse <ArrowRight className="w-3 h-3" />
                   </button>
@@ -3148,7 +3148,7 @@ export const SitesManager: React.FC = () => {
                   type="checkbox"
                   checked={newSiteIsDefault}
                   onChange={(e) => setNewSiteIsDefault(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                  className="rounded text-primary focus:ring-primary"
                 />
                 <span>Set as primary default site</span>
               </label>
@@ -3164,7 +3164,7 @@ export const SitesManager: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingSite}
-                  className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all disabled:opacity-60 cursor-pointer"
+                  className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold transition-all disabled:opacity-60 cursor-pointer"
                 >
                   {savingSite ? 'Saving...' : 'Add Site'}
                 </button>

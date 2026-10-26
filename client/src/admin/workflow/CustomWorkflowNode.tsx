@@ -40,7 +40,7 @@ const TYPE_CONFIGS: Record<string, NodeConfigMeta> = {
   delay: { color: 'text-blue-600 bg-blue-50 border-blue-200', badge: 'Delay', icon: Hourglass },
   action: { color: 'text-emerald-600 bg-emerald-50 border-emerald-200', badge: 'Action', icon: Play },
   research: { color: 'text-sky-600 bg-sky-50 border-sky-200', badge: 'RSS', icon: Radio },
-  ai: { color: 'text-indigo-600 bg-indigo-50 border-indigo-200', badge: 'AI', icon: Sparkles },
+  ai: { color: 'text-primary bg-primary/10 border-primary/20', badge: 'AI', icon: Sparkles },
   image: { color: 'text-pink-600 bg-pink-50 border-pink-200', badge: '16:9 Image', icon: ImageIcon },
   publishing: { color: 'text-emerald-600 bg-emerald-50 border-emerald-200', badge: 'Publish', icon: CheckCircle2 },
 };
@@ -79,13 +79,13 @@ const CustomWorkflowNodeComponent: React.FC<NodeProps> = ({ data, selected }) =>
 
   return (
     <div
-      className={`relative rounded-lg border bg-white shadow-xs min-w-[190px] max-w-[220px] text-left select-none ${nodeData.isRunning
-        ? 'border-indigo-600 ring-2 ring-indigo-500/40 shadow-md'
+      className={`relative rounded-lg border bg-white dark:bg-slate-900 shadow-xs min-w-[190px] max-w-[220px] text-left select-none ${nodeData.isRunning
+        ? 'border-primary ring-2 ring-primary/40 shadow-md'
         : nodeData.isCompleted
           ? 'border-emerald-500/80 shadow-xs'
           : selected
-            ? 'border-indigo-600 ring-2 ring-indigo-500/20 shadow-sm'
-            : 'border-slate-200 hover:border-slate-300'
+            ? 'border-primary ring-2 ring-primary/20 shadow-sm'
+            : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
         }`}
     >
       {/* Input Handle */}
@@ -94,7 +94,7 @@ const CustomWorkflowNodeComponent: React.FC<NodeProps> = ({ data, selected }) =>
           type="target"
           position={Position.Left}
           id="in"
-          className="!w-2 !h-2 !bg-slate-400 hover:!bg-indigo-600 !border !border-white !rounded-full !-left-1 cursor-crosshair"
+          className="!w-2 !h-2 !bg-slate-400 hover:!bg-primary !border !border-white !rounded-full !-left-1 cursor-crosshair"
         />
       )}
 
@@ -105,18 +105,18 @@ const CustomWorkflowNodeComponent: React.FC<NodeProps> = ({ data, selected }) =>
             <span className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border ${meta.color}`}>
               <IconComponent className="w-3 h-3" />
             </span>
-            <span className="text-xs font-bold text-slate-800 truncate" title={label}>
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate" title={label}>
               {label}
             </span>
           </div>
 
           {nodeData.isRunning ? (
-            <span className="flex items-center gap-1 text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200 shrink-0">
-              <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" /> Run
+            <span className="flex items-center gap-1 text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20 shrink-0">
+              <Loader2 className="w-2.5 h-2.5 animate-spin text-primary" /> Run
             </span>
           ) : nodeData.isCompleted ? (
-            <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">
-              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" /> Done
+            <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 shrink-0">
+              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" /> Done
             </span>
           ) : (
             <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider shrink-0">
@@ -125,7 +125,7 @@ const CustomWorkflowNodeComponent: React.FC<NodeProps> = ({ data, selected }) =>
           )}
         </div>
 
-        <div className="text-[10px] text-slate-500 truncate pl-6.5 font-medium" title={summary}>
+        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate pl-6.5 font-medium" title={summary}>
           {summary}
         </div>
 
@@ -160,7 +160,7 @@ const CustomWorkflowNodeComponent: React.FC<NodeProps> = ({ data, selected }) =>
           type="source"
           position={Position.Right}
           id="out"
-          className="!w-2 !h-2 !bg-indigo-500 hover:!bg-indigo-700 !border !border-white !rounded-full !-right-1 cursor-crosshair"
+          className="!w-2 !h-2 !bg-primary hover:!bg-primary/90 !border !border-white !rounded-full !-right-1 cursor-crosshair"
         />
       )}
     </div>

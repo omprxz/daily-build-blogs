@@ -1,0 +1,7 @@
+{
+  "name": "daily-build-blogs-root",
+  "private": true,
+  "registries": {
+    "@iconiq": "https://iconiqui.com/r/{name}.json"
+  }
+}

@@ -3,9 +3,68 @@
 @tailwind utilities;
 
 :root {
+  --primary: #4F46E5;
+  --primary-foreground: #ffffff;
   --accent-color: #4F46E5;
   --surface-color: #FFFFFF;
+  --border-color: #e2e8f0;
+
+  /* Iconiq UI Theme Tokens (Light) */
+  --ic-background: #ffffff;
+  --ic-foreground: #0f172a;
+  --ic-primary: #4f46e5;
+  --ic-primary-foreground: #ffffff;
+  --ic-secondary: #f1f5f9;
+  --ic-secondary-foreground: #1e293b;
+  --ic-muted: #f8fafc;
+  --ic-muted-foreground: #64748b;
+  --ic-border: #e2e8f0;
+  --ic-input: #e2e8f0;
+  --ic-card: #ffffff;
+  --ic-card-foreground: #0f172a;
+  --ic-ring: #4f46e5;
+  --ic-radius: 0.875rem;
+
+  --status-dot-neutral: #94a3b8;
+  --status-dot-active: #4f46e5;
+  --status-dot-success: #10b981;
+  --status-dot-warning: #f59e0b;
+  --status-dot-error: #ef4444;
+  --status-dot-queued: #64748b;
+  --status-dot-canceled: #94a3b8;
 }
+
+.dark {
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --accent-color: #6366f1;
+  --surface-color: #0c1220;
+  --border-color: rgba(255, 255, 255, 0.08);
+
+  /* Iconiq UI Theme Tokens (Dark) */
+  --ic-background: #070b14;
+  --ic-foreground: #f8fafc;
+  --ic-primary: #6366f1;
+  --ic-primary-foreground: #ffffff;
+  --ic-secondary: #0c1220;
+  --ic-secondary-foreground: #f1f5f9;
+  --ic-muted: #090e1a;
+  --ic-muted-foreground: #94a3b8;
+  --ic-border: rgba(255, 255, 255, 0.08);
+  --ic-input: rgba(255, 255, 255, 0.12);
+  --ic-card: #0c1220;
+  --ic-card-foreground: #f8fafc;
+  --ic-ring: #6366f1;
+
+  --status-dot-neutral: #64748b;
+  --status-dot-active: #818cf8;
+  --status-dot-success: #34d399;
+  --status-dot-warning: #fbbf24;
+  --status-dot-error: #f87171;
+  --status-dot-queued: #94a3b8;
+  --status-dot-canceled: #64748b;
+}
+
 
 /* ==========================================================================
    MODERN EDITORIAL & DEV COMMUNITY DESIGN SYSTEM

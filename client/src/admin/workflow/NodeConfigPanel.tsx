@@ -54,7 +54,7 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
       {/* Node Header & Actions */}
       <div className="flex items-center justify-between pb-2 border-b border-slate-200">
         <div className="min-w-0">
-          <span className="text-[10px] font-bold uppercase tracking-wider font-mono text-indigo-600 block">
+          <span className="text-[10px] font-bold uppercase tracking-wider font-mono text-primary block">
             {nodeData.nodeType || 'Node Config'}
           </span>
           <h4 className="text-xs font-bold text-slate-900 truncate max-w-[170px]">{label}</h4>
@@ -64,7 +64,7 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
             type="button"
             onClick={() => onDuplicateNode(selectedNode)}
             title="Duplicate (Ctrl+D)"
-            className="p-1 rounded border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors"
+            className="p-1 rounded border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-primary transition-colors"
           >
             <Copy className="w-3.5 h-3.5" />
           </button>
@@ -86,7 +86,7 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
           type="text"
           value={label}
           onChange={(e) => onUpdateLabel(e.target.value)}
-          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </div>
 
@@ -190,9 +190,9 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
       {/* AI NODE CONFIG (Outline & Article) */}
       {(rawType === 'ai' || label.toLowerCase().includes('outline') || label.toLowerCase().includes('article')) && (
         <div className="space-y-3 pt-1">
-          <div className="p-3 bg-indigo-50/60 border border-indigo-200 rounded-xl space-y-2.5 text-xs">
-            <span className="font-bold text-indigo-900 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600" /> Primary AI Engine &amp; Model
+          <div className="p-3 bg-primary/5 border border-primary/20 rounded-xl space-y-2.5 text-xs">
+            <span className="font-bold text-foreground flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-primary" /> Primary AI Engine &amp; Model
             </span>
             <div className="grid grid-cols-2 gap-2">
               <div>
@@ -212,8 +212,8 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
               <div>
                 <label className="block text-[10px] font-semibold text-slate-600 mb-1">Model</label>
                 {config.provider === 'antigravity' || config.provider === 'codex' ? (
-                  <div className="px-2 py-1.5 bg-indigo-50/70 border border-indigo-200/60 rounded-lg text-xs text-indigo-700 font-semibold flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                  <div className="px-2 py-1.5 bg-primary/10 border border-primary/20 rounded-lg text-xs text-primary font-semibold flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
                     Automatic Model
                   </div>
                 ) : (
@@ -279,8 +279,8 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
                     </select>
 
                     {isAuto ? (
-                      <div className="px-2 py-1 bg-indigo-50 border border-indigo-200 rounded text-[11px] text-indigo-700 font-medium italic flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                      <div className="px-2 py-1 bg-primary/10 border border-primary/20 rounded text-[11px] text-primary font-medium italic flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                         Automatic Model
                       </div>
                     ) : isNone ? (
@@ -337,8 +337,8 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
                     </select>
 
                     {isAuto ? (
-                      <div className="px-2 py-1 bg-indigo-50 border border-indigo-200 rounded text-[11px] text-indigo-700 font-medium italic flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                      <div className="px-2 py-1 bg-primary/10 border border-primary/20 rounded text-[11px] text-primary font-medium italic flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                         Automatic Model
                       </div>
                     ) : isNone ? (
@@ -395,8 +395,8 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
                     </select>
 
                     {isAuto ? (
-                      <div className="px-2 py-1 bg-indigo-50 border border-indigo-200 rounded text-[11px] text-indigo-700 font-medium italic flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                      <div className="px-2 py-1 bg-primary/10 border border-primary/20 rounded text-[11px] text-primary font-medium italic flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                         Automatic Model
                       </div>
                     ) : isNone ? (
@@ -453,8 +453,8 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
                     </select>
 
                     {isAuto ? (
-                      <div className="px-2 py-1 bg-indigo-50 border border-indigo-200 rounded text-[11px] text-indigo-700 font-medium italic flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                      <div className="px-2 py-1 bg-primary/10 border border-primary/20 rounded text-[11px] text-primary font-medium italic flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                         Automatic Model
                       </div>
                     ) : isNone ? (
@@ -646,7 +646,7 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
               type="checkbox"
               checked={config.autoPublish !== false}
               onChange={(e) => onUpdateConfig('autoPublish', e.target.checked)}
-              className="rounded text-indigo-600 focus:ring-indigo-500"
+              className="rounded text-primary focus:ring-primary"
             />
             <span>Publish live immediately to readers</span>
           </label>

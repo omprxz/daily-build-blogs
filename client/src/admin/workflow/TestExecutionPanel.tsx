@@ -89,8 +89,8 @@ export const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Status Badge */}
           {isRunning ? (
-            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs">
-              <Loader2 className="w-3 h-3 animate-spin text-indigo-600" />
+            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/20 shadow-2xs">
+              <Loader2 className="w-3 h-3 animate-spin text-primary" />
               Running Test Flow
             </span>
           ) : status === 'success' ? (
@@ -114,7 +114,7 @@ export const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({
               <span>
                 Step {currentStepIndex + 1}/{steps.length}:
               </span>
-              <span className="text-indigo-600 font-bold truncate">{currentStep.label}</span>
+              <span className="text-primary font-bold truncate">{currentStep.label}</span>
             </div>
           )}
 
@@ -147,7 +147,7 @@ export const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({
                 setIsMinimized(false);
               }}
               className={`px-2 py-0.5 rounded transition-colors flex items-center gap-1 ${
-                activeTab === 'pipeline' && !isMinimized ? 'bg-white text-indigo-600 font-bold shadow-2xs' : ''
+                activeTab === 'pipeline' && !isMinimized ? 'bg-card text-primary font-bold shadow-2xs' : ''
               }`}
             >
               <Layers className="w-3 h-3" /> Steps ({steps.length})
@@ -159,7 +159,7 @@ export const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({
                 setIsMinimized(false);
               }}
               className={`px-2 py-0.5 rounded transition-colors flex items-center gap-1 ${
-                activeTab === 'logs' && !isMinimized ? 'bg-white text-indigo-600 font-bold shadow-2xs' : ''
+                activeTab === 'logs' && !isMinimized ? 'bg-card text-primary font-bold shadow-2xs' : ''
               }`}
             >
               <Terminal className="w-3 h-3" /> Live Logs ({logs.length})
@@ -203,7 +203,7 @@ export const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({
                       key={idx}
                       className={`p-2.5 rounded-lg border text-left transition-all ${
                         isCurrent
-                          ? 'border-indigo-500 bg-indigo-50/40 ring-2 ring-indigo-500/20'
+                          ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
                           : isDone
                           ? 'border-emerald-200 bg-emerald-50/20'
                           : isFailed
@@ -216,7 +216,7 @@ export const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({
                           0{idx + 1}
                         </span>
                         {isCurrent ? (
-                          <span className="flex items-center gap-0.5 text-[9px] font-bold text-indigo-600">
+                          <span className="flex items-center gap-0.5 text-[9px] font-bold text-primary">
                             <Loader2 className="w-2.5 h-2.5 animate-spin" /> In Progress
                           </span>
                         ) : isDone ? (
@@ -305,7 +305,7 @@ export const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({
                             : log.status === 'error'
                             ? 'text-rose-400'
                             : log.status === 'running'
-                            ? 'text-indigo-400'
+                            ? 'text-primary'
                             : 'text-sky-400'
                         }`}
                       >
@@ -316,7 +316,7 @@ export const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({
                   ))
                 )}
                 {isRunning && (
-                  <div className="flex items-center gap-1.5 text-indigo-400 pt-1">
+                  <div className="flex items-center gap-1.5 text-primary pt-1">
                     <Loader2 className="w-3 h-3 animate-spin" />
                     <span className="animate-pulse">Processing next step...</span>
                   </div>

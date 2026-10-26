@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api.js';
 import { Mail, Download, Trash2, UserMinus, UserCheck, ShieldCheck, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button.js';
+import { Badge } from '@/components/ui/badge.js';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card.js';
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table.js';
+import { StatusDot } from '@/components/ui/status-dot.js';
+import { Skeleton } from '@/components/ui/skeleton.js';
+import { RollingDigits } from '@/components/ui/rolling-digits.js';
 
 export const NewsletterView: React.FC = () => {
   const [subscribers, setSubscribers] = useState<any[]>([]);
@@ -62,149 +69,176 @@ export const NewsletterView: React.FC = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200/80 dark:border-white/[0.08]">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            <Mail className="w-6 h-6 text-indigo-500" />
+            <Mail className="w-6 h-6 text-primary" />
             <span>Newsletter Subscribers</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-            Verified subscribers with consent records, one-click unsubscribe tokens, and CSV exports.
+            Subscribers, consent records, and CSV exports.
           </p>
         </div>
 
-        <button
+        <Button
+          variant="default"
+          size="sm"
           onClick={handleExportCsv}
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-xs shrink-0"
+          icon={<Download className="w-4 h-4" />}
         >
-          <Download className="w-4 h-4" />
-          <span>Export CSV List</span>
-        </button>
+          Export CSV
+        </Button>
       </div>
 
       {/* KPI Counters */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs flex items-center gap-3.5">
-          <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
-            <Users className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Audience</div>
-            <div className="text-xl font-black text-slate-900 dark:text-white">{subscribers.length}</div>
-          </div>
-        </div>
+        <Card interactive>
+          <CardContent className="p-4 flex items-center gap-3.5">
+            <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Audience</div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white">
+                <RollingDigits value={subscribers.length} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs flex items-center gap-3.5">
-          <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Active Subscribers</div>
-            <div className="text-xl font-black text-slate-900 dark:text-white">{activeSubscribers}</div>
-          </div>
-        </div>
+        <Card interactive>
+          <CardContent className="p-4 flex items-center gap-3.5">
+            <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Active Subscribers</div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white">
+                <RollingDigits value={activeSubscribers} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs flex items-center gap-3.5">
-          <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400">
-            <UserMinus className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-rose-500">Unsubscribed</div>
-            <div className="text-xl font-black text-slate-900 dark:text-white">{unsubscribedCount}</div>
-          </div>
-        </div>
+        <Card interactive>
+          <CardContent className="p-4 flex items-center gap-3.5">
+            <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/40">
+              <UserMinus className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-rose-500">Unsubscribed</div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white">
+                <RollingDigits value={unsubscribedCount} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Table */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/80 dark:border-white/[0.08] shadow-xs space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/[0.06]">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-            Subscriber Directory
-          </h2>
-          <span className="text-xs font-mono text-slate-400">
-            {subscribers.length} total entries
-          </span>
-        </div>
+      <Card>
+        <CardHeader className="pb-3 border-b border-slate-100 dark:border-white/[0.06]">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-sm">Subscriber Directory</CardTitle>
+              <CardDescription>
+                Audience engagement records and cryptographic delivery tokens
+              </CardDescription>
+            </div>
+            <Badge variant="outline" size="sm">
+              {subscribers.length} total entries
+            </Badge>
+          </div>
+        </CardHeader>
 
-        <div className="overflow-x-auto -mx-5 sm:mx-0">
-          <table className="w-full text-left text-xs min-w-[600px]">
-            <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 uppercase font-bold text-[11px] tracking-wider border-b border-slate-200/80 dark:border-white/[0.06]">
-              <tr>
-                <th className="py-2.5 px-3">Subscriber Email</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3">Consent Timestamp</th>
-                <th className="py-2.5 px-3">Unsubscribe Token</th>
-                <th className="py-2.5 px-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-white/[0.04]">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Subscriber Email</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Consent Timestamp</TableHead>
+                <TableHead>Unsubscribe Token</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {loading ? (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-slate-400">Loading subscribers...</td>
-                </tr>
+                Array.from({ length: 4 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-7 w-24 ml-auto rounded-lg" /></TableCell>
+                  </TableRow>
+                ))
               ) : subscribers.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-slate-400">No subscribers registered yet.</td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={5} className="py-12 text-center text-slate-400">
+                    No subscribers registered yet.
+                  </TableCell>
+                </TableRow>
               ) : (
                 subscribers.map((sub) => (
-                  <tr key={sub.id} className="hover:bg-slate-50/70 dark:hover:bg-white/[0.02] transition-colors">
-                    <td className="py-3 px-3 font-semibold text-slate-900 dark:text-white font-mono text-xs">
+                  <TableRow key={sub.id}>
+                    <TableCell className="font-semibold text-slate-900 dark:text-white font-mono text-xs">
                       {sub.email}
-                    </td>
-                    <td className="py-3 px-3">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        sub.status === 'subscribed'
-                          ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
-                          : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
-                      }`}>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={sub.status === 'subscribed' ? 'success' : 'destructive'}
+                        size="sm"
+                        dot
+                      >
                         {sub.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 text-slate-500 dark:text-slate-400 text-[11px]">
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-slate-500 dark:text-slate-400 text-[11px]">
                       {new Date(sub.consentTimestamp).toLocaleString()}
-                    </td>
-                    <td className="py-3 px-3 text-slate-400 font-mono text-[10px] max-w-xs truncate">
+                    </TableCell>
+                    <TableCell className="text-slate-400 font-mono text-[10px] max-w-xs truncate">
                       {sub.unsubscribeToken}
-                    </td>
-                    <td className="py-3 px-3 text-right">
+                    </TableCell>
+                    <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        <button
+                        <Button
+                          variant="outline"
+                          size="xs"
                           onClick={() => handleToggleStatus(sub)}
-                          disabled={actionLoadingId === sub.id}
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors border ${
+                          loading={actionLoadingId === sub.id}
+                          className={
                             sub.status === 'subscribed'
                               ? 'text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/60 hover:bg-amber-50 dark:hover:bg-amber-950/30'
                               : 'text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/30'
-                          }`}
-                          title={sub.status === 'subscribed' ? 'Unsubscribe user' : 'Re-subscribe user'}
-                        >
-                          {sub.status === 'subscribed' ? (
-                            <>
+                          }
+                          icon={
+                            sub.status === 'subscribed' ? (
                               <UserMinus className="w-3.5 h-3.5" />
-                              <span>Unsubscribe</span>
-                            </>
-                          ) : (
-                            <>
+                            ) : (
                               <UserCheck className="w-3.5 h-3.5" />
-                              <span>Re-subscribe</span>
-                            </>
-                          )}
-                        </button>
-                        <button
+                            )
+                          }
+                        >
+                          {sub.status === 'subscribed' ? 'Unsubscribe' : 'Re-subscribe'}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
                           onClick={() => handleDeleteSubscriber(sub.id, sub.email)}
                           disabled={actionLoadingId === sub.id}
-                          className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                           title="Delete subscriber permanently"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                          <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                        </Button>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };
+
+export default NewsletterView;

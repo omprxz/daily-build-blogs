@@ -21,6 +21,10 @@ import {
   Edit2,
   Compass
 } from 'lucide-react';
+import { Button } from '@/components/ui/button.js';
+import { Badge } from '@/components/ui/badge.js';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card.js';
+import { Input } from '@/components/ui/input.js';
 
 interface TrainingTopic {
   id: string;
@@ -230,15 +234,15 @@ export const BlogTrainingView: React.FC = () => {
       case 'sentence':
         return 'bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-950/40 dark:text-fuchsia-300 border-fuchsia-200 dark:border-fuchsia-800';
       default:
-        return 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800';
+        return 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary border-primary/20 dark:border-primary/30';
     }
   };
 
   return (
     <div className="space-y-6 w-full max-w-7xl">
-      {/* Top Metrics Bar (Flat UI) */}
+      {/* Top Metrics Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
+        <Card interactive className="p-4 flex items-center justify-between">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Active Focus Directives
@@ -247,10 +251,10 @@ export const BlogTrainingView: React.FC = () => {
               {activeTopicsCount} <span className="text-xs font-normal text-slate-500">/ {topics.length} saved</span>
             </div>
           </div>
-          <Compass className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-        </div>
+          <Compass className="w-5 h-5 text-primary shrink-0" />
+        </Card>
 
-        <div className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
+        <Card interactive className="p-4 flex items-center justify-between">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Trained Reference Blogs
@@ -260,9 +264,9 @@ export const BlogTrainingView: React.FC = () => {
             </div>
           </div>
           <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-        </div>
+        </Card>
 
-        <div className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
+        <Card interactive className="p-4 flex items-center justify-between">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Corpus Words Digested
@@ -272,52 +276,50 @@ export const BlogTrainingView: React.FC = () => {
             </div>
           </div>
           <FileText className="w-5 h-5 text-slate-600 dark:text-slate-400 shrink-0" />
-        </div>
+        </Card>
       </div>
 
       {/* SECTION 1: Persistent Keywords, Topics & Editorial Directives */}
-      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/50">
+      <Card className="overflow-hidden">
+        <CardHeader className="py-3 px-4 border-b border-slate-100 dark:border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Compass className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              Focus Keywords, Topics &amp; Editorial Directives
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Active entries are continuously injected into the AI generation pipeline to guide topic discovery, research, and voice.
-            </p>
+            <CardTitle className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Compass className="w-4 h-4 text-primary" />
+              Focus Directives &amp; Tone Rules
+            </CardTitle>
+            <CardDescription>
+              Injected into the AI generation pipeline to guide topic discovery and voice.
+            </CardDescription>
           </div>
 
           {/* Quick Filters */}
           <div className="flex items-center gap-1.5 flex-wrap">
             {['all', 'active', 'topic', 'keyword', 'instruction'].map((type) => (
-              <button
+              <Button
                 key={type}
+                variant={filterType === type ? 'default' : 'ghost'}
+                size="xs"
                 onClick={() => setFilterType(type)}
-                className={`px-2.5 py-1 text-[11px] font-medium rounded capitalize transition-colors ${
-                  filterType === type
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800'
-                }`}
+                className="capitalize"
               >
                 {type}
-              </button>
+              </Button>
             ))}
           </div>
-        </div>
+        </CardHeader>
 
         {/* Task-List Style Entry Input */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="p-4 border-b border-slate-100 dark:border-white/[0.06] bg-slate-50/50 dark:bg-slate-900/50">
           <form onSubmit={handleAddTopic} className="flex flex-col sm:flex-row items-stretch gap-2">
             <div className="relative flex-1">
-              <input
+              <Input
                 ref={topicInputRef}
                 type="text"
                 required
                 value={newTopicText}
                 onChange={(e) => setNewTopicText(e.target.value)}
-                placeholder="Enter topic, keyword phrase, sentence, or writing rule (e.g. Next.js 15 Server Actions, Always include code benchmarks)..."
-                className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500"
+                placeholder="Enter topic, keyword phrase, or writing rule..."
+                className="text-xs"
               />
             </div>
 
@@ -325,7 +327,7 @@ export const BlogTrainingView: React.FC = () => {
               <select
                 value={newTopicType}
                 onChange={(e) => setNewTopicType(e.target.value)}
-                className="px-2.5 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                className="px-2.5 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="topic">Topic</option>
                 <option value="keyword">Keyword</option>
@@ -335,20 +337,22 @@ export const BlogTrainingView: React.FC = () => {
                 <option value="sentence">Sentence</option>
               </select>
 
-              <button
+              <Button
                 type="submit"
+                variant="default"
+                size="sm"
                 disabled={addingTopic || !newTopicText.trim()}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold rounded flex items-center justify-center gap-1.5 shrink-0 transition-colors"
+                loading={addingTopic}
+                icon={<Plus className="w-3.5 h-3.5" />}
               >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Entry</span>
-              </button>
+                Add Directive
+              </Button>
             </div>
           </form>
         </div>
 
         {/* Entries List */}
-        <div className="divide-y divide-slate-100 dark:divide-slate-800/80 max-h-[380px] overflow-y-auto">
+        <div className="divide-y divide-slate-100 dark:divide-white/[0.06] max-h-[380px] overflow-y-auto">
           {filteredTopics.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-400">
               No directives found. Add keywords or topic instructions above to steer AI article generation.
@@ -374,8 +378,8 @@ export const BlogTrainingView: React.FC = () => {
                       title={topic.isActive ? 'Active (Click to disable)' : 'Disabled (Click to enable)'}
                       className={`w-4 h-4 rounded border flex items-center justify-center transition-colors shrink-0 ${
                         topic.isActive
-                          ? 'bg-indigo-600 border-indigo-600 text-white'
-                          : 'border-slate-300 dark:border-slate-700 hover:border-indigo-500'
+                          ? 'bg-primary border-primary text-white'
+                          : 'border-slate-300 dark:border-slate-700 hover:border-primary'
                       }`}
                     >
                       {topic.isActive && <Check className="w-3 h-3 stroke-[3]" />}
@@ -383,11 +387,11 @@ export const BlogTrainingView: React.FC = () => {
 
                     {isEditing ? (
                       <div className="flex items-center gap-2 flex-1">
-                        <input
+                        <Input
                           type="text"
                           value={editingText}
                           onChange={(e) => setEditingText(e.target.value)}
-                          className="flex-1 px-2 py-1 text-xs border border-indigo-500 rounded bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none"
+                          className="flex-1 text-xs"
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') handleSaveEditTopic(topic.id);
@@ -397,7 +401,7 @@ export const BlogTrainingView: React.FC = () => {
                         <select
                           value={editingType}
                           onChange={(e) => setEditingType(e.target.value)}
-                          className="px-2 py-1 text-xs border border-slate-300 dark:border-slate-700 rounded bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200"
+                          className="px-2 py-1 text-xs border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200"
                         >
                           <option value="topic">Topic</option>
                           <option value="keyword">Keyword</option>
@@ -406,32 +410,31 @@ export const BlogTrainingView: React.FC = () => {
                           <option value="instruction">Writing Rule</option>
                           <option value="sentence">Sentence</option>
                         </select>
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon-xs"
                           onClick={() => handleSaveEditTopic(topic.id)}
-                          className="p-1 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded"
+                          className="text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50"
                           title="Save changes"
                         >
                           <Check className="w-3.5 h-3.5" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon-xs"
                           onClick={() => setEditingTopicId(null)}
-                          className="p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
                           title="Cancel"
                         >
                           <X className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <span
-                          className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded border shrink-0 ${getTypeBadgeClass(
-                            topic.type
-                          )}`}
-                        >
+                        <Badge variant="outline" size="sm" className="shrink-0 uppercase">
                           {topic.type}
-                        </span>
+                        </Badge>
                         <span
                           className={`truncate font-medium ${
                             topic.isActive
@@ -448,22 +451,26 @@ export const BlogTrainingView: React.FC = () => {
                   {/* Right Actions */}
                   {!isEditing && (
                     <div className="flex items-center gap-1 shrink-0">
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon-xs"
                         onClick={() => handleStartEditTopic(topic)}
-                        className="p-1 text-slate-400 hover:text-indigo-600 rounded transition-colors"
+                        className="text-slate-400 hover:text-primary"
                         title="Edit directive"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon-xs"
                         onClick={() => handleDeleteTopic(topic.id)}
-                        className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors"
+                        className="text-slate-400 hover:text-rose-600"
                         title="Delete directive"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -471,19 +478,19 @@ export const BlogTrainingView: React.FC = () => {
             })
           )}
         </div>
-      </div>
+      </Card>
 
       {/* SECTION 2: Reference Blog Crawler & Training Corpus */}
-      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Globe className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            Surf &amp; Train on Blog URLs
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Crawl article URLs to extract tone, structural patterns, and vocabulary into the AI model.
-          </p>
-        </div>
+      <Card className="overflow-hidden">
+        <CardHeader className="py-3 px-4 border-b border-slate-100 dark:border-white/[0.06]">
+          <CardTitle className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Globe className="w-4 h-4 text-primary" />
+            Learn from Reference Articles
+          </CardTitle>
+          <CardDescription>
+            Crawl article URLs to extract tone, structural patterns, and vocabulary.
+          </CardDescription>
+        </CardHeader>
 
         <div className="p-4 space-y-4">
           <form onSubmit={handleSubmitUrls} className="space-y-3">
@@ -493,34 +500,38 @@ export const BlogTrainingView: React.FC = () => {
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="Paste article URLs (one per line)..."
-              className="w-full p-2.5 text-xs font-mono border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 resize-y"
+              className="w-full p-2.5 text-xs font-mono border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary resize-y"
             />
 
             <div className="flex justify-end">
-              <button
+              <Button
                 type="submit"
+                variant="default"
+                size="sm"
                 disabled={submitting || !urlInput.trim()}
-                className="py-2 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold rounded flex items-center gap-1.5 transition-colors"
+                loading={submitting}
+                loadingText="Surfing & Ingesting..."
+                icon={<RefreshCw className="w-3.5 h-3.5" />}
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${submitting ? 'animate-spin' : ''}`} />
-                <span>{submitting ? 'Surfing & Digesting...' : 'Surf & Train AI'}</span>
-              </button>
+                Digest &amp; Train Voice
+              </Button>
             </div>
           </form>
 
           {/* Submitted Blogs List */}
-          <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+          <div className="pt-2 border-t border-slate-100 dark:border-white/[0.06]">
             <div className="flex items-center justify-between py-2">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                 Trained Sources ({blogs.length})
               </span>
-              <button
+              <Button
+                variant="ghost"
+                size="icon-xs"
                 onClick={loadAllData}
-                className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded"
                 title="Refresh list"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-              </button>
+              </Button>
             </div>
 
             {blogs.length === 0 ? (
@@ -539,25 +550,25 @@ export const BlogTrainingView: React.FC = () => {
                   return (
                     <div
                       key={b.id}
-                      className="p-3 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs space-y-2"
+                      className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs space-y-2"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             {isTrained && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                                <CheckCircle2 className="w-3 h-3" /> Trained
-                              </span>
+                              <Badge variant="success" size="sm">
+                                <CheckCircle2 className="w-3 h-3 mr-1" /> Trained
+                              </Badge>
                             )}
                             {isFetching && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800 animate-pulse">
-                                <Clock className="w-3 h-3" /> Ingesting...
-                              </span>
+                              <Badge variant="warning" size="sm">
+                                <Clock className="w-3 h-3 mr-1" /> Ingesting...
+                              </Badge>
                             )}
                             {isFailed && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                                <XCircle className="w-3 h-3" /> Ingestion Failed
-                              </span>
+                              <Badge variant="destructive" size="sm">
+                                <XCircle className="w-3 h-3 mr-1" /> Failed
+                              </Badge>
                             )}
 
                             {b.wordCount > 0 && (
@@ -581,7 +592,7 @@ export const BlogTrainingView: React.FC = () => {
                             href={b.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 mt-0.5 truncate max-w-lg"
+                            className="text-[11px] text-primary hover:underline flex items-center gap-1 mt-0.5 truncate max-w-lg"
                           >
                             <span className="truncate">{b.url}</span>
                             <ExternalLink className="w-2.5 h-2.5 shrink-0" />
@@ -591,39 +602,44 @@ export const BlogTrainingView: React.FC = () => {
                         {/* Actions */}
                         <div className="flex items-center gap-1.5 shrink-0">
                           {isTrained && (
-                            <button
+                            <Button
                               type="button"
+                              variant="outline"
+                              size="xs"
                               onClick={() => setExpandedBlogId(isExpanded ? null : b.id)}
-                              className="px-2 py-1 text-[11px] font-medium text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-1"
                             >
-                              <span>{isExpanded ? 'Hide Data' : 'View Learned Data'}</span>
-                              {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                            </button>
+                              <span>{isExpanded ? 'Hide' : 'Details'}</span>
+                              {isExpanded ? <ChevronUp className="w-3 h-3 ml-1" /> : <ChevronDown className="w-3 h-3 ml-1" />}
+                            </Button>
                           )}
 
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
+                            size="icon-xs"
                             disabled={retrainingId === b.id}
                             onClick={() => handleRetrain(b.id)}
-                            className="p-1.5 rounded text-slate-400 hover:text-indigo-600 disabled:opacity-50"
+                            className="text-slate-400 hover:text-primary"
                             title="Re-crawl and re-train"
                           >
                             <RefreshCw className={`w-3.5 h-3.5 ${retrainingId === b.id ? 'animate-spin' : ''}`} />
-                          </button>
+                          </Button>
 
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
+                            size="icon-xs"
                             onClick={() => handleDeleteBlog(b.id)}
-                            className="p-1.5 rounded text-slate-400 hover:text-rose-600"
+                            className="text-slate-400 hover:text-rose-600"
                             title="Remove source"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          </Button>
                         </div>
                       </div>
 
                       {isFailed && b.errorMessage && (
-                        <div className="p-2 rounded bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-[11px] flex items-center gap-2">
+                        <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-[11px] flex items-center gap-2">
                           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                           <span>{b.errorMessage}</span>
                         </div>
@@ -631,7 +647,7 @@ export const BlogTrainingView: React.FC = () => {
 
                       {/* Expanded Summary */}
                       {isExpanded && isTrained && (
-                        <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2 text-[11px] text-slate-600 dark:text-slate-400">
+                        <div className="pt-2 border-t border-slate-100 dark:border-white/[0.06] space-y-2 text-[11px] text-slate-600 dark:text-slate-400">
                           {b.summary && (
                             <div>
                               <span className="font-semibold text-slate-900 dark:text-slate-200 block">
@@ -646,9 +662,9 @@ export const BlogTrainingView: React.FC = () => {
                               <span className="font-semibold text-slate-900 dark:text-slate-200 block">
                                 Tone &amp; Style:
                               </span>
-                              <span className="inline-block mt-0.5 px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-medium">
+                              <Badge variant="default" size="sm" className="mt-0.5">
                                 {b.extractedStyle.tone}
-                              </span>
+                              </Badge>
                             </div>
                           )}
 
@@ -673,7 +689,7 @@ export const BlogTrainingView: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

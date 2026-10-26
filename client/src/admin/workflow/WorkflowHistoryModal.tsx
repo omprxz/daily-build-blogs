@@ -39,7 +39,7 @@ export const WorkflowHistoryModal: React.FC<WorkflowHistoryModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/70">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+            <span className="p-2 rounded-lg bg-primary/10 text-primary">
               <Clock className="w-5 h-5" />
             </span>
             <div>
@@ -86,7 +86,7 @@ export const WorkflowHistoryModal: React.FC<WorkflowHistoryModalProps> = ({
                     onClick={() => setSelectedExec(ex)}
                     className={`w-full text-left p-3 rounded-xl border transition-all space-y-1 ${
                       isSelected
-                        ? 'border-indigo-500 bg-indigo-50/40 shadow-xs'
+                        ? 'border-primary bg-primary/10 shadow-xs'
                         : 'border-slate-200 bg-white hover:border-slate-300'
                     }`}
                   >
@@ -137,7 +137,7 @@ export const WorkflowHistoryModal: React.FC<WorkflowHistoryModalProps> = ({
                       type="button"
                       disabled={retryingId === selectedExec.id}
                       onClick={() => onRetry(selectedExec.id)}
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+                      className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
                     >
                       <RotateCcw className={`w-3 h-3 ${retryingId === selectedExec.id ? 'animate-spin' : ''}`} />
                       {retryingId === selectedExec.id ? 'Retrying...' : 'Retry Run'}

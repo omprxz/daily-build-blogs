@@ -112,7 +112,7 @@ export const AdvancedScheduler: React.FC<AdvancedSchedulerProps> = ({
             onClick={() => onChange({ cronExpression: internalCron, timingMode: 'cron', intervalMins, startDate, endDate, timezone })}
             className={`py-1 rounded-md transition-all ${
               timingMode === 'cron'
-                ? 'bg-white text-indigo-700 shadow-2xs font-bold'
+                ? 'bg-card text-primary shadow-2xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -123,7 +123,7 @@ export const AdvancedScheduler: React.FC<AdvancedSchedulerProps> = ({
             onClick={() => onChange({ cronExpression: internalCron, timingMode: 'interval', intervalMins, startDate, endDate, timezone })}
             className={`py-1 rounded-md transition-all ${
               timingMode === 'interval'
-                ? 'bg-white text-indigo-700 shadow-2xs font-bold'
+                ? 'bg-card text-primary shadow-2xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -134,7 +134,7 @@ export const AdvancedScheduler: React.FC<AdvancedSchedulerProps> = ({
             onClick={() => onChange({ cronExpression: internalCron, timingMode: 'webhook', intervalMins, startDate, endDate, timezone })}
             className={`py-1 rounded-md transition-all ${
               timingMode === 'webhook'
-                ? 'bg-white text-indigo-700 shadow-2xs font-bold'
+                ? 'bg-card text-primary shadow-2xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -152,7 +152,7 @@ export const AdvancedScheduler: React.FC<AdvancedSchedulerProps> = ({
               <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
                 Cron Expression
               </label>
-              <span className="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">
+              <span className="text-[10px] text-primary font-bold bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
                 Asia/Kolkata (IST)
               </span>
             </div>
@@ -164,7 +164,7 @@ export const AdvancedScheduler: React.FC<AdvancedSchedulerProps> = ({
                 placeholder="0 */2 * * *"
                 className={`w-full px-2.5 py-1.5 text-xs font-mono font-bold bg-white border rounded-lg focus:outline-none focus:ring-2 ${
                   validation.isValid
-                    ? 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/10 text-slate-900'
+                    ? 'border-slate-300 focus:border-primary focus:ring-primary/10 text-slate-900'
                     : 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/10 text-rose-700'
                 }`}
               />
@@ -210,7 +210,7 @@ export const AdvancedScheduler: React.FC<AdvancedSchedulerProps> = ({
                   onClick={() => handleApplyPreset(p.cron)}
                   className={`px-2 py-0.5 rounded text-[10px] font-semibold border transition-colors ${
                     internalCron === p.cron
-                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
                   }`}
                 >

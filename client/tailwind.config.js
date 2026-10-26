@@ -8,6 +8,14 @@ export default {
   theme: {
     extend: {
       colors: {
+        primary: {
+          DEFAULT: 'var(--primary, #4f46e5)',
+          foreground: 'var(--primary-foreground, #ffffff)',
+          50: 'color-mix(in srgb, var(--primary, #4f46e5) 10%, transparent)',
+          100: 'color-mix(in srgb, var(--primary, #4f46e5) 20%, transparent)',
+          500: 'var(--primary, #4f46e5)',
+          600: 'var(--primary, #4f46e5)',
+        },
         brand: {
           50: '#eef2ff',
           100: '#e0e7ff',

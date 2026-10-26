@@ -27,6 +27,11 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button.js';
+import { Badge } from '@/components/ui/badge.js';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card.js';
+import { Input } from '@/components/ui/input.js';
+import { StatusDot } from '@/components/ui/status-dot.js';
 
 export type ModelCategory = 'all' | 'text' | 'image' | 'video' | 'code';
 
@@ -402,7 +407,7 @@ export const AIProvidersView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
-            <Bot className="w-5 h-5 text-indigo-600" /> AI Providers &amp; Model Orchestration
+            <Bot className="w-5 h-5 text-primary" /> AI Providers &amp; Model Orchestration
           </h1>
           <p className="text-[11px] text-slate-500">
             Configure host system CLIs (Codex, Antigravity agy, tgpt) and cloud API keys for Gemini, Groq, Claude, and Ollama.
@@ -414,7 +419,7 @@ export const AIProvidersView: React.FC = () => {
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3.5 space-y-3 shadow-2xs">
         <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center">
               <Terminal className="w-3.5 h-3.5" />
             </div>
             <div>
@@ -426,7 +431,7 @@ export const AIProvidersView: React.FC = () => {
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800 font-semibold">
+          <span className="text-[10px] font-mono text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20 font-semibold">
             Interactive Test Runner
           </span>
         </div>
@@ -455,7 +460,7 @@ export const AIProvidersView: React.FC = () => {
                     }
                   }
                 }}
-                className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 {(providers.filter((p) => p.isEnabled).length > 0
                   ? providers.filter((p) => p.isEnabled)
@@ -475,14 +480,14 @@ export const AIProvidersView: React.FC = () => {
               </label>
               {testProvider === 'antigravity' || testProvider === 'codex' ? (
                 <div className="w-full px-2.5 py-1.5 text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 italic flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
                   Automatic Model Selection (Controlled by local engine)
                 </div>
               ) : (
                 <select
                   value={testModel}
                   onChange={(e) => setTestModel(e.target.value)}
-                  className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-[11px] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-[11px] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   {(() => {
                     const prov = providers.find((p) => p.slug === testProvider);
@@ -513,12 +518,12 @@ export const AIProvidersView: React.FC = () => {
                 value={testQuestion}
                 onChange={(e) => setTestQuestion(e.target.value)}
                 placeholder="Ask any test prompt..."
-                className="flex-1 px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="flex-1 px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <button
                 type="submit"
                 disabled={testingResponse || !testQuestion.trim()}
-                className="py-1.5 px-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg font-bold text-xs flex items-center gap-1.5 shrink-0 transition-colors shadow-2xs"
+                className="py-1.5 px-3.5 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white rounded-lg font-bold text-xs flex items-center gap-1.5 shrink-0 transition-colors shadow-2xs"
               >
                 {testingResponse ? (
                   <>
@@ -568,7 +573,7 @@ export const AIProvidersView: React.FC = () => {
             onClick={() => setSelectedCategory('all')}
             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all flex items-center gap-1.5 ${
               selectedCategory === 'all'
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -581,7 +586,7 @@ export const AIProvidersView: React.FC = () => {
             onClick={() => setSelectedCategory('text')}
             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all flex items-center gap-1.5 ${
               selectedCategory === 'text'
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -594,7 +599,7 @@ export const AIProvidersView: React.FC = () => {
             onClick={() => setSelectedCategory('image')}
             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all flex items-center gap-1.5 ${
               selectedCategory === 'image'
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -607,7 +612,7 @@ export const AIProvidersView: React.FC = () => {
             onClick={() => setSelectedCategory('video')}
             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all flex items-center gap-1.5 ${
               selectedCategory === 'video'
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -620,7 +625,7 @@ export const AIProvidersView: React.FC = () => {
             onClick={() => setSelectedCategory('code')}
             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all flex items-center gap-1.5 ${
               selectedCategory === 'code'
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -633,7 +638,7 @@ export const AIProvidersView: React.FC = () => {
           <button
             type="button"
             onClick={() => handleExpandAll(true)}
-            className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold transition-colors"
+            className="text-slate-600 dark:text-slate-400 hover:text-primary font-semibold transition-colors"
           >
             Expand All Models
           </button>
@@ -641,7 +646,7 @@ export const AIProvidersView: React.FC = () => {
           <button
             type="button"
             onClick={() => handleExpandAll(false)}
-            className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold transition-colors"
+            className="text-slate-600 dark:text-slate-400 hover:text-primary font-semibold transition-colors"
           >
             Collapse All
           </button>
@@ -692,7 +697,7 @@ export const AIProvidersView: React.FC = () => {
                 {/* Header Row */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold shrink-0">
                       {prov.slug === 'gemini' ? (
                         <Sparkles className="w-4 h-4" />
                       ) : prov.slug === 'groq' ? (
@@ -736,7 +741,7 @@ export const AIProvidersView: React.FC = () => {
                         href={prov.pricingDocUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-[10px] text-slate-400 hover:text-indigo-600 flex items-center gap-0.5 font-medium"
+                        className="text-[10px] text-slate-400 hover:text-primary flex items-center gap-0.5 font-medium"
                       >
                         Pricing <ExternalLink className="w-2.5 h-2.5" />
                       </a>
@@ -762,7 +767,7 @@ export const AIProvidersView: React.FC = () => {
                             }}
                             className="sr-only peer"
                           />
-                          <div className="w-8 h-4 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600 relative"></div>
+                          <div className="w-8 h-4 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary relative"></div>
                           <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">
                             {prov.isEnabled ? 'Enabled' : 'Disabled'}
                           </span>
@@ -800,7 +805,7 @@ export const AIProvidersView: React.FC = () => {
                         value={apiKeys[prov.slug] !== undefined ? apiKeys[prov.slug] : ''}
                         onChange={(e) => setApiKeys({ ...apiKeys, [prov.slug]: e.target.value })}
                         placeholder={prov.hasApiKey ? '••••••••••••••••••••••••' : 'Enter API Key...'}
-                        className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
                       />
                     </div>
                   ) : null}
@@ -815,7 +820,7 @@ export const AIProvidersView: React.FC = () => {
                       value={baseUrls[prov.slug] !== undefined ? baseUrls[prov.slug] : prov.baseUrl || ''}
                       onChange={(e) => setBaseUrls({ ...baseUrls, [prov.slug]: e.target.value })}
                       placeholder="https://..."
-                      className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -825,7 +830,7 @@ export const AIProvidersView: React.FC = () => {
                   <button
                     onClick={() => handleTestConnection(prov.slug)}
                     disabled={isTesting}
-                    className="py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-[11px] flex items-center gap-1.5 disabled:opacity-50 transition-colors shadow-2xs"
+                    className="py-1.5 px-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-bold text-[11px] flex items-center gap-1.5 disabled:opacity-50 transition-colors shadow-2xs"
                   >
                     <RefreshCw className={`w-3 h-3 ${isTesting ? 'animate-spin' : ''}`} />
                     {isTesting ? 'Testing...' : 'Test Connection & Models'}
@@ -866,8 +871,8 @@ export const AIProvidersView: React.FC = () => {
                 {/* Categorized Models List / Automatic Banner */}
                 {prov.slug === 'antigravity' || prov.slug === 'codex' ? (
                   <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <div className="p-3 rounded-lg bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-200 flex items-center gap-2.5">
-                      <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs text-foreground flex items-center gap-2.5">
+                      <Sparkles className="w-4 h-4 text-primary shrink-0" />
                       <div>
                         <span className="font-bold">Automatic Model Selection Active</span>
                         <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
@@ -886,7 +891,7 @@ export const AIProvidersView: React.FC = () => {
                         className="flex-1 flex items-center justify-between py-2 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200/70 dark:border-slate-700/70 group text-left"
                       >
                         <div className="flex items-center gap-2 flex-wrap">
-                          <div className="w-5 h-5 rounded flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                          <div className="w-5 h-5 rounded flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 group-hover:text-primary transition-colors">
                             {isExpanded ? (
                               <ChevronDown className="w-3.5 h-3.5" />
                             ) : (
@@ -894,10 +899,10 @@ export const AIProvidersView: React.FC = () => {
                             )}
                           </div>
                           <span className="font-bold text-xs text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                            <Layers className="w-3.5 h-3.5 text-indigo-500" />
+                            <Layers className="w-3.5 h-3.5 text-primary" />
                             Models ({rawModels.length})
                           </span>
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/80">
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                             {activeCount} active
                           </span>
                           {rawModels.some((m: any) => m.pricingNotes === 'Custom Model') && (
@@ -918,7 +923,7 @@ export const AIProvidersView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleOpenAddCustomModel(prov.slug)}
-                        className="py-2 px-3 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/80 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0 shadow-2xs"
+                        className="py-2 px-3 bg-primary/10 hover:bg-primary/15 text-primary border border-primary/20 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0 shadow-2xs"
                         title="Add custom model identifier"
                       >
                         <Plus className="w-3.5 h-3.5" />
@@ -939,7 +944,7 @@ export const AIProvidersView: React.FC = () => {
                               value={searchQueries[prov.slug] || ''}
                               onChange={(e) => handleSearchChange(prov.slug, e.target.value)}
                               placeholder={`Search ${prov.name} models (e.g. flash, llama)...`}
-                              className="w-full pl-8 pr-7 py-1 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              className="w-full pl-8 pr-7 py-1 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary"
                             />
                             {searchQueries[prov.slug] && (
                               <button
@@ -960,7 +965,7 @@ export const AIProvidersView: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleBulkCheckModels(prov.slug, true)}
-                              className="px-2 py-0.5 rounded text-[10px] bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 font-bold border border-indigo-200 dark:border-indigo-800"
+                              className="px-2 py-0.5 rounded text-[10px] bg-primary/10 text-primary hover:bg-primary/15 font-bold border border-primary/20"
                             >
                               Select All
                             </button>
@@ -978,11 +983,11 @@ export const AIProvidersView: React.FC = () => {
                         {addingModelSlug === prov.slug && (
                           <form
                             onSubmit={(e) => handleSubmitCustomModel(e, prov.slug)}
-                            className="p-3 bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/80 rounded-xl space-y-2.5"
+                            className="p-3 bg-primary/5 border border-primary/20 rounded-xl space-y-2.5"
                           >
-                            <div className="flex items-center justify-between pb-1.5 border-b border-indigo-100 dark:border-indigo-900/60">
+                            <div className="flex items-center justify-between pb-1.5 border-b border-primary/20">
                               <div className="flex items-center gap-1.5">
-                                <Plus className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                <Plus className="w-4 h-4 text-primary" />
                                 <span className="text-xs font-bold text-slate-900 dark:text-white">
                                   Add Custom Model to {prov.name}
                                 </span>
@@ -1008,7 +1013,7 @@ export const AIProvidersView: React.FC = () => {
                                   value={customModelId}
                                   onChange={(e) => setCustomModelId(e.target.value)}
                                   placeholder="e.g. llama-3.3-70b-versatile"
-                                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
                                 />
                               </div>
 
@@ -1022,7 +1027,7 @@ export const AIProvidersView: React.FC = () => {
                                   value={customModelDisplayName}
                                   onChange={(e) => setCustomModelDisplayName(e.target.value)}
                                   placeholder="e.g. Llama 3.3 70B"
-                                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
                                 />
                               </div>
 
@@ -1034,7 +1039,7 @@ export const AIProvidersView: React.FC = () => {
                                 <select
                                   value={customModelCategory}
                                   onChange={(e) => setCustomModelCategory(e.target.value as any)}
-                                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
                                 >
                                   <option value="text">Text / Chat</option>
                                   <option value="code">Code Generation</option>
@@ -1055,7 +1060,7 @@ export const AIProvidersView: React.FC = () => {
                                   value={customModelContext}
                                   onChange={(e) => setCustomModelContext(e.target.value)}
                                   placeholder="128000"
-                                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
                                 />
                               </div>
                             </div>
@@ -1071,7 +1076,7 @@ export const AIProvidersView: React.FC = () => {
                               <button
                                 type="submit"
                                 disabled={isSubmittingCustomModel || !customModelId.trim()}
-                                className="px-3.5 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs"
+                                className="px-3.5 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary/90 disabled:opacity-50 rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs"
                               >
                                 {isSubmittingCustomModel ? (
                                   <>
@@ -1100,7 +1105,7 @@ export const AIProvidersView: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleOpenAddCustomModel(prov.slug, query)}
-                                  className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 text-xs font-bold transition-colors"
+                                  className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-primary/10 hover:bg-primary/15 text-primary border border-primary/20 text-xs font-bold transition-colors"
                                 >
                                   <Plus className="w-3.5 h-3.5" />
                                   Add "{query}" as Custom Model
@@ -1114,7 +1119,7 @@ export const AIProvidersView: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleOpenAddCustomModel(prov.slug)}
-                                  className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors shadow-2xs"
+                                  className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-bold transition-colors shadow-2xs"
                                 >
                                   <Plus className="w-3.5 h-3.5" />
                                   Add First Model
@@ -1151,7 +1156,7 @@ export const AIProvidersView: React.FC = () => {
                                           type="checkbox"
                                           checked={isChecked}
                                           onChange={(e) => handleToggleModelCheck(prov.slug, m.modelId, e.target.checked)}
-                                          className="h-3.5 w-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0"
+                                          className="h-3.5 w-3.5 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer shrink-0"
                                         />
                                         <span className="font-bold text-[11px] text-slate-900 dark:text-white truncate" title={m.displayName || m.modelId}>
                                           {m.displayName || m.modelId}
@@ -1215,8 +1220,8 @@ export const AIProvidersView: React.FC = () => {
                                   {/* Status & Capabilities */}
                                   <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800 text-[9px]">
                                     {isChecked ? (
-                                      <span className="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-0.5">
-                                        <CheckCircle2 className="w-2.5 h-2.5 text-indigo-500" /> Active
+                                      <span className="text-primary font-semibold flex items-center gap-0.5">
+                                        <CheckCircle2 className="w-2.5 h-2.5 text-primary" /> Active
                                       </span>
                                     ) : (
                                       <span className="text-slate-400 font-medium">

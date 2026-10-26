@@ -48,14 +48,55 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const [isDark, setIsDark] = useState<boolean>(false);
-  const [appearance, setAppearance] = useState<AppearanceConfig>(defaultAppearance);
+  const [appearance, setAppearance] = useState<AppearanceConfig>(() => {
+    const savedAccent = typeof window !== 'undefined' ? localStorage.getItem('dailybuild_primary_color') : null;
+    return {
+      ...defaultAppearance,
+      accentColor: savedAccent || defaultAppearance.accentColor,
+    };
+  });
 
   useEffect(() => {
     // Load persisted appearance from API if available
     api.getAppearance().then((data) => {
-      if (data) setAppearance(data);
+      if (data) {
+        setAppearance((prev) => ({
+          ...prev,
+          ...data,
+          accentColor: prev.accentColor || data.accentColor || defaultAppearance.accentColor,
+        }));
+      }
     }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const primaryColor = appearance.accentColor || '#4F46E5';
+    document.documentElement.style.setProperty('--accent-color', primaryColor);
+    document.documentElement.style.setProperty('--primary', primaryColor);
+    document.documentElement.style.setProperty('--ic-primary', primaryColor);
+    document.documentElement.style.setProperty('--ic-brand', primaryColor);
+    document.documentElement.style.setProperty('--ic-ring', primaryColor);
+    document.documentElement.style.setProperty('--status-dot-active', primaryColor);
+
+    // Calculate contrast foreground for primary backgrounds
+    const hex = primaryColor.replace('#', '');
+    if (hex.length === 6) {
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      const fg = luminance > 0.65 ? '#0f172a' : '#ffffff';
+      document.documentElement.style.setProperty('--primary-foreground', fg);
+      document.documentElement.style.setProperty('--ic-primary-foreground', fg);
+    } else {
+      document.documentElement.style.setProperty('--primary-foreground', '#ffffff');
+      document.documentElement.style.setProperty('--ic-primary-foreground', '#ffffff');
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dailybuild_primary_color', primaryColor);
+    }
+  }, [appearance.accentColor]);
 
   useEffect(() => {
     const applyTheme = () => {

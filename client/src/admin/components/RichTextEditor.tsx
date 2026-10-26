@@ -244,7 +244,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <button
               type="button"
               onClick={() => onOpenAiRewriter(selectedText)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-bold text-xs shadow-xs transition-all"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 text-primary-foreground rounded-lg font-bold text-xs shadow-xs transition-all"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>{selectedText ? 'Rewrite Selection' : 'AI Assistant'}</span>
@@ -259,7 +259,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => setMode('visual')}
             className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors flex items-center gap-1 ${
               mode === 'visual'
-                ? 'bg-indigo-600 text-white font-bold'
+                ? 'bg-primary text-primary-foreground font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -270,7 +270,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => setMode('source')}
             className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors flex items-center gap-1 ${
               mode === 'source'
-                ? 'bg-indigo-600 text-white font-bold'
+                ? 'bg-primary text-primary-foreground font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -281,7 +281,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => setMode('preview')}
             className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors flex items-center gap-1 ${
               mode === 'preview'
-                ? 'bg-indigo-600 text-white font-bold'
+                ? 'bg-primary text-primary-foreground font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -300,7 +300,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onSelect={handleSelectionChange}
             onKeyUp={handleSelectionChange}
             onMouseUp={handleSelectionChange}
-            className="w-full min-h-[380px] p-5 text-slate-800 dark:text-slate-100 font-serif text-sm leading-relaxed focus:outline-none overflow-y-auto prose dark:prose-invert max-w-none [&>h2]:text-xl [&>h2]:font-black [&>h2]:mt-4 [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-bold [&>h3]:mt-3 [&>h3]:mb-1 [&>p]:mb-3 [&>pre]:bg-slate-950 [&>pre]:text-slate-100 [&>pre]:p-3 [&>pre]:rounded-lg [&>pre]:font-mono [&>pre]:text-xs [&>blockquote]:border-l-4 [&>blockquote]:border-indigo-500 [&>blockquote]:pl-3 [&>blockquote]:italic [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5"
+            className="w-full min-h-[380px] p-5 text-slate-800 dark:text-slate-100 font-serif text-sm leading-relaxed focus:outline-none overflow-y-auto prose dark:prose-invert max-w-none [&>h2]:text-xl [&>h2]:font-black [&>h2]:mt-4 [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-bold [&>h3]:mt-3 [&>h3]:mb-1 [&>p]:mb-3 [&>pre]:bg-slate-950 [&>pre]:text-slate-100 [&>pre]:p-3 [&>pre]:rounded-lg [&>pre]:font-mono [&>pre]:text-xs [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-3 [&>blockquote]:italic [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5"
             data-placeholder={placeholder}
           />
         )}
@@ -332,7 +332,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               </h1>
             )}
             <div
-              className="prose dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 font-serif leading-relaxed [&>h2]:text-xl [&>h2]:font-black [&>h2]:mt-6 [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-bold [&>h3]:mt-4 [&>h3]:mb-1 [&>p]:mb-4 [&>pre]:bg-slate-900 [&>pre]:text-slate-100 [&>pre]:p-4 [&>pre]:rounded-xl [&>pre]:font-mono [&>pre]:text-xs [&>blockquote]:border-l-4 [&>blockquote]:border-indigo-500 [&>blockquote]:pl-4 [&>blockquote]:italic [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6"
+              className="prose dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 font-serif leading-relaxed [&>h2]:text-xl [&>h2]:font-black [&>h2]:mt-6 [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-bold [&>h3]:mt-4 [&>h3]:mb-1 [&>p]:mb-4 [&>pre]:bg-slate-900 [&>pre]:text-slate-100 [&>pre]:p-4 [&>pre]:rounded-xl [&>pre]:font-mono [&>pre]:text-xs [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-4 [&>blockquote]:italic [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6"
               dangerouslySetInnerHTML={{ __html: value || '<p className="text-slate-400 italic">No content to preview.</p>' }}
             />
           </div>
@@ -348,7 +348,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           {selectedText && (
             <>
               <span>•</span>
-              <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
+              <span className="text-primary font-semibold">
                 {selectedText.length} characters selected
               </span>
             </>
