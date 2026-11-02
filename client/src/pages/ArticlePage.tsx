@@ -121,6 +121,19 @@ export const ArticlePage: React.FC = () => {
     if (!article?.contentHtml) return { processedHtml: '', tocItems: [] };
 
     let html = article.contentHtml;
+
+    // Strip leading H1 or H2 that duplicates the article title below the TLDR / hero section
+    if (article.title) {
+      const normalizedTitle = article.title.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      html = html.replace(/^\s*<h[12][^>]*>(.*?)<\/h[12]>/i, (match: string, inner: string) => {
+        const cleanInner = inner.replace(/<[^>]*>/g, '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (cleanInner === normalizedTitle || (normalizedTitle.length > 5 && (cleanInner.includes(normalizedTitle) || normalizedTitle.includes(cleanInner)))) {
+          return '';
+        }
+        return match;
+      });
+    }
+
     const items: RailTocItem[] = [];
     const parserRegex = /<(h[23])([^>]*)>(.*?)<\/\1>/gi;
     let match;
@@ -143,7 +156,7 @@ export const ArticlePage: React.FC = () => {
     });
 
     return { processedHtml: html, tocItems: items };
-  }, [article?.contentHtml]);
+  }, [article?.contentHtml, article?.title]);
 
   const handleShare = () => {
     if (article?.id) {

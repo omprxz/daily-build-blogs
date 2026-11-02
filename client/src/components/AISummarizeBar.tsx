@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Sparkles, Check, Copy, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 export interface AISummarizeBarProps {
   articleTitle: string;
   articleUrl?: string;
-  articleExcerpt?: string;
-  takeaways?: string[];
+  brandName?: string;
   className?: string;
 }
 
@@ -13,8 +12,6 @@ interface AIProvider {
   id: string;
   name: string;
   description: string;
-  brandColor: string;
-  hoverBorderColor: string;
   getUrl: (prompt: string, url: string, title: string) => string;
   renderIcon: () => React.ReactNode;
 }
@@ -22,12 +19,10 @@ interface AIProvider {
 export const AISummarizeBar: React.FC<AISummarizeBarProps> = ({
   articleTitle,
   articleUrl,
-  articleExcerpt,
-  takeaways,
+  brandName = 'Daily Build',
   className = '',
 }) => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [showQuickSummary, setShowQuickSummary] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
   const getEffectiveUrl = () => {
@@ -38,7 +33,7 @@ export const AISummarizeBar: React.FC<AISummarizeBarProps> = ({
 
   const getSummaryPrompt = () => {
     const url = getEffectiveUrl();
-    return `Please summarize this article: "${articleTitle}". URL: ${url}\nHighlight the key architectural takeaways, core arguments, and technical insights.`;
+    return `I'm reading the blog post by ${brandName} about "${articleTitle}".\n\n${url}\n\nSummarize the key insights from this blog post. What stands out in their approach or ideas?\n\nReflect on how ${brandName}'s perspective adds value for teams working with developer marketing, technical content, and API documentation.`;
   };
 
   const handleProviderClick = (provider: AIProvider, e: React.MouseEvent) => {
@@ -47,113 +42,37 @@ export const AISummarizeBar: React.FC<AISummarizeBarProps> = ({
     const url = getEffectiveUrl();
     const targetUrl = provider.getUrl(prompt, url, articleTitle);
 
-    // Copy prompt to clipboard for user convenience
+    // Copy prompt to clipboard for instant convenience
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(prompt).catch(() => {});
     }
 
     // Trigger toast notification
-    setToastMessage(`Opening ${provider.name} • Summary prompt copied!`);
+    setToastMessage(`Opening ${provider.name} • Prompt copied!`);
     setTimeout(() => {
       setToastMessage(null);
-    }, 3200);
+    }, 3000);
 
     // Open provider in new tab
     window.open(targetUrl, '_blank', 'noopener,noreferrer');
   };
 
+  // Official icons sourced directly from traictory.com/icons
   const aiProviders: AIProvider[] = [
     {
       id: 'chatgpt',
       name: 'ChatGPT',
-      description: 'Summarize with OpenAI ChatGPT',
-      brandColor: '#10a37e',
-      hoverBorderColor: 'hover:border-emerald-500/50 hover:shadow-emerald-500/20',
-      getUrl: (prompt) => `https://chatgpt.com/?hints=search&q=${encodeURIComponent(prompt)}`,
+      description: 'Summarize with ChatGPT',
+      getUrl: (prompt) => `https://chatgpt.com/?q=${encodeURIComponent(prompt)}`,
       renderIcon: () => (
-        <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-sm sm:rounded-md bg-white flex items-center justify-center p-0.5 shadow-2xs">
-          <svg viewBox="0 0 24 24" className="w-full h-full text-black fill-current" aria-hidden="true">
-            <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1683a.071.071 0 0 1 .038.052v5.5826a4.5045 4.5045 0 0 1-4.4945 4.4947zm-9.66-4.2254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1401-1.7464zm-1.3444-9.9234a4.466 4.466 0 0 1 2.3468-1.9775l-.0048.1656v5.5163a.776.776 0 0 0 .388.6766l5.8427 3.3685-2.02 1.1683a.0757.0757 0 0 1-.071 0l-4.8303-2.7866a4.4992 4.4992 0 0 1-1.6514-6.131zm16.5991 3.8558L12.99 8.767l2.02-1.1636a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.388-.6861zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.9797V7.6474a.0852.0852 0 0 1 .0332-.0616l4.9458-2.8577a4.4992 4.4992 0 0 1 6.505 4.5042zm-10.4578 3.5134l2.2575-1.3057 2.2575 1.3057v2.6066l-2.2575 1.3057-2.2575-1.3057z" />
-          </svg>
-        </div>
-      ),
-    },
-    {
-      id: 'gemini',
-      name: 'Gemini',
-      description: 'Summarize with Google Gemini',
-      brandColor: '#4285F4',
-      hoverBorderColor: 'hover:border-blue-500/50 hover:shadow-blue-500/20',
-      getUrl: (prompt) => `https://gemini.google.com/app?text=${encodeURIComponent(prompt)}`,
-      renderIcon: () => (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-5.5 sm:h-5.5" fill="none" aria-hidden="true">
-          {/* Constellation dots */}
-          <circle cx="12" cy="12" r="1.35" fill="#FBBC05" />
-          <circle cx="12" cy="8.8" r="1.2" fill="#4285F4" />
-          <circle cx="12" cy="15.2" r="1.2" fill="#34A853" />
-          <circle cx="12" cy="6" r="1.0" fill="#4285F4" />
-          <circle cx="12" cy="18" r="1.0" fill="#34A853" />
-          <circle cx="12" cy="3.6" r="0.8" fill="#4285F4" />
-          <circle cx="12" cy="20.4" r="0.8" fill="#34A853" />
-
-          <circle cx="8.8" cy="12" r="1.2" fill="#4285F4" />
-          <circle cx="15.2" cy="12" r="1.2" fill="#EA4335" />
-          <circle cx="6" cy="12" r="1.0" fill="#4285F4" />
-          <circle cx="18" cy="12" r="1.0" fill="#34A853" />
-          <circle cx="3.6" cy="12" r="0.8" fill="#4285F4" />
-          <circle cx="20.4" cy="12" r="0.8" fill="#34A853" />
-
-          <circle cx="9.5" cy="9.5" r="1.15" fill="#4285F4" />
-          <circle cx="14.5" cy="9.5" r="1.15" fill="#EA4335" />
-          <circle cx="9.5" cy="14.5" r="1.15" fill="#FBBC05" />
-          <circle cx="14.5" cy="14.5" r="1.15" fill="#34A853" />
-
-          <circle cx="7.6" cy="7.6" r="0.9" fill="#4285F4" />
-          <circle cx="16.4" cy="7.6" r="0.9" fill="#EA4335" />
-          <circle cx="7.6" cy="16.4" r="0.9" fill="#4285F4" />
-          <circle cx="16.4" cy="16.4" r="0.9" fill="#34A853" />
-        </svg>
-      ),
-    },
-    {
-      id: 'grok',
-      name: 'Grok',
-      description: 'Summarize with xAI Grok',
-      brandColor: '#ffffff',
-      hoverBorderColor: 'hover:border-slate-400/50 hover:shadow-slate-400/20',
-      getUrl: (prompt) => `https://x.com/i/grok?text=${encodeURIComponent(prompt)}`,
-      renderIcon: () => (
-        <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-sm sm:rounded-md bg-black flex items-center justify-center p-0.5 shadow-2xs border border-white/10">
-          <svg viewBox="0 0 24 24" className="w-full h-full" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="5.2" stroke="#FFFFFF" strokeWidth="1.8" />
-            <line x1="7.2" y1="16.8" x2="16.8" y2="7.2" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
-        </div>
-      ),
-    },
-    {
-      id: 'claude',
-      name: 'Claude',
-      description: 'Summarize with Anthropic Claude',
-      brandColor: '#D97757',
-      hoverBorderColor: 'hover:border-amber-600/50 hover:shadow-amber-600/20',
-      getUrl: (prompt) => `https://claude.ai/new?q=${encodeURIComponent(prompt)}`,
-      renderIcon: () => (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-5.5 sm:h-5.5 fill-[#D97757]" aria-hidden="true">
-          <path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889Z" />
-        </svg>
-      ),
-    },
-    {
-      id: 'perplexity',
-      name: 'Perplexity',
-      description: 'Summarize with Perplexity AI',
-      brandColor: '#1FB8CD',
-      hoverBorderColor: 'hover:border-cyan-500/50 hover:shadow-cyan-500/20',
-      getUrl: (prompt) => `https://www.perplexity.ai/search?q=${encodeURIComponent(prompt)}`,
-      renderIcon: () => (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-5.5 sm:h-5.5 fill-[#1FB8CD]" aria-hidden="true">
-          <path d="M22.3977 7.0896h-2.3106V.0676l-7.5094 6.3542V.1577h-1.1554v6.1966L4.4904 0v7.0896H1.6023v10.3976h2.8882V24l6.932-6.3591v6.2005h1.1554v-6.0469l6.9318 6.1807v-6.4879h2.8882V7.0896zm-3.4657-4.531v4.531h-5.355l5.355-4.531zm-13.2862.0676 4.8691 4.4634H5.6458V2.6262zM2.7576 16.332V8.245h7.8476l-6.1149 6.1147v1.9723H2.7576zm2.8882 5.0404v-3.8852h.0001v-2.6488l5.7763-5.7764v7.0111l-5.7764 5.2993zm12.7086.0248-5.7766-5.1509V9.0618l5.7766 5.7766v6.5588zm2.8882-5.0652h-1.733v-1.9723L13.3948 8.245h7.8478v8.087z" />
+        // Traictory OpenAI Logo
+        <svg
+          viewBox="0 0 24 24"
+          className="w-5 h-5 fill-current text-slate-900 dark:text-white transition-colors"
+          fillRule="evenodd"
+          aria-hidden="true"
+        >
+          <path d="M21.55 10.004a5.416 5.416 0 00-.478-4.501c-1.217-2.09-3.662-3.166-6.05-2.66A5.59 5.59 0 0010.831 1C8.39.995 6.224 2.546 5.473 4.838A5.553 5.553 0 001.76 7.496a5.487 5.487 0 00.691 6.5 5.416 5.416 0 00.477 4.502c1.217 2.09 3.662 3.165 6.05 2.66A5.586 5.586 0 0013.168 23c2.443.006 4.61-1.546 5.361-3.84a5.553 5.553 0 003.715-2.66 5.488 5.488 0 00-.693-6.497v.001zm-8.381 11.558a4.199 4.199 0 01-2.675-.954c.034-.018.093-.05.132-.074l4.44-2.53a.71.71 0 00.364-.623v-6.176l1.877 1.069c.02.01.033.029.036.05v5.115c-.003 2.274-1.87 4.118-4.174 4.123zM4.192 17.78a4.059 4.059 0 01-.498-2.763c.032.02.09.055.131.078l4.44 2.53c.225.13.504.13.73 0l5.42-3.088v2.138a.068.068 0 01-.027.057L9.9 19.288c-1.999 1.136-4.552.46-5.707-1.51h-.001zM3.023 8.216A4.15 4.15 0 015.198 6.41l-.002.151v5.06a.711.711 0 00.364.624l5.42 3.087-1.876 1.07a.067.067 0 01-.063.005l-4.489-2.559c-1.995-1.14-2.679-3.658-1.53-5.63h.001zm15.417 3.54l-5.42-3.088L14.896 7.6a.067.067 0 01.063-.006l4.489 2.557c1.998 1.14 2.683 3.662 1.529 5.633a4.163 4.163 0 01-2.174 1.807V12.38a.71.71 0 00-.363-.623zm1.867-2.773a6.04 6.04 0 00-.132-.078l-4.44-2.53a.731.731 0 00-.729 0l-5.42 3.088V7.325a.068.068 0 01.027-.057L14.1 4.713c2-1.137 4.555-.46 5.707 1.513.487.833.664 1.809.499 2.757h.001zm-11.741 3.81l-1.877-1.068a.065.065 0 01-.036-.051V6.559c.001-2.277 1.873-4.122 4.181-4.12.976 0 1.92.338 2.671.954-.034.018-.092.05-.131.073l-4.44 2.53a.71.71 0 00-.365.623l-.003 6.173v.002zm1.02-2.168L12 9.25l2.414 1.375v2.75L12 14.75l-2.415-1.375v-2.75z" />
         </svg>
       ),
     },
@@ -161,54 +80,96 @@ export const AISummarizeBar: React.FC<AISummarizeBarProps> = ({
       id: 'google-ai',
       name: 'Google AI',
       description: 'Summarize with Google AI',
-      brandColor: '#4285F4',
-      hoverBorderColor: 'hover:border-indigo-500/50 hover:shadow-indigo-500/20',
-      getUrl: (prompt, url, title) => `https://www.google.com/search?q=${encodeURIComponent(`Summarize article ${title} ${url}`)}`,
+      getUrl: (prompt) => `https://www.google.com/search?udm=50&q=${encodeURIComponent(prompt)}`,
       renderIcon: () => (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-5.5 sm:h-5.5" fill="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="googleAiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#4285F4" />
-              <stop offset="35%" stopColor="#9B72CB" />
-              <stop offset="70%" stopColor="#EA4335" />
-              <stop offset="100%" stopColor="#FBBC05" />
-            </linearGradient>
-          </defs>
-          <path
-            d="M12 2C12.5 7.5 16.5 11.5 22 12C16.5 12.5 12.5 16.5 12 22C11.5 16.5 7.5 12.5 2 12C7.5 11.5 11.5 7.5 12 2Z"
-            fill="url(#googleAiGrad)"
-          />
+        // Traictory Google Color Logo
+        <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" aria-hidden="true">
+          <path d="M23 12.245c0-.905-.075-1.565-.236-2.25h-10.54v4.083h6.186c-.124 1.014-.797 2.542-2.294 3.569l-.021.136 3.332 2.53.23.022C21.779 18.417 23 15.593 23 12.245z" fill="#4285F4" />
+          <path d="M12.225 23c3.03 0 5.574-.978 7.433-2.665l-3.542-2.688c-.948.648-2.22 1.1-3.891 1.1a6.745 6.745 0 01-6.386-4.572l-.132.011-3.465 2.628-.045.124C4.043 20.531 7.835 23 12.225 23z" fill="#34A853" />
+          <path d="M5.84 14.175A6.65 6.65 0 015.463 12c0-.758.138-1.491.361-2.175l-.006-.147-3.508-2.67-.115.054A10.831 10.831 0 001 12c0 1.772.436 3.447 1.197 4.938l3.642-2.763z" fill="#FBBC05" />
+          <path d="M12.225 5.253c2.108 0 3.529.892 4.34 1.638l3.167-3.031C17.787 2.088 15.255 1 12.225 1 7.834 1 4.043 3.469 2.197 7.062l3.63 2.763a6.77 6.77 0 016.398-4.572z" fill="#EB4335" />
+        </svg>
+      ),
+    },
+    {
+      id: 'grok',
+      name: 'Grok',
+      description: 'Summarize with Grok',
+      getUrl: (prompt) => `https://x.com/i/grok?text=${encodeURIComponent(prompt)}`,
+      renderIcon: () => (
+        // Traictory Grok Logo
+        <svg
+          viewBox="0 0 24 24"
+          className="w-5 h-5 fill-current text-slate-900 dark:text-white transition-colors"
+          fillRule="evenodd"
+          aria-hidden="true"
+        >
+          <path d="M9.27 15.29l7.978-5.897c.391-.29.95-.177 1.137.272.98 2.369.542 5.215-1.41 7.169-1.951 1.954-4.667 2.382-7.149 1.406l-2.711 1.257c3.889 2.661 8.611 2.003 11.562-.953 2.341-2.344 3.066-5.539 2.388-8.42l.006.007c-.983-4.232.242-5.924 2.75-9.383.06-.082.12-.164.179-.248l-3.301 3.305v-.01L9.267 15.292M7.623 16.723c-2.792-2.67-2.31-6.801.071-9.184 1.761-1.763 4.647-2.483 7.166-1.425l2.705-1.25a7.808 7.808 0 00-1.829-1A8.975 8.975 0 005.984 5.83c-2.533 2.536-3.33 6.436-1.962 9.764 1.022 2.487-.653 4.246-2.34 6.022-.599.63-1.199 1.259-1.682 1.925l7.62-6.815" />
+        </svg>
+      ),
+    },
+    {
+      id: 'claude',
+      name: 'Claude',
+      description: 'Summarize with Claude',
+      getUrl: (prompt) => `https://claude.ai/new?q=${encodeURIComponent(prompt)}`,
+      renderIcon: () => (
+        // Traictory Claude Color Logo
+        <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" aria-hidden="true">
+          <path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fillRule="nonzero" />
+        </svg>
+      ),
+    },
+    {
+      id: 'perplexity',
+      name: 'Perplexity',
+      description: 'Summarize with Perplexity',
+      getUrl: (prompt) => `https://www.perplexity.ai/search/new?q=${encodeURIComponent(prompt)}`,
+      renderIcon: () => (
+        // Traictory Perplexity Color Logo
+        <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" aria-hidden="true">
+          <path d="M19.785 0v7.272H22.5V17.62h-2.935V24l-7.037-6.194v6.145h-1.091v-6.152L4.392 24v-6.465H1.5V7.188h2.884V0l7.053 6.494V.19h1.09v6.49L19.786 0zm-7.257 9.044v7.319l5.946 5.234V14.44l-5.946-5.397zm-1.099-.08l-5.946 5.398v7.235l5.946-5.234V8.965zm8.136 7.58h1.844V8.349H13.46l6.105 5.54v2.655zm-8.982-8.28H2.59v8.195h1.8v-2.576l6.192-5.62zM5.475 2.476v4.71h5.115l-5.115-4.71zm13.219 0l-5.115 4.71h5.115v-4.71z" fill="#22B8CD" fillRule="nonzero" />
         </svg>
       ),
     },
   ];
 
   return (
-    <div className={`relative flex flex-col items-center sm:items-start my-6 select-none ${className}`}>
+    <div className={`relative flex flex-col items-center sm:items-start my-5 select-none ${className}`}>
       {/* Toast Feedback Notification */}
       {toastMessage && (
-        <div className="absolute -top-11 left-1/2 -translate-x-1/2 sm:left-6 sm:translate-x-0 z-50 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/95 dark:bg-slate-900/95 text-white border border-emerald-500/50 text-xs font-semibold shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute -top-11 left-1/2 -translate-x-1/2 sm:left-4 sm:translate-x-0 z-50 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/95 dark:bg-slate-900/95 text-white border border-emerald-500/50 text-xs font-semibold shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
           <Check className="w-3.5 h-3.5 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Main Capsule Container */}
-      <div className="w-full sm:w-auto inline-flex items-center justify-between sm:justify-start gap-2.5 sm:gap-4 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white/95 dark:bg-[#111625] text-slate-900 dark:text-white border border-slate-200/90 dark:border-white/10 shadow-md shadow-slate-900/5 dark:shadow-black/25 backdrop-blur-md transition-all duration-200 hover:border-slate-300 dark:hover:border-white/20">
+      <div className="w-full sm:w-auto inline-flex items-center justify-between sm:justify-start gap-2.5 sm:gap-4 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white/95 dark:bg-[#111625] text-slate-900 dark:text-white border border-slate-200/90 dark:border-white/10 shadow-md shadow-slate-900/5 dark:shadow-black/25 backdrop-blur-md transition-all duration-200 hover:border-slate-300 dark:hover:border-white/20">
         
-        {/* Left Section: Violet Star & Label */}
-        <div className="flex items-center gap-2 pl-1 sm:pl-0 flex-shrink-0">
-          {/* Violet 5-point star */}
-          <svg viewBox="0 0 24 24" className="w-4 h-4 text-purple-600 dark:text-[#b388ff] fill-current flex-shrink-0" aria-hidden="true">
-            <path d="M12 2l2.9 6.8 7.1.6-5.3 4.8 1.6 7L12 17.5 5.7 21.2l1.6-7-5.3-4.8 7.1-.6L12 2z" />
-          </svg>
+        {/* Left Section: Icons8 AI Sparkle Icon & Label */}
+        <div className="flex items-center gap-2 pl-0.5 sm:pl-0 flex-shrink-0">
+          <span
+            className="w-4.5 h-4.5 sm:w-5 sm:h-5 bg-purple-600 dark:bg-[#b388ff] inline-block flex-shrink-0 transition-colors"
+            style={{
+              maskImage: 'url(/logos/summarize-icon.png)',
+              WebkitMaskImage: 'url(/logos/summarize-icon.png)',
+              maskSize: 'contain',
+              WebkitMaskSize: 'contain',
+              maskRepeat: 'no-repeat',
+              WebkitMaskRepeat: 'no-repeat',
+              maskPosition: 'center',
+              WebkitMaskPosition: 'center',
+            }}
+            aria-hidden="true"
+          />
           <span className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-white/95 whitespace-nowrap">
             Summarize with
           </span>
         </div>
 
-        {/* Right Section: AI Brand Circular Buttons */}
-        <div className="flex items-center gap-1 sm:gap-2">
+        {/* Right Section: 5 AI Brand Circular Buttons */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {aiProviders.map((provider) => (
             <div key={provider.id} className="relative">
               <button
@@ -218,7 +179,7 @@ export const AISummarizeBar: React.FC<AISummarizeBarProps> = ({
                 onMouseLeave={() => setActiveTooltip(null)}
                 onFocus={() => setActiveTooltip(provider.id)}
                 onBlur={() => setActiveTooltip(null)}
-                className={`relative flex items-center justify-center w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-white/[0.08] dark:hover:bg-white/[0.18] active:scale-95 transition-all duration-200 border border-slate-200/70 dark:border-white/[0.04] hover:scale-105 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary ${provider.hoverBorderColor}`}
+                className="group relative flex items-center justify-center w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-full bg-slate-100/90 hover:bg-slate-200 dark:bg-[#182032] dark:hover:bg-[#202c46] active:scale-95 transition-all duration-200 border border-slate-200/80 dark:border-white/10 shadow-xs dark:shadow-[0_2px_8px_rgba(0,0,0,0.4)] hover:scale-105 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary overflow-hidden p-1.5 sm:p-2"
                 aria-label={provider.description}
                 title={provider.name}
               >
@@ -232,61 +193,13 @@ export const AISummarizeBar: React.FC<AISummarizeBarProps> = ({
                   className="absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-lg bg-slate-900 text-white text-[11px] font-medium shadow-xl whitespace-nowrap border border-white/10 z-50 animate-in fade-in zoom-in-95 duration-150 pointer-events-none"
                 >
                   {provider.name}
-                  {/* Downward triangle arrow */}
                   <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 border-r border-b border-white/10 rotate-45" />
                 </div>
               )}
             </div>
           ))}
-
-          {/* Optional In-Page TL;DR Accordion Toggle if Takeaways / Excerpt exist */}
-          {(takeaways && takeaways.length > 0) || articleExcerpt ? (
-            <button
-              type="button"
-              onClick={() => setShowQuickSummary(!showQuickSummary)}
-              className="ml-1 sm:ml-2 pl-2 border-l border-slate-200 dark:border-white/15 flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
-              title="Quick TL;DR on-page"
-            >
-              <span className="hidden md:inline">Quick TL;DR</span>
-              {showQuickSummary ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </button>
-          ) : null}
         </div>
       </div>
-
-      {/* Quick In-Page Summary Expansion */}
-      {showQuickSummary && ((takeaways && takeaways.length > 0) || articleExcerpt) && (
-        <div className="w-full max-w-2xl mt-3 p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-100 dark:border-white/10">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-[#b388ff]">
-              <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-[#b388ff]" />
-              <span>Instant AI Summary Takeaways</span>
-            </div>
-            <button
-              onClick={() => setShowQuickSummary(false)}
-              className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-white"
-            >
-              Close
-            </button>
-          </div>
-
-          {articleExcerpt && (
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-3">
-              {articleExcerpt}
-            </p>
-          )}
-
-          {takeaways && takeaways.length > 0 && (
-            <ul className="space-y-1.5 list-disc pl-4 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
-              {takeaways.map((item, idx) => (
-                <li key={idx} className="leading-snug">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
     </div>
   );
 };
