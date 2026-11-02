@@ -22,6 +22,8 @@ import {
   ZoomIn,
   ExternalLink,
   ImageIcon,
+  Sparkles,
+  RefreshCw,
 } from 'lucide-react';
 import { getCategoryTheme } from '../utils/editorialPrompt.js';
 import { Button } from '@/components/ui/button.js';
@@ -31,21 +33,36 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card.j
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table.js';
 import { Skeleton } from '@/components/ui/skeleton.js';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog.js';
+import { useImageGeneration } from '../context/ImageGenerationContext.js';
+import { ThumbnailRegenerationModal } from './components/ThumbnailRegenerationModal.js';
 
 const NO_IMAGE_URL = 'https://placehold.co/600x400/1e293b/94a3b8.png?text=No+Image';
 const ERROR_IMAGE_URL = 'https://placehold.co/600x400/450a0a/f87171.png?text=Image+Load+Failed';
 
 interface ArticleThumbnailProps {
+  article: any;
   src?: string | null;
   alt?: string;
   title: string;
+  isGenerating?: boolean;
   onClick: (resolvedSrc: string) => void;
+  onRegenerate: () => void;
 }
 
-const ArticleThumbnail: React.FC<ArticleThumbnailProps> = ({ src, alt, title, onClick }) => {
+const ArticleThumbnail: React.FC<ArticleThumbnailProps> = ({
+  article,
+  src,
+  alt,
+  title,
+  isGenerating,
+  onClick,
+  onRegenerate,
+}) => {
   const initialSrc = src?.trim() ? src.trim() : NO_IMAGE_URL;
   const [currentSrc, setCurrentSrc] = useState<string>(initialSrc);
   const [hasError, setHasError] = useState(false);
+
+  const isMissing = !src || !src.trim();
 
   useEffect(() => {
     const nextSrc = src?.trim() ? src.trim() : NO_IMAGE_URL;
@@ -60,29 +77,70 @@ const ArticleThumbnail: React.FC<ArticleThumbnailProps> = ({ src, alt, title, on
     }
   };
 
+  const showProminentRegenerate = hasError || isMissing;
+
   return (
-    <button
-      type="button"
-      onClick={() => onClick(currentSrc)}
-      className="group/thumb relative w-14 h-10 sm:w-16 sm:h-11 rounded-lg overflow-hidden border border-slate-200/80 dark:border-white/[0.08] bg-slate-900 shadow-2xs hover:shadow-md hover:border-primary/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 shrink-0 block cursor-pointer"
-      title={`Click to preview full size thumbnail for "${title}"`}
-      aria-label={`Preview thumbnail for "${title}"`}
-    >
-      <img
-        src={currentSrc}
-        alt={alt || title}
-        loading="lazy"
-        onError={handleError}
-        className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-300 ease-out"
-      />
-      <div className="absolute inset-0 bg-black/45 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-200 flex items-center justify-center backdrop-blur-[0.5px]">
-        <ZoomIn className="w-4 h-4 text-white drop-shadow-md" />
-      </div>
-    </button>
+    <div className="relative group/thumb w-14 h-10 sm:w-16 sm:h-11 shrink-0">
+      <button
+        type="button"
+        onClick={() => onClick(currentSrc)}
+        className="w-full h-full rounded-lg overflow-hidden border border-slate-200/80 dark:border-white/[0.08] bg-slate-900 shadow-2xs hover:shadow-md hover:border-primary/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 block cursor-pointer"
+        title={`Click to preview full size thumbnail for "${title}"`}
+        aria-label={`Preview thumbnail for "${title}"`}
+      >
+        <img
+          src={currentSrc}
+          alt={alt || title}
+          loading="lazy"
+          onError={handleError}
+          className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-300 ease-out"
+        />
+
+        {/* Hover zoom icon */}
+        {!isGenerating && (
+          <div className="absolute inset-0 bg-black/45 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-200 flex items-center justify-center backdrop-blur-[0.5px]">
+            <ZoomIn className="w-4 h-4 text-white drop-shadow-md" />
+          </div>
+        )}
+      </button>
+
+      {/* Generating live spinner overlay */}
+      {isGenerating && (
+        <div className="absolute inset-0 rounded-lg bg-purple-950/85 backdrop-blur-[1px] flex flex-col items-center justify-center p-0.5 z-10 text-purple-300 pointer-events-none border border-purple-500/50">
+          <Loader2 className="w-3.5 h-3.5 text-purple-400 animate-spin" />
+          <span className="text-[8px] font-mono font-bold mt-0.5 text-purple-200">AI Gen</span>
+        </div>
+      )}
+
+      {/* Micro regenerate icon button in top-right corner */}
+      {!isGenerating && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRegenerate();
+          }}
+          className={`absolute -top-1.5 -right-1.5 z-20 p-1 rounded-full shadow-md transition-all duration-200 flex items-center justify-center cursor-pointer ${
+            showProminentRegenerate
+              ? 'bg-amber-500 hover:bg-amber-600 text-white ring-2 ring-white dark:ring-slate-900 opacity-100 scale-100 animate-bounce'
+              : 'bg-slate-900/90 hover:bg-primary text-slate-200 hover:text-white border border-slate-700/80 opacity-0 group-hover/thumb:opacity-100 scale-90 group-hover/thumb:scale-100'
+          }`}
+          title={
+            showProminentRegenerate
+              ? `Image missing or failed to load. Click to generate 16:9 thumbnail for "${title}"`
+              : `Click to regenerate AI thumbnail for "${title}"`
+          }
+          aria-label={`Regenerate AI thumbnail for "${title}"`}
+        >
+          <Sparkles className="w-2.5 h-2.5" />
+        </button>
+      )}
+    </div>
   );
 };
 
 export const ArticleList: React.FC = () => {
+  const { isGenerating, latestCompletedJobs } = useImageGeneration();
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -104,7 +162,12 @@ export const ArticleList: React.FC = () => {
     title: string;
     alt?: string;
     slug?: string;
+    articleId?: string;
+    category?: any;
   } | null>(null);
+
+  // Thumbnail regeneration modal state
+  const [regeneratingArticle, setRegeneratingArticle] = useState<any | null>(null);
 
   // Global counts for metrics strip
   const [summaryCounts, setSummaryCounts] = useState<{
@@ -180,6 +243,26 @@ export const ArticleList: React.FC = () => {
     setPage(1);
     loadArticles(1, pageSize, statusFilter, search);
   }, [statusFilter, pageSize]);
+
+  // Synchronize generated images as jobs complete in the background
+  useEffect(() => {
+    const completedIds = Object.keys(latestCompletedJobs);
+    if (completedIds.length === 0) return;
+
+    setArticles((prev) =>
+      prev.map((art) => {
+        const finished = latestCompletedJobs[art.id];
+        if (finished && finished.resultImageUrl && art.featuredImage !== finished.resultImageUrl) {
+          return {
+            ...art,
+            featuredImage: finished.resultImageUrl,
+            featuredImageAlt: finished.prompt || art.featuredImageAlt,
+          };
+        }
+        return art;
+      })
+    );
+  }, [latestCompletedJobs]);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -512,17 +595,22 @@ export const ArticleList: React.FC = () => {
                   <TableRow key={art.id}>
                     <TableCell className="w-16 sm:w-20 py-2.5">
                       <ArticleThumbnail
+                        article={art}
                         src={art.featuredImage}
                         alt={art.featuredImageAlt}
                         title={art.title}
+                        isGenerating={isGenerating(art.id)}
                         onClick={(resolvedSrc) =>
                           setLightboxImage({
                             src: resolvedSrc,
                             title: art.title,
                             alt: art.featuredImageAlt,
                             slug: art.slug,
+                            articleId: art.id,
+                            category: art.category,
                           })
                         }
+                        onRegenerate={() => setRegeneratingArticle(art)}
                       />
                     </TableCell>
                     <TableCell className="font-bold text-slate-900 dark:text-white max-w-md">
@@ -636,6 +724,24 @@ export const ArticleList: React.FC = () => {
               {lightboxImage?.src}
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => {
+                  const targetArt = articles.find((a) => a.id === lightboxImage?.articleId) || {
+                    id: lightboxImage?.articleId || '',
+                    title: lightboxImage?.title || '',
+                    slug: lightboxImage?.slug,
+                    featuredImage: lightboxImage?.src,
+                    category: lightboxImage?.category,
+                  };
+                  setLightboxImage(null);
+                  setRegeneratingArticle(targetArt);
+                }}
+                icon={<RefreshCw className="w-3.5 h-3.5" />}
+              >
+                Regenerate Visual
+              </Button>
               {lightboxImage?.src && (
                 <a
                   href={lightboxImage.src}
@@ -659,6 +765,13 @@ export const ArticleList: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Thumbnail Regeneration Modal */}
+      <ThumbnailRegenerationModal
+        isOpen={Boolean(regeneratingArticle)}
+        onClose={() => setRegeneratingArticle(null)}
+        article={regeneratingArticle}
+      />
 
       {/* Deletion Confirmation Dialog */}
       <Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>

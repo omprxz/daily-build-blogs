@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './store/themeContext.js';
+import { ImageGenerationProvider } from './context/ImageGenerationContext.js';
 
 // Public Layout & Pages
 import { PublicLayout } from './layouts/PublicLayout.js';
@@ -37,58 +38,60 @@ const SettingsView = React.lazy(() => import('./admin/AppearanceSettings.js').th
 export const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <Routes>
-        {/* Public Publication Routes */}
-        <Route path="/" element={<PublicLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="article/:slug" element={<ArticlePage />} />
-          <Route path="category/:slug" element={<CategoryPage />} />
-          <Route path="search" element={<SearchPage />} />
-          <Route path="about" element={<AboutPage />} />
-          <Route path="editorial-policy" element={<EditorialPolicyPage />} />
-          <Route path="corrections-policy" element={<CorrectionsPolicyPage />} />
-          <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="terms" element={<TermsPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
+      <ImageGenerationProvider>
+        <Routes>
+          {/* Public Publication Routes */}
+          <Route path="/" element={<PublicLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="article/:slug" element={<ArticlePage />} />
+            <Route path="category/:slug" element={<CategoryPage />} />
+            <Route path="search" element={<SearchPage />} />
+            <Route path="about" element={<AboutPage />} />
+            <Route path="editorial-policy" element={<EditorialPolicyPage />} />
+            <Route path="corrections-policy" element={<CorrectionsPolicyPage />} />
+            <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="terms" element={<TermsPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
 
-        {/* Admin Login Route */}
-        <Route
-          path="/admin/login"
-          element={
-            <React.Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center font-mono text-xs text-white/50">Loading Portal...</div>}>
-              <LoginPage />
-            </React.Suspense>
-          }
-        />
+          {/* Admin Login Route */}
+          <Route
+            path="/admin/login"
+            element={
+              <React.Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center font-mono text-xs text-white/50">Loading Portal...</div>}>
+                <LoginPage />
+              </React.Suspense>
+            }
+          />
 
-        {/* Protected Administration Routes */}
-        <Route
-          path="/admin"
-          element={
-            <React.Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center font-mono text-xs text-white/50">Loading Workspace...</div>}>
-              <AdminLayout />
-            </React.Suspense>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="articles" element={<ArticleList />} />
-          <Route path="articles/new" element={<ArticleEditor />} />
-          <Route path="articles/:id" element={<ArticleEditor />} />
-          <Route path="studio" element={<AIContentStudio />} />
-          <Route path="training" element={<TrainingAndSourcesView />} />
-          <Route path="providers" element={<ProvidersAndAgentView />} />
-          <Route path="images" element={<ProvidersAndAgentView />} />
-          <Route path="automation" element={<WorkflowBuilder />} />
-          <Route path="sources" element={<TrainingAndSourcesView />} />
-          <Route path="categories" element={<CategoriesManager />} />
-          <Route path="seo" element={<SEOManager />} />
-          <Route path="newsletter" element={<NewsletterView />} />
-          <Route path="analytics" element={<AnalyticsView />} />
-          <Route path="sites" element={<SitesManager />} />
-          <Route path="settings" element={<SettingsView />} />
-        </Route>
-      </Routes>
+          {/* Protected Administration Routes */}
+          <Route
+            path="/admin"
+            element={
+              <React.Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center font-mono text-xs text-white/50">Loading Workspace...</div>}>
+                <AdminLayout />
+              </React.Suspense>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="articles" element={<ArticleList />} />
+            <Route path="articles/new" element={<ArticleEditor />} />
+            <Route path="articles/:id" element={<ArticleEditor />} />
+            <Route path="studio" element={<AIContentStudio />} />
+            <Route path="training" element={<TrainingAndSourcesView />} />
+            <Route path="providers" element={<ProvidersAndAgentView />} />
+            <Route path="images" element={<ProvidersAndAgentView />} />
+            <Route path="automation" element={<WorkflowBuilder />} />
+            <Route path="sources" element={<TrainingAndSourcesView />} />
+            <Route path="categories" element={<CategoriesManager />} />
+            <Route path="seo" element={<SEOManager />} />
+            <Route path="newsletter" element={<NewsletterView />} />
+            <Route path="analytics" element={<AnalyticsView />} />
+            <Route path="sites" element={<SitesManager />} />
+            <Route path="settings" element={<SettingsView />} />
+          </Route>
+        </Routes>
+      </ImageGenerationProvider>
     </ThemeProvider>
   );
 };

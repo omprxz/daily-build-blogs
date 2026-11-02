@@ -99,6 +99,12 @@ export const api = {
   testImageProvider: (slug: string) => fetchJson(`/image/providers/${slug}/test`, { method: 'POST' }),
   generateFeaturedImage: (data: any) => fetchJson('/image/generate', { method: 'POST', body: JSON.stringify(data) }),
   getImageHistory: () => fetchJson('/image/history'),
+  getActiveImageJobs: () => fetchJson<{ count: number; jobs: any[] }>('/image/jobs/active'),
+  startImageJob: (data: { articleId: string; provider?: string; modelId?: string; customPrompt?: string }) =>
+    fetchJson<{ success: boolean; job: any }>('/image/jobs', { method: 'POST', body: JSON.stringify(data) }),
+  getImageJob: (jobId: string) => fetchJson<any>(`/image/jobs/${jobId}`),
+  cancelImageJob: (jobId: string) => fetchJson<{ success: boolean; message: string }>(`/image/jobs/${jobId}/cancel`, { method: 'POST' }),
+  getImageJobHistory: () => fetchJson<any[]>('/image/jobs/history'),
   getCliChatStatus: () => fetchJson<{ ready: boolean; repoDir: string; hasApiKey: boolean }>('/image/providers/clichat/status'),
   testCliChat: () => fetchJson<{ success: boolean; message: string; logs?: string[] }>('/image/providers/clichat/test', { method: 'POST' }),
 

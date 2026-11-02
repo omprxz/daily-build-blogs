@@ -41,6 +41,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog.js';
+import { useImageGeneration } from '../context/ImageGenerationContext.js';
+import { GenerationDetailsModal } from '../admin/components/GenerationDetailsModal.js';
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -217,6 +219,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
 
 export const AdminLayout: React.FC = () => {
   const { appearance, updateAppearance, isDark, toggleTheme } = useTheme();
+  const { activeCount, setShowJobsModal } = useImageGeneration();
   const [collapsed, setCollapsed] = useState(appearance.sidebarCollapsed || false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -494,6 +497,26 @@ export const AdminLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Live Concurrent Image Generation Indicator */}
+            {activeCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowJobsModal(true)}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-600 dark:text-purple-400 font-bold text-xs shadow-2xs hover:shadow-xs transition-all animate-pulse cursor-pointer group"
+                title={`${activeCount} image generation${activeCount > 1 ? 's' : ''} currently running. Click to view live queue.`}
+                aria-label={`View ${activeCount} active image generation jobs`}
+              >
+                <div className="relative flex items-center justify-center">
+                  <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-purple-500 animate-ping" />
+                </div>
+                <span className="hidden sm:inline">Generating</span>
+                <span className="px-1.5 py-0.5 rounded-md bg-purple-600 text-white text-[10px] font-mono leading-none font-black shadow-xs">
+                  {activeCount}
+                </span>
+              </button>
+            )}
+
             {/* Quick Action: Change Password */}
             <Button
               variant="outline"
@@ -526,6 +549,9 @@ export const AdminLayout: React.FC = () => {
         isOpen={showPasswordModal}
         onClose={() => setShowPasswordModal(false)}
       />
+
+      {/* Global Live Image Generation Details Modal */}
+      <GenerationDetailsModal />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { imageService } from '../services/image/image-service.js';
+import { imageJobManager } from '../services/image/image-job-manager.js';
 import { cliChatService } from '../services/image/clichat.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { db } from '../database/db.js';
@@ -186,6 +187,75 @@ router.post('/generate', authenticate, async (req, res, next) => {
 
     const result = await imageService.generateFeaturedImage(input);
     res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/image/jobs/active - List active image generation jobs and count
+router.get('/jobs/active', authenticate, async (req, res, next) => {
+  try {
+    const jobs = imageJobManager.getActiveJobs();
+    const count = imageJobManager.getActiveCount();
+    res.json({ count, jobs });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/image/jobs - Start async concurrent image generation job for an article
+const createJobSchema = z.object({
+  articleId: z.string().uuid(),
+  provider: z.string().optional(),
+  modelId: z.string().optional(),
+  customPrompt: z.string().optional(),
+});
+
+router.post('/jobs', authenticate, async (req, res, next) => {
+  try {
+    const input = createJobSchema.parse(req.body);
+    const job = await imageJobManager.startJob({
+      articleId: input.articleId,
+      provider: input.provider,
+      modelId: input.modelId,
+      customPrompt: input.customPrompt,
+    });
+    res.status(202).json({ success: true, job });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/image/jobs/history - List recently completed or failed jobs
+router.get('/jobs/history', authenticate, async (req, res, next) => {
+  try {
+    const history = imageJobManager.getJobHistory(30);
+    res.json(history);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/image/jobs/:jobId - Get status of a specific job
+router.get('/jobs/:jobId', authenticate, async (req, res, next) => {
+  try {
+    const { jobId } = req.params;
+    const job = imageJobManager.getJob(jobId);
+    if (!job) {
+      return res.status(404).json({ error: 'JobNotFound', message: `Job ${jobId} not found` });
+    }
+    res.json(job);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/image/jobs/:jobId/cancel - Cancel an active job
+router.post('/jobs/:jobId/cancel', authenticate, async (req, res, next) => {
+  try {
+    const { jobId } = req.params;
+    const cancelled = imageJobManager.cancelJob(jobId);
+    res.json({ success: cancelled, message: cancelled ? 'Job cancelled' : 'Job could not be cancelled or was not active' });
   } catch (err) {
     next(err);
   }

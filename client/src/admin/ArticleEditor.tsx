@@ -33,6 +33,7 @@ import { Input } from '../components/ui/input.js';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card.js';
 import { StatusDot } from '../components/ui/status-dot.js';
 import { Alert, AlertTitle, AlertDescription } from '../components/ui/alert.js';
+import { useImageGeneration } from '../context/ImageGenerationContext.js';
 
 export const ArticleEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -40,11 +41,27 @@ export const ArticleEditor: React.FC = () => {
   const isNew = !persistedId && (!id || id === 'new');
   const navigate = useNavigate();
 
+  const { startGeneration, isGenerating, latestCompletedJobs } = useImageGeneration();
+
   useEffect(() => {
     if (id && id !== 'new') {
       setPersistedId(id);
     }
   }, [id]);
+
+  // Synchronize featured image when background image generation completes
+  useEffect(() => {
+    const targetId = persistedId || (id && id !== 'new' ? id : null);
+    if (!targetId) return;
+
+    const finished = latestCompletedJobs[targetId];
+    if (finished && finished.resultImageUrl && featuredImage !== finished.resultImageUrl) {
+      setFeaturedImage(finished.resultImageUrl);
+      setFeaturedImageAlt(title || 'Featured Article Visual');
+      setGeneratedImagePath(finished.resultImageUrl);
+      setImageGenSuccessNotice(`Visual synthesized with ${finished.provider.toUpperCase()} (${finished.modelId})`);
+    }
+  }, [latestCompletedJobs, persistedId, id, featuredImage, title]);
 
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(Boolean(id && id !== 'new'));
@@ -1023,7 +1040,7 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                 ) : (
                   <button
                     type="button"
-                    disabled={generatingImage}
+                    disabled={generatingImage || Boolean(persistedId && isGenerating(persistedId))}
                     onClick={async () => {
                       if (!title) {
                         alert('Please enter an article headline first.');
@@ -1032,31 +1049,30 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                       setGeneratingImage(true);
                       setGeneratedImagePath(null);
                       try {
-                        const targetId = persistedId || (id && id !== 'new' ? id : undefined);
-                        const catName = categories.find((c) => c.id === categoryId)?.name;
+                        let targetId = persistedId || (id && id !== 'new' ? id : null);
+                        if (!targetId) {
+                          const saved = await api.createArticle({
+                            title,
+                            slug: slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                            excerpt: excerpt || title,
+                            contentHtml: contentHtml || '<p>Draft</p>',
+                            categoryId,
+                            status: 'draft',
+                          });
+                          targetId = saved.id;
+                          setPersistedId(saved.id);
+                          navigate(`/admin/articles/${saved.id}`, { replace: true });
+                        }
+
                         const promptToSend = customImagePrompt || getDynamicThumbnailPrompt();
-                        const res = await api.generateFeaturedImage({
-                          title,
-                          topic: excerpt || title,
-                          category: catName,
-                          content: contentHtml,
+                        await startGeneration({
+                          articleId: targetId!,
                           provider: aiImageEngine,
                           modelId: aiImageEngine === 'gemini' ? geminiImageModel : undefined,
                           customPrompt: promptToSend,
-                          articleId: targetId,
                         });
 
-                        setFeaturedImage(res.imageUrl);
-                        setFeaturedImageAlt(res.altText || title);
-                        setGeneratedImagePath(res.imageUrl);
-
-                        // If article is already saved in DB, automatically update its featured image
-                        if (targetId) {
-                          api.updateArticle(targetId, {
-                            featuredImage: res.imageUrl,
-                            featuredImageAlt: res.altText || title,
-                          }).catch(() => {});
-                        }
+                        setImageGenSuccessNotice(`16:9 Image generation started in background with ${aiImageEngine.toUpperCase()}! Check live indicator in top navbar.`);
                       } catch (err: any) {
                         alert(`Image Generation Failed: ${err.message}`);
                       } finally {
@@ -1065,10 +1081,10 @@ Wide 16:9 composition. Clean, distinctive, imperfectly drawn, editorial, and mem
                     }}
                     className="w-full py-2.5 px-3 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-xs"
                   >
-                    {generatingImage ? (
+                    {generatingImage || Boolean(persistedId && isGenerating(persistedId)) ? (
                       <>
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Generating Visual with {aiImageEngine.toUpperCase()}...</span>
+                        <span>Generating Visual with {aiImageEngine.toUpperCase()} (Live)...</span>
                       </>
                     ) : (
                       <>
