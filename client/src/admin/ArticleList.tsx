@@ -19,6 +19,9 @@ import {
   ChevronsRight,
   Loader2,
   AlertTriangle,
+  ZoomIn,
+  ExternalLink,
+  ImageIcon,
 } from 'lucide-react';
 import { getCategoryTheme } from '../utils/editorialPrompt.js';
 import { Button } from '@/components/ui/button.js';
@@ -28,6 +31,56 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card.j
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table.js';
 import { Skeleton } from '@/components/ui/skeleton.js';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog.js';
+
+const NO_IMAGE_URL = 'https://placehold.co/600x400/1e293b/94a3b8.png?text=No+Image';
+const ERROR_IMAGE_URL = 'https://placehold.co/600x400/450a0a/f87171.png?text=Image+Load+Failed';
+
+interface ArticleThumbnailProps {
+  src?: string | null;
+  alt?: string;
+  title: string;
+  onClick: (resolvedSrc: string) => void;
+}
+
+const ArticleThumbnail: React.FC<ArticleThumbnailProps> = ({ src, alt, title, onClick }) => {
+  const initialSrc = src?.trim() ? src.trim() : NO_IMAGE_URL;
+  const [currentSrc, setCurrentSrc] = useState<string>(initialSrc);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    const nextSrc = src?.trim() ? src.trim() : NO_IMAGE_URL;
+    setCurrentSrc(nextSrc);
+    setHasError(false);
+  }, [src]);
+
+  const handleError = () => {
+    if (!hasError && currentSrc !== ERROR_IMAGE_URL) {
+      setHasError(true);
+      setCurrentSrc(ERROR_IMAGE_URL);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={() => onClick(currentSrc)}
+      className="group/thumb relative w-14 h-10 sm:w-16 sm:h-11 rounded-lg overflow-hidden border border-slate-200/80 dark:border-white/[0.08] bg-slate-900 shadow-2xs hover:shadow-md hover:border-primary/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 shrink-0 block cursor-pointer"
+      title={`Click to preview full size thumbnail for "${title}"`}
+      aria-label={`Preview thumbnail for "${title}"`}
+    >
+      <img
+        src={currentSrc}
+        alt={alt || title}
+        loading="lazy"
+        onError={handleError}
+        className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-300 ease-out"
+      />
+      <div className="absolute inset-0 bg-black/45 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-200 flex items-center justify-center backdrop-blur-[0.5px]">
+        <ZoomIn className="w-4 h-4 text-white drop-shadow-md" />
+      </div>
+    </button>
+  );
+};
 
 export const ArticleList: React.FC = () => {
   const [articles, setArticles] = useState<any[]>([]);
@@ -44,6 +97,14 @@ export const ArticleList: React.FC = () => {
   // Deletion modal state
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Lightbox modal state for thumbnail preview
+  const [lightboxImage, setLightboxImage] = useState<{
+    src: string;
+    title: string;
+    alt?: string;
+    slug?: string;
+  } | null>(null);
 
   // Global counts for metrics strip
   const [summaryCounts, setSummaryCounts] = useState<{
@@ -408,6 +469,7 @@ export const ArticleList: React.FC = () => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-16 sm:w-20">Thumbnail</TableHead>
               <TableHead>Headline &amp; Slug</TableHead>
               <TableHead>Channel</TableHead>
               <TableHead>Status</TableHead>
@@ -420,6 +482,9 @@ export const ArticleList: React.FC = () => {
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
+                  <TableCell className="w-16 sm:w-20 py-2.5">
+                    <Skeleton className="h-10 w-14 sm:w-16 sm:h-11 rounded-lg" />
+                  </TableCell>
                   <TableCell className="max-w-md">
                     <Skeleton className="h-4 w-3/4 mb-1.5" />
                     <Skeleton className="h-3 w-1/2" />
@@ -433,7 +498,7 @@ export const ArticleList: React.FC = () => {
               ))
             ) : articles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-12 text-center text-slate-400">
+                <TableCell colSpan={7} className="py-12 text-center text-slate-400">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <FileText className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                     <p className="font-medium text-xs">No articles found matching active filters.</p>
@@ -445,6 +510,21 @@ export const ArticleList: React.FC = () => {
                 const theme = getCategoryTheme(art.category?.slug || '');
                 return (
                   <TableRow key={art.id}>
+                    <TableCell className="w-16 sm:w-20 py-2.5">
+                      <ArticleThumbnail
+                        src={art.featuredImage}
+                        alt={art.featuredImageAlt}
+                        title={art.title}
+                        onClick={(resolvedSrc) =>
+                          setLightboxImage({
+                            src: resolvedSrc,
+                            title: art.title,
+                            alt: art.featuredImageAlt,
+                            slug: art.slug,
+                          })
+                        }
+                      />
+                    </TableCell>
                     <TableCell className="font-bold text-slate-900 dark:text-white max-w-md">
                       <Link to={`/admin/articles/${art.id}`} className="hover:text-primary line-clamp-1">
                         {art.title}
@@ -523,6 +603,62 @@ export const ArticleList: React.FC = () => {
 
       {/* BOTTOM PAGINATION CONTROLS */}
       {renderPaginationControls('bottom')}
+
+      {/* Thumbnail Lightbox Modal */}
+      <Dialog open={Boolean(lightboxImage)} onOpenChange={(open) => !open && setLightboxImage(null)}>
+        <DialogContent onClose={() => setLightboxImage(null)} className="max-w-4xl p-4 sm:p-6 bg-slate-950/95 text-white border-slate-800">
+          <DialogHeader className="border-b border-slate-800/80 pb-3 mb-3">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-primary" />
+              <DialogTitle className="text-base sm:text-lg font-bold text-white line-clamp-1">
+                {lightboxImage?.title || 'Article Thumbnail'}
+              </DialogTitle>
+            </div>
+            {lightboxImage?.slug && (
+              <DialogDescription className="text-xs text-slate-400 font-mono">
+                /article/{lightboxImage.slug}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+
+          {lightboxImage && (
+            <div className="relative w-full rounded-2xl overflow-hidden bg-black/60 border border-slate-800/80 flex items-center justify-center p-2 min-h-[220px]">
+              <img
+                src={lightboxImage.src}
+                alt={lightboxImage.alt || lightboxImage.title}
+                className="max-h-[70vh] w-auto max-w-full object-contain rounded-xl shadow-2xl transition-all"
+              />
+            </div>
+          )}
+
+          <DialogFooter className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-800/80 pt-3">
+            <div className="text-xs text-slate-400 truncate max-w-xs sm:max-w-md font-mono">
+              {lightboxImage?.src}
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              {lightboxImage?.src && (
+                <a
+                  href={lightboxImage.src}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Open Full Image</span>
+                </a>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLightboxImage(null)}
+                className="border-slate-700 text-slate-200 hover:bg-slate-800"
+              >
+                Close
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Deletion Confirmation Dialog */}
       <Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
