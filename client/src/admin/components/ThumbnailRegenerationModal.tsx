@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useImageGeneration } from '../../context/ImageGenerationContext.js';
+import { api } from '../../services/api.js';
 import {
   Dialog,
   DialogContent,
@@ -17,9 +18,8 @@ import {
   Eye,
   RotateCcw,
   Bot,
-  Layers,
-  Cpu,
   AlertTriangle,
+  CheckCircle2,
   ImageIcon,
 } from 'lucide-react';
 
@@ -34,6 +34,7 @@ interface ThumbnailRegenerationModalProps {
     category?: { name?: string; slug?: string } | null;
   } | null;
   onGenerationStarted?: (job: any) => void;
+  onArticleUpdated?: (articleId: string, newFeaturedImage?: string) => void;
 }
 
 export function buildEditorialPrompt(title: string, category: string = 'Technology'): string {
@@ -56,23 +57,61 @@ export const ThumbnailRegenerationModal: React.FC<ThumbnailRegenerationModalProp
   onClose,
   article,
   onGenerationStarted,
+  onArticleUpdated,
 }) => {
   const { startGeneration, isGenerating } = useImageGeneration();
 
-  const [provider, setProvider] = useState<'gemini' | 'codex' | 'agy' | 'clichat'>('gemini');
+  // Local Agent is selected by default to match ArticleEditor.tsx
+  const [provider, setProvider] = useState<'agent' | 'codex' | 'agy' | 'gemini'>('agent');
   const [geminiModel, setGeminiModel] = useState<string>('imagen-3.0-generate-002');
   const [customPrompt, setCustomPrompt] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [agentNotice, setAgentNotice] = useState<string | null>(null);
+  const [pollingAgent, setPollingAgent] = useState<boolean>(false);
+  const [currentPreviewImage, setCurrentPreviewImage] = useState<string | null>(null);
 
-  // Initialize or reset prompt whenever article changes
+  // Initialize or reset prompt & state whenever article changes
   useEffect(() => {
     if (article) {
       const defaultPrompt = buildEditorialPrompt(article.title, article.category?.name);
       setCustomPrompt(defaultPrompt);
+      setCurrentPreviewImage(article.featuredImage || null);
       setError(null);
+      setAgentNotice(null);
+      setPollingAgent(false);
     }
   }, [article]);
+
+  // Polling for article featured image when dispatched to local ChatGPT webhook agent
+  useEffect(() => {
+    if (!pollingAgent || !article?.id) return;
+
+    let attempts = 0;
+    const maxAttempts = 100; // 3s * 100 = 5 minutes
+    const interval = setInterval(async () => {
+      attempts++;
+      try {
+        const latest = await api.getArticle(article.id, { adminEdit: true });
+        if (latest?.featuredImage && latest.featuredImage !== currentPreviewImage) {
+          setCurrentPreviewImage(latest.featuredImage);
+          setPollingAgent(false);
+          setAgentNotice('✨ Featured 16:9 thumbnail synthesized by ChatGPT agent and applied to article!');
+          onArticleUpdated?.(article.id, latest.featuredImage);
+          clearInterval(interval);
+        }
+      } catch (e: any) {
+        console.warn('Error polling article for generated image:', e?.message);
+      }
+
+      if (attempts >= maxAttempts) {
+        setPollingAgent(false);
+        clearInterval(interval);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [pollingAgent, article?.id, currentPreviewImage, onArticleUpdated]);
 
   if (!article) return null;
 
@@ -81,6 +120,33 @@ export const ThumbnailRegenerationModal: React.FC<ThumbnailRegenerationModalProp
   const handleStart = async () => {
     setSubmitting(true);
     setError(null);
+    setAgentNotice(null);
+
+    // Option 1: Local Agent (ChatGPT Webhook / Automation queue)
+    if (provider === 'agent') {
+      try {
+        const res = await api.createAutomationJob({
+          articleId: article.id,
+          prompt: customPrompt.trim(),
+          autoPublishOnComplete: true,
+        });
+
+        const noticeText = res?.dispatchedWebhook
+          ? 'Dispatched to Local AI Agent via Webhook! Generating 16:9 featured image in ChatGPT... Modal will auto-refresh as soon as ready.'
+          : 'Queued for Local AI Agent polling! When your laptop agent connects, it will generate the 16:9 image.';
+
+        setAgentNotice(noticeText);
+        setPollingAgent(true);
+        onGenerationStarted?.(res?.job);
+      } catch (err: any) {
+        setError(err.message || 'Failed to dispatch job to local AI agent');
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    // Option 2: Codex CLI, Antigravity, or Gemini
     try {
       const job = await startGeneration({
         articleId: article.id,
@@ -129,59 +195,82 @@ export const ThumbnailRegenerationModal: React.FC<ThumbnailRegenerationModalProp
           </div>
         )}
 
-        {currentJobGenerating && (
+        {agentNotice && (
+          <div className="p-3 mb-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs flex items-start gap-2">
+            <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+            <div className="leading-relaxed">{agentNotice}</div>
+          </div>
+        )}
+
+        {(currentJobGenerating || pollingAgent) && (
           <div className="p-3 mb-3 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-800 dark:text-purple-300 rounded-xl text-xs flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Loader2 className="w-4 h-4 text-purple-600 animate-spin shrink-0" />
-              <span>An image generation is already running for this article in the background.</span>
+              <span>
+                {pollingAgent
+                  ? 'Local ChatGPT Agent is generating 16:9 image. Auto-polling article status...'
+                  : 'An image generation is already running for this article in the background.'}
+              </span>
             </div>
-            <Badge variant="purple" size="sm">Running</Badge>
+            <Badge variant="purple" size="sm">
+              Running
+            </Badge>
           </div>
         )}
 
         <div className="space-y-4">
-          {/* Target Article Snippet */}
-          <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-white/[0.06] text-xs">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Target Headline
-            </div>
-            <div className="font-bold text-slate-900 dark:text-white mt-0.5 line-clamp-1">
-              {article.title}
-            </div>
-            <div className="flex items-center gap-2 mt-1.5 text-[11px] text-slate-500">
-              <span className="font-medium text-primary">{article.category?.name || 'Technology'}</span>
-              <span>•</span>
-              <span className="font-mono text-[10px] truncate">/article/{article.slug || article.id}</span>
+          {/* Target Article Snippet & Current Visual */}
+          <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-white/[0.06] text-xs flex items-start gap-3">
+            {currentPreviewImage ? (
+              <img
+                src={currentPreviewImage}
+                alt={article.title}
+                className="w-16 h-10 object-cover rounded-lg border border-slate-200 dark:border-slate-800 shrink-0"
+              />
+            ) : (
+              <div className="w-16 h-10 bg-slate-200 dark:bg-slate-800 rounded-lg flex items-center justify-center shrink-0 text-slate-400">
+                <ImageIcon className="w-4 h-4" />
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Target Headline
+              </div>
+              <div className="font-bold text-slate-900 dark:text-white mt-0.5 line-clamp-1">
+                {article.title}
+              </div>
+              <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500">
+                <span className="font-medium text-primary">{article.category?.name || 'Technology'}</span>
+                <span>•</span>
+                <span className="font-mono text-[10px] truncate">/article/{article.slug || article.id}</span>
+              </div>
             </div>
           </div>
 
           {/* Model / Provider Engine Selector */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              AI Generation Engine
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                AI Generation Engine
+              </label>
+              <span className="text-[10px] text-slate-400 font-medium">
+                {provider === 'agent' && 'Local Laptop Agent (ChatGPT Webhook)'}
+                {provider === 'codex' && 'OpenAI Codex CLI (Direct Prompt)'}
+                {provider === 'agy' && 'Google Antigravity CLI (agy)'}
+                {provider === 'gemini' && 'Google Gemini (Imagen & Flash)'}
+              </span>
+            </div>
             <div className="grid grid-cols-4 gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold">
               <button
                 type="button"
-                onClick={() => setProvider('gemini')}
+                onClick={() => setProvider('agent')}
                 className={`py-2 px-2 rounded-lg transition-all text-center truncate ${
-                  provider === 'gemini'
+                  provider === 'agent'
                     ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                Gemini
-              </button>
-              <button
-                type="button"
-                onClick={() => setProvider('agy')}
-                className={`py-2 px-2 rounded-lg transition-all text-center truncate ${
-                  provider === 'agy'
-                    ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Antigravity
+                Local Agent
               </button>
               <button
                 type="button"
@@ -196,19 +285,43 @@ export const ThumbnailRegenerationModal: React.FC<ThumbnailRegenerationModalProp
               </button>
               <button
                 type="button"
-                onClick={() => setProvider('clichat')}
+                onClick={() => setProvider('agy')}
                 className={`py-2 px-2 rounded-lg transition-all text-center truncate ${
-                  provider === 'clichat'
+                  provider === 'agy'
                     ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                CliChat
+                Antigravity
+              </button>
+              <button
+                type="button"
+                onClick={() => setProvider('gemini')}
+                className={`py-2 px-2 rounded-lg transition-all text-center truncate ${
+                  provider === 'gemini'
+                    ? 'bg-white dark:bg-slate-900 text-primary shadow-2xs font-bold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                Gemini
               </button>
             </div>
           </div>
 
-          {/* Gemini Model Specific Selection */}
+          {/* Engine Explanation / Variant Selection */}
+          {provider === 'agent' && (
+            <div className="p-3 bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-800/60 rounded-xl text-xs text-sky-800 dark:text-sky-300 flex items-start gap-2.5">
+              <Bot className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <div className="font-bold text-[11px]">Local AI Agent Webhook Queue</div>
+                <p className="text-[11px] text-sky-700/90 dark:text-sky-300/80 leading-relaxed">
+                  Dispatches 16:9 prompt to your connected local agent (ChatGPT/MCP or polling daemon).
+                  Generated visual will be auto-applied and watermarked with Daily Build.
+                </p>
+              </div>
+            </div>
+          )}
+
           {provider === 'gemini' && (
             <div className="p-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
@@ -273,11 +386,29 @@ export const ThumbnailRegenerationModal: React.FC<ThumbnailRegenerationModalProp
             variant="default"
             size="sm"
             onClick={handleStart}
-            loading={submitting}
-            loadingText="Queueing Generation..."
-            icon={<Sparkles className="w-3.5 h-3.5" />}
+            loading={submitting || pollingAgent}
+            loadingText={
+              provider === 'agent'
+                ? submitting
+                  ? 'Queueing Job for Agent...'
+                  : 'ChatGPT Generating Image...'
+                : 'Queueing Generation...'
+            }
+            icon={
+              provider === 'agent' ? (
+                <Bot className={`w-3.5 h-3.5 ${submitting || pollingAgent ? 'animate-spin' : ''}`} />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5" />
+              )
+            }
           >
-            {currentJobGenerating ? 'Restart Generation' : 'Generate Visual'}
+            {provider === 'agent'
+              ? pollingAgent
+                ? 'Generating in ChatGPT (Auto-refreshing)...'
+                : 'Generate with Local AI Agent (16:9 ChatGPT)'
+              : currentJobGenerating
+              ? 'Restart Generation'
+              : 'Generate Visual'}
           </Button>
         </DialogFooter>
       </DialogContent>

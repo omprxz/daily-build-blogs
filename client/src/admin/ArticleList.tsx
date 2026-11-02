@@ -168,6 +168,7 @@ export const ArticleList: React.FC = () => {
 
   // Thumbnail regeneration modal state
   const [regeneratingArticle, setRegeneratingArticle] = useState<any | null>(null);
+  const [activeAutomationIds, setActiveAutomationIds] = useState<Set<string>>(new Set());
 
   // Global counts for metrics strip
   const [summaryCounts, setSummaryCounts] = useState<{
@@ -263,6 +264,46 @@ export const ArticleList: React.FC = () => {
       })
     );
   }, [latestCompletedJobs]);
+
+  // Track background automation jobs (Local Agent / ChatGPT Webhook)
+  const checkAutomationQueue = useCallback(async () => {
+    try {
+      const res = await api.getAutomationJobs({ limit: 15 });
+      if (!res?.jobs) return;
+      const activeIds = new Set<string>();
+
+      res.jobs.forEach((job) => {
+        if (job.articleId) {
+          if (job.status === 'pending' || job.status === 'claimed' || job.status === 'processing') {
+            activeIds.add(job.articleId);
+          } else if (job.status === 'completed' && (job.uploadedImageUrl || job.article?.featuredImage)) {
+            const finalImg = job.uploadedImageUrl || job.article?.featuredImage;
+            setArticles((prev) => {
+              let changed = false;
+              const next = prev.map((art) => {
+                if (art.id === job.articleId && art.featuredImage !== finalImg) {
+                  changed = true;
+                  return { ...art, featuredImage: finalImg };
+                }
+                return art;
+              });
+              return changed ? next : prev;
+            });
+          }
+        }
+      });
+
+      setActiveAutomationIds(activeIds);
+    } catch {
+      // Ignore background errors
+    }
+  }, []);
+
+  useEffect(() => {
+    checkAutomationQueue();
+    const interval = setInterval(checkAutomationQueue, 5000);
+    return () => clearInterval(interval);
+  }, [checkAutomationQueue]);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -599,7 +640,7 @@ export const ArticleList: React.FC = () => {
                         src={art.featuredImage}
                         alt={art.featuredImageAlt}
                         title={art.title}
-                        isGenerating={isGenerating(art.id)}
+                        isGenerating={isGenerating(art.id) || activeAutomationIds.has(art.id)}
                         onClick={(resolvedSrc) =>
                           setLightboxImage({
                             src: resolvedSrc,
@@ -771,6 +812,19 @@ export const ArticleList: React.FC = () => {
         isOpen={Boolean(regeneratingArticle)}
         onClose={() => setRegeneratingArticle(null)}
         article={regeneratingArticle}
+        onArticleUpdated={(articleId, newImage) => {
+          if (newImage) {
+            setArticles((prev) =>
+              prev.map((art) => (art.id === articleId ? { ...art, featuredImage: newImage } : art))
+            );
+          } else {
+            loadArticles();
+          }
+          loadSummaryCounts();
+        }}
+        onGenerationStarted={() => {
+          checkAutomationQueue();
+        }}
       />
 
       {/* Deletion Confirmation Dialog */}

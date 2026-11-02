@@ -73,7 +73,7 @@ export const ArticleEditor: React.FC = () => {
   const [promptCopied, setPromptCopied] = useState(false);
 
   // Advanced AI Image Engine Selection
-  const [aiImageEngine, setAiImageEngine] = useState<'agent' | 'codex' | 'agy' | 'gemini'>('codex');
+  const [aiImageEngine, setAiImageEngine] = useState<'agent' | 'codex' | 'agy' | 'gemini'>('agent');
   const [geminiImageModel, setGeminiImageModel] = useState<string>('imagen-3.0-generate-002');
   const [customImagePrompt, setCustomImagePrompt] = useState<string>('');
   const [generatedImagePath, setGeneratedImagePath] = useState<string | null>(null);
