@@ -301,5 +301,93 @@ export const api = {
     modelId?: string;
   }) => fetchJson<any>('/sites/ai/generate-insights', { method: 'POST', body: JSON.stringify(data) }),
   getSitesSetupStatus: () => fetchJson<any>('/sites/setup/status'),
+
+  // 15 SEO & AEO Tools Suite API
+  getSEOOverview: () => fetchJson<any>('/seo/overview'),
+  getSEOSettings: () => fetchJson<any>('/seo/settings'),
+  updateSEOSettings: (data: any) => fetchJson<any>('/seo/settings', { method: 'PUT', body: JSON.stringify(data) }),
+
+  // 1. Audit & Crawler
+  runSinglePageAudit: (url: string) => fetchJson<any>('/seo/audit/single', { method: 'POST', body: JSON.stringify({ url }) }),
+  runSiteAudit: (data: { startUrl?: string; maxPages?: number }) => fetchJson<any>('/seo/audit/site', { method: 'POST', body: JSON.stringify(data) }),
+  getSEOAuditHistory: () => fetchJson<any>('/seo/audit/history'),
+  getSEOAudit: (id: string) => fetchJson<any>(`/seo/audit/${id}`),
+
+  // 2. Keyword Intelligence
+  analyzeKeywords: (keyword: string, articleId?: string) => fetchJson<any>('/seo/keywords/analyze', { method: 'POST', body: JSON.stringify({ keyword, articleId }) }),
+  getKeywordHistory: () => fetchJson<any>('/seo/keywords/history'),
+
+  // 3. On-Page Optimizer
+  analyzeOnPage: (data: { title: string; excerpt?: string; slug?: string; content: string; targetKeyword?: string; articleId?: string }) =>
+    fetchJson<any>('/seo/on-page/analyze', { method: 'POST', body: JSON.stringify(data) }),
+  applyOnPageFix: (data: { articleId: string; fixType: string; suggestedValue: string }) =>
+    fetchJson<any>('/seo/on-page/apply-fix', { method: 'POST', body: JSON.stringify(data) }),
+
+  // 4. AEO / GEO Readiness
+  analyzeAEO: (data: { title: string; excerpt?: string; slug?: string; content: string; articleId?: string }) =>
+    fetchJson<any>('/seo/aeo/analyze', { method: 'POST', body: JSON.stringify(data) }),
+
+  // 5. Internal Linking
+  getLinkGraphOverview: () => fetchJson<any>('/seo/internal-links/overview'),
+  analyzeInternalLinks: (data: { articleId: string; contentHtml?: string }) =>
+    fetchJson<any>('/seo/internal-links/analyze', { method: 'POST', body: JSON.stringify(data) }),
+  applyInternalLink: (data: { articleId: string; anchorText: string; targetSlug: string; targetTitle?: string }) =>
+    fetchJson<any>('/seo/internal-links/apply-link', { method: 'POST', body: JSON.stringify(data) }),
+
+  // 6. Schema & Structured Data
+  generateSchema: (data: { articleId?: string; schemaType?: string }) =>
+    fetchJson<any>('/seo/schema/generate', { method: 'POST', body: JSON.stringify(data) }),
+  validateSchema: (data: { jsonLdString: string; pageHtml?: string; articleId?: string }) =>
+    fetchJson<any>('/seo/schema/validate', { method: 'POST', body: JSON.stringify(data) }),
+
+  // 7. Indexing & Sitemaps
+  getIndexingStatus: () => fetchJson<any>('/seo/indexing/status'),
+  submitToIndexNow: (urls: string[]) => fetchJson<any>('/seo/indexing/indexnow/submit', { method: 'POST', body: JSON.stringify({ urls }) }),
+  validateSitemapHealth: () => fetchJson<any>('/seo/indexing/sitemap/validate'),
+
+  // 8. Content Decay & Ranking Opportunities
+  getRankingOpportunities: () => fetchJson<any>('/seo/opportunities/decay-and-rankings'),
+
+  // 9. Duplicate Content & Cannibalization
+  scanDuplicateContent: () => fetchJson<any>('/seo/duplicate-content/scan'),
+
+  // 10. Content Quality & Source Verification
+  verifyContentQuality: (data: { content: string; articleId?: string; title?: string }) =>
+    fetchJson<any>('/seo/content-quality/verify', { method: 'POST', body: JSON.stringify(data) }),
+
+  // 11. SERP Preview & CTR Optimizer
+  getSERPPreview: (articleId: string) => fetchJson<any>(`/seo/serp/preview?articleId=${encodeURIComponent(articleId)}`),
+  applySERPVariant: (data: { articleId: string; metaTitle?: string; metaDescription?: string }) =>
+    fetchJson<any>('/seo/serp/apply-variant', { method: 'POST', body: JSON.stringify(data) }),
+
+  // 12. Topical Authority & Content Gaps
+  getTopicalAuthority: (categoryId?: string) =>
+    fetchJson<any>(`/seo/topical-authority${categoryId ? `?categoryId=${encodeURIComponent(categoryId)}` : ''}`),
+
+  // 13. Content Freshness & Update Scheduler
+  getFreshnessQueue: (olderThanDays?: number) =>
+    fetchJson<any>(`/seo/freshness/queue${olderThanDays ? `?olderThanDays=${olderThanDays}` : ''}`),
+  markArticleRefreshed: (data: { articleId: string; summaryOfChanges?: string }) =>
+    fetchJson<any>('/seo/freshness/mark-refreshed', { method: 'POST', body: JSON.stringify(data) }),
+
+  // 14. Crawlability & Technical Inspector
+  inspectCrawlability: (url: string) => fetchJson<any>('/seo/crawlability/inspect', { method: 'POST', body: JSON.stringify({ url }) }),
+
+  // 15. AI Search Citation Tracker
+  getAISearchTrackers: () => fetchJson<any>('/seo/ai-search/trackers'),
+  createAISearchTracker: (data: { promptQuery: string; targetBrand?: string; targetDomain?: string }) =>
+    fetchJson<any>('/seo/ai-search/trackers', { method: 'POST', body: JSON.stringify(data) }),
+  evaluateAISearchPrompt: (data: { promptQuery: string; trackerId?: string }) =>
+    fetchJson<any>('/seo/ai-search/evaluate', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Pre-Publication Gate
+  evaluatePublicationGate: (data: {
+    articleId?: string;
+    title: string;
+    slug?: string;
+    content: string;
+    targetKeyword?: string;
+    excerpt?: string;
+  }) => fetchJson<any>('/seo/publication-gate/evaluate', { method: 'POST', body: JSON.stringify(data) }),
 };
 

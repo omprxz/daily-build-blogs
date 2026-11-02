@@ -163,6 +163,18 @@ Supported adapters:
 - Synthesizes 16:9 editorial imagery, uploads to ImgBB, and returns image metadata to the backend.
 - The server backend ingests the cloud image, watermarks it with Sharp, and links it directly to the article.
 
+### H. Integrated 15 SEO & AEO Intelligence Engine (`server/src/services/seo/`)
+A modular search engine optimization (SEO) and answer engine optimization (AEO/GEO) suite embedded directly into the content lifecycle:
+- **Crawler & Technical Auditor (`crawler.ts` & `crawlability-service.ts`):** Cheerio-powered streaming HTML crawler with SSRF loopback protections. Inspects HTTP response chains, canonical parity, meta robots directives, `robots.txt` compliance, image alt text, and semantic heading hierarchy.
+- **Answer Engine & Generative Engine Analyzer (`aeo-geo-service.ts`):** Evaluates content chunking for AI answer engines (Perplexity, ChatGPT, Gemini). Checks definition blocks, question-heading anchors, and verifies AI crawler bot access (`GPTBot`, `ClaudeBot`, `PerplexityBot`, `Google-Extended`).
+- **Real-Time On-Page Optimizer (`on-page-service.ts`):** Evaluates title/meta pixel lengths, Flesch-Kincaid reading ease, heading distribution, and generates one-click draft updates.
+- **Factual Verification & Quality Engine (`content-quality-service.ts`):** Extracts statistics, dates, and factual claims; performs safe SSRF-protected HTTP verification of cited links; detects dead citations and marketing fluff.
+- **IndexNow & Sitemap Automation (`indexing-service.ts`):** Implements the open IndexNow protocol. Automatically submits newly published or updated URLs to Bing, Yandex, Seznam, and Naver with public key verification at `/:keyFile.txt`.
+- **Pre-Publication Security Gate (`publication-gate-service.ts`):** Intercepts draft creation and publishing. Runs 5 automated checks with configurable site policies: `warning_only`, `approval_required`, and `block_publication`.
+- **Background Cron Jobs (`worker.ts`):**
+  - **Weekly Technical Audit:** Executes full-site crawl every Sunday at 02:00 AM UTC (`0 2 * * 0`).
+  - **Daily AI Search Citation Tracker:** Evaluates brand and article visibility across AI search prompts every day at 04:00 AM UTC (`0 4 * * *`).
+
 ---
 
 ## 3. Database Schema Overview
@@ -245,4 +257,49 @@ erDiagram
         boolean is_active
         string trigger_cron
     }
+
+    seo_audits {
+        uuid id PK
+        string audit_type
+        int total_pages_crawled
+        int health_score
+        int total_issues
+        jsonb summary_metrics
+    }
+
+    seo_audit_findings {
+        uuid id PK
+        uuid audit_id FK
+        string url
+        string category
+        string severity
+        string issue_title
+        text recommendation
+    }
+
+    seo_keyword_research {
+        uuid id PK
+        string seed_keyword
+        string intent
+        string cluster_name
+        jsonb related_queries
+    }
+
+    seo_indexing_logs {
+        uuid id PK
+        string engine
+        string url
+        int http_status
+        boolean success
+    }
+
+    seo_settings {
+        uuid id PK
+        string index_now_key
+        boolean auto_index_on_publish
+        string publication_policy
+        string audit_schedule
+        int freshness_threshold_days
+    }
 ```
+

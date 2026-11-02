@@ -55,6 +55,18 @@ These keys can be configured via environment variables or entered dynamically in
 | `GOOGLE_CLIENT_SECRET` | Optional | OAuth 2.0 Web Application Client Secret. |
 | `GOOGLE_OAUTH_REDIRECT_URI` | Optional | OAuth 2.0 authorized redirect URI (`https://blogs.dailybuild.tech/api/sites/gsc/oauth-callback`). |
 
+### SEO & AEO Configuration Parameters (`seo_settings` in DB & CMS)
+
+All tool policies and keys are managed interactively under `/admin/seo?tab=settings` or seeded into PostgreSQL:
+
+| Setting Key | Default Value | Options / Format | Description & Behavior |
+| ----------- | ------------- | ---------------- | ---------------------- |
+| `indexNowKey` | *(auto-generated)* | 32-char hex | Shared IndexNow key verifying ownership. Accessible publicly at `https://blogs.dailybuild.tech/:keyFile.txt`. |
+| `autoIndexOnPublish` | `true` | `true` / `false` | Automatically submits newly published and edited article URLs to Bing and Yandex via IndexNow. |
+| `publicationPolicy` | `"warning_only"` | `"warning_only"` \| `"approval_required"` \| `"block_publication"` | Enforcement level of the Pre-Publication Quality Gate. |
+| `auditSchedule` | `"weekly"` | `"daily"` \| `"weekly"` \| `"disabled"` | Execution frequency of the background full-site crawler audit in `worker.ts`. |
+| `freshnessThresholdDays` | `90` | Integer (days) | Threshold after which articles enter the freshness review queue. |
+
 ---
 
 ## 2. Client Environment Variables (`client/.env`)

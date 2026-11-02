@@ -1,211 +1,274 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api.js';
-import { Search, ExternalLink, Link2, Sparkles, Globe, FileCode2, Rss, ShieldCheck } from 'lucide-react';
+import {
+  Search,
+  Settings2,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button.js';
 import { Badge } from '@/components/ui/badge.js';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card.js';
-import { StatusDot } from '@/components/ui/status-dot.js';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog.js';
+import { Spinner } from '@/components/ui/spinner.js';
+
+import { SEONavigationTabs } from './seo/SEONavigationTabs.js';
+import { SEOOverview } from './seo/SEOOverview.js';
+import { SEOAuditTool } from './seo/SEOAuditTool.js';
+import { KeywordIntelligenceTool } from './seo/KeywordIntelligenceTool.js';
+import { OnPageOptimizerTool } from './seo/OnPageOptimizerTool.js';
+import { AEOGEOAnalyzerTool } from './seo/AEOGEOAnalyzerTool.js';
+import { InternalLinkingTool } from './seo/InternalLinkingTool.js';
+import { SchemaValidatorTool } from './seo/SchemaValidatorTool.js';
+import { IndexingSitemapsTool } from './seo/IndexingSitemapsTool.js';
+import { RankingOpportunitiesTool } from './seo/RankingOpportunitiesTool.js';
+import { DuplicateContentTool } from './seo/DuplicateContentTool.js';
+import { ContentQualityTool } from './seo/ContentQualityTool.js';
+import { SERPPreviewTool } from './seo/SERPPreviewTool.js';
+import { TopicalAuthorityTool } from './seo/TopicalAuthorityTool.js';
+import { ContentFreshnessTool } from './seo/ContentFreshnessTool.js';
+import { CrawlabilityInspectorTool } from './seo/CrawlabilityInspectorTool.js';
+import { AISearchVisibilityTool } from './seo/AISearchVisibilityTool.js';
 
 export const SEOManager: React.FC = () => {
-  const [testText, setTestText] = useState('We are exploring autonomous coding loops, Linux eBPF kernel probes, and language models for production infrastructure.');
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [testing, setTesting] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTool = searchParams.get('tool') || 'overview';
+  const [activeTool, setActiveTool] = useState<string>(initialTool);
 
-  const handleTestInternalLinks = async () => {
-    setTesting(true);
+  // Settings Modal State
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settings, setSettings] = useState<any>({
+    autoIndexNowEnabled: true,
+    scheduledAuditEnabled: true,
+    scheduledAuditDay: 'sunday',
+    scheduledAuditHour: 2,
+    minSeoScoreToPublish: 65,
+    minAeoScoreToPublish: 60,
+    publicationGatePolicy: 'approval_required',
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsSaved, setSettingsSaved] = useState(false);
+
+  useEffect(() => {
+    const toolParam = searchParams.get('tool');
+    if (toolParam && toolParam !== activeTool) {
+      setActiveTool(toolParam);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    api.getSEOSettings().then((res) => {
+      if (res) setSettings(res);
+    }).catch(() => {});
+  }, []);
+
+  const handleSelectTool = (toolId: string) => {
+    setActiveTool(toolId);
+    setSearchParams({ tool: toolId });
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    setSettingsSaved(false);
     try {
-      const res = await api.getInternalLinks({ content: testText });
-      setSuggestions(res);
+      await api.updateSEOSettings(settings);
+      setSettingsSaved(true);
+      setTimeout(() => {
+        setSettingsSaved(false);
+        setSettingsOpen(false);
+      }, 1200);
     } catch (err: any) {
-      alert(`Error finding internal links: ${err.message}`);
+      alert(`Error saving settings: ${err.message}`);
     } finally {
-      setTesting(false);
+      setSavingSettings(false);
+    }
+  };
+
+  const renderActiveTool = () => {
+    switch (activeTool) {
+      case 'overview':
+        return <SEOOverview onSelectTool={handleSelectTool} />;
+      case 'audit':
+        return <SEOAuditTool />;
+      case 'keywords':
+        return <KeywordIntelligenceTool />;
+      case 'on-page':
+        return <OnPageOptimizerTool />;
+      case 'aeo':
+        return <AEOGEOAnalyzerTool />;
+      case 'internal-links':
+        return <InternalLinkingTool />;
+      case 'schema':
+        return <SchemaValidatorTool />;
+      case 'indexing':
+        return <IndexingSitemapsTool />;
+      case 'opportunities':
+        return <RankingOpportunitiesTool onSelectTool={handleSelectTool} />;
+      case 'duplicate-content':
+        return <DuplicateContentTool />;
+      case 'content-quality':
+        return <ContentQualityTool />;
+      case 'serp-preview':
+        return <SERPPreviewTool />;
+      case 'topical-authority':
+        return <TopicalAuthorityTool onSelectTool={handleSelectTool} />;
+      case 'freshness':
+        return <ContentFreshnessTool />;
+      case 'crawlability':
+        return <CrawlabilityInspectorTool />;
+      case 'ai-search':
+        return <AISearchVisibilityTool />;
+      default:
+        return <SEOOverview onSelectTool={handleSelectTool} />;
     }
   };
 
   return (
-    <div className="space-y-6 w-full pb-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200/80 dark:border-white/[0.08]">
+    <div className="space-y-6 w-full pb-14">
+      {/* Top Suite Title Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-white/[0.08]">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
             <Search className="w-6 h-6 text-primary" />
-            <span>SEO &amp; Indexing</span>
+            <span>SEO &amp; AEO Intelligence Suite</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-            Sitemaps, RSS feeds, crawler directives, and internal link suggestions.
+            15 Integrated Search &amp; Generative Engine Optimization Tools grounded in Search Console and live crawl telemetry.
           </p>
         </div>
 
-        <Badge variant="success" size="md" dot dotPulse>
-          Meta Tags Active
-        </Badge>
-      </div>
-
-      {/* 3 Core Technical Endpoints Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <Card className="flex flex-col justify-between">
-          <CardHeader className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
-                <Globe className="w-4 h-4" />
-                <span>Search Indexing</span>
-              </span>
-              <Badge variant="success" size="sm">
-                Live
-              </Badge>
-            </div>
-            <CardTitle className="text-sm">XML Sitemap</CardTitle>
-            <CardDescription>
-              Dynamically generated on-demand with all published articles and categories.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <a
-              href="/sitemap.xml"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-between w-full text-xs font-bold text-primary hover:text-primary/80 pt-3 border-t border-slate-100 dark:border-white/[0.06]"
-            >
-              <span>Inspect /sitemap.xml</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </CardContent>
-        </Card>
-
-        <Card className="flex flex-col justify-between">
-          <CardHeader className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
-                <Rss className="w-4 h-4" />
-                <span>Syndication Feed</span>
-              </span>
-              <Badge variant="warning" size="sm">
-                RSS 2.0
-              </Badge>
-            </div>
-            <CardTitle className="text-sm">Public RSS Feed</CardTitle>
-            <CardDescription>
-              Standard syndicated technology feed formatted with full metadata, media enclosures, and author credits for news aggregators.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <a
-              href="/rss.xml"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-between w-full text-xs font-bold text-amber-600 dark:text-amber-400 hover:text-amber-700 pt-3 border-t border-slate-100 dark:border-white/[0.06]"
-            >
-              <span>Inspect /rss.xml</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </CardContent>
-        </Card>
-
-        <Card className="flex flex-col justify-between">
-          <CardHeader className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-                <FileCode2 className="w-4 h-4" />
-                <span>Crawler Protocol</span>
-              </span>
-              <Badge variant="secondary" size="sm">
-                Robots.txt
-              </Badge>
-            </div>
-            <CardTitle className="text-sm">Crawler Directives</CardTitle>
-            <CardDescription>
-              Directs Googlebot and web crawlers to public editorial routes while protecting admin, API, and sensitive internal endpoints.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <a
-              href="/robots.txt"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-between w-full text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white pt-3 border-t border-slate-100 dark:border-white/[0.06]"
-            >
-              <span>Inspect /robots.txt</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Internal Linking Suggestions Engine */}
-      <Card>
-        <CardHeader className="pb-3 border-b border-slate-100 dark:border-white/[0.06]">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Link2 className="w-4 h-4 text-primary" />
-                <span>Contextual Internal Linking</span>
-              </CardTitle>
-              <CardDescription>
-                Analyzes text to suggest contextual links to existing articles.
-              </CardDescription>
-            </div>
-            <Badge variant="outline" size="sm" className="hidden sm:inline-flex">
-              Link Engine
-            </Badge>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-4 pt-4">
-          <div className="space-y-1.5">
-            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">
-              Test Content Snippet:
-            </label>
-            <textarea
-              rows={3}
-              value={testText}
-              onChange={(e) => setTestText(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-serif leading-relaxed focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
+        <div className="flex items-center gap-2.5">
+          <Badge variant="success" size="md" dot dotPulse>
+            Telemetry Active
+          </Badge>
           <Button
-            variant="default"
+            variant="outline"
             size="sm"
-            onClick={handleTestInternalLinks}
-            loading={testing}
-            loadingText="Analyzing..."
-            icon={<Sparkles className="w-3.5 h-3.5" />}
+            onClick={() => setSettingsOpen(true)}
+            className="text-xs"
           >
-            Find Suggestions
+            <Settings2 className="w-3.5 h-3.5 mr-1.5" />
+            Policy &amp; Gate Settings
           </Button>
+        </div>
+      </div>
 
-          {suggestions.length > 0 && (
-            <div className="pt-4 border-t border-slate-100 dark:border-white/[0.06] space-y-3">
-              <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                Matched Links ({suggestions.length}):
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {suggestions.map((s, idx) => (
-                  <div key={idx} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-white/[0.06] flex items-center justify-between text-xs gap-3">
-                    <div className="min-w-0">
-                      <span className="font-bold text-primary">"{s.matchedKeyword}"</span>
-                      <span className="text-slate-400 mx-1.5">&rarr;</span>
-                      <span className="text-slate-800 dark:text-slate-200 font-medium truncate">{s.title}</span>
-                    </div>
-                    <a
-                      href={`/article/${s.slug}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-1 rounded-lg text-slate-400 hover:text-primary shrink-0"
-                      title="Open article"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                ))}
+      {/* 16-Tool Tab Bar */}
+      <SEONavigationTabs activeTool={activeTool} onSelectTool={handleSelectTool} />
+
+      {/* Active View Container */}
+      <div className="pt-2">
+        {renderActiveTool()}
+      </div>
+
+      {/* Settings Modal */}
+      <Dialog open={settingsOpen} onOpenChange={(open) => !open && setSettingsOpen(false)}>
+        <DialogContent onClose={() => setSettingsOpen(false)} className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-2xs">
+                <Settings2 className="w-4 h-4" />
+              </div>
+              <div>
+                <DialogTitle>SEO &amp; Pre-Publication Policies</DialogTitle>
+                <DialogDescription>
+                  Configure automated auditing thresholds and publishing gate modes.
+                </DialogDescription>
               </div>
             </div>
+          </DialogHeader>
+
+          {settingsSaved && (
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>SEO settings updated successfully!</span>
+            </div>
           )}
-        </CardContent>
-      </Card>
+
+          <form onSubmit={handleSaveSettings} className="space-y-4 pt-2">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Pre-Publication Gate Policy
+              </label>
+              <select
+                value={settings.publicationGatePolicy || 'approval_required'}
+                onChange={(e) => setSettings({ ...settings, publicationGatePolicy: e.target.value })}
+                className="w-full text-xs bg-white dark:bg-[#0c1220] border border-slate-200 dark:border-white/[0.1] rounded-lg px-3 py-2 text-slate-900 dark:text-white outline-none"
+              >
+                <option value="warning_only">Warning Only (Never blocks publication)</option>
+                <option value="approval_required">Approval Required (Prompt modal on critical issues)</option>
+                <option value="block_publication">Strict Block (Disable publish if score below threshold)</option>
+              </select>
+              <p className="text-[10px] text-slate-400 mt-1">
+                Controls whether editors can bypass failed SEO/AEO checks during article publishing.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Min SEO Score
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={settings.minSeoScoreToPublish || 65}
+                  onChange={(e) => setSettings({ ...settings, minSeoScoreToPublish: Number(e.target.value) })}
+                  className="w-full text-xs bg-white dark:bg-[#0c1220] border border-slate-200 dark:border-white/[0.1] rounded-lg px-3 py-2 text-slate-900 dark:text-white outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Min AEO Score
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={settings.minAeoScoreToPublish || 60}
+                  onChange={(e) => setSettings({ ...settings, minAeoScoreToPublish: Number(e.target.value) })}
+                  className="w-full text-xs bg-white dark:bg-[#0c1220] border border-slate-200 dark:border-white/[0.1] rounded-lg px-3 py-2 text-slate-900 dark:text-white outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2 border-t border-slate-200/80 dark:border-white/[0.08]">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={settings.autoIndexNowEnabled}
+                  onChange={(e) => setSettings({ ...settings, autoIndexNowEnabled: e.target.checked })}
+                  className="rounded text-primary focus:ring-primary"
+                />
+                <span>Automatically push new articles to IndexNow</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={settings.scheduledAuditEnabled}
+                  onChange={(e) => setSettings({ ...settings, scheduledAuditEnabled: e.target.checked })}
+                  className="rounded text-primary focus:ring-primary"
+                />
+                <span>Enable weekly automated background site audits</span>
+              </label>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3">
+              <Button type="button" variant="outline" size="sm" onClick={() => setSettingsOpen(false)} className="text-xs">
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" disabled={savingSettings} className="text-xs">
+                {savingSettings ? <Spinner className="w-3.5 h-3.5 mr-1" /> : null}
+                Save Settings
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
-
-export default SEOManager;

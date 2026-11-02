@@ -5,6 +5,7 @@ import * as schema from '../database/schema.js';
 import { authenticate, AuthRequest, requireRole } from '../middleware/auth.js';
 import { eq, desc, and, or, ilike, sql, gte } from 'drizzle-orm';
 import sanitizeHtml from 'sanitize-html';
+import { publicationGateService } from '../services/seo/publication-gate-service.js';
 
 const router = Router();
 
@@ -238,6 +239,27 @@ router.post('/', authenticate, async (req: AuthRequest, res, next) => {
 
     const isPublished = input.status === 'published';
 
+    // Pre-publication SEO & Content Quality Gate Check
+    if (isPublished && req.query.force !== 'true') {
+      const gateCheck = await publicationGateService.evaluateArticleBeforePublication({
+        title: input.title,
+        slug,
+        excerpt: input.excerpt,
+        contentHtml: sanitizedHtml,
+        metaTitle: input.metaTitle || input.title,
+        metaDescription: input.metaDescription || input.excerpt,
+      });
+
+      if (!gateCheck.canPublish) {
+        return res.status(422).json({
+          error: 'PublicationGateBlocked',
+          message: 'Publication was blocked by the SEO & Content Quality policy.',
+          blockingReasons: gateCheck.blockingReasons,
+          gateCheck,
+        });
+      }
+    }
+
     // Deduplication check: if a draft with the identical title was created by this author within the last 120 seconds
     // (e.g. from featured image auto-save or quick double-click), update that draft instead of inserting a duplicate!
     const twoMinutesAgo = new Date(Date.now() - 120 * 1000);
@@ -320,6 +342,12 @@ router.post('/', authenticate, async (req: AuthRequest, res, next) => {
       }
     }
 
+    if (isPublished) {
+      publicationGateService.handlePostPublication(article.id, article.slug).catch((err) => {
+        console.error('[Post-Publication SEO Pipeline Error]:', err);
+      });
+    }
+
     res.status(201).json(article);
   } catch (err) {
     next(err);
@@ -366,6 +394,28 @@ router.put('/:id', authenticate, async (req: AuthRequest, res, next) => {
       updateData.publishedAt = new Date();
     }
 
+    // Pre-publication SEO & Content Quality Gate Check
+    if (input.status === 'published' && req.query.force !== 'true') {
+      const gateCheck = await publicationGateService.evaluateArticleBeforePublication({
+        articleId: id,
+        title: input.title || existing.title,
+        slug: input.slug || existing.slug,
+        excerpt: input.excerpt || existing.excerpt,
+        contentHtml: input.contentHtml || existing.contentHtml,
+        metaTitle: input.metaTitle || existing.metaTitle || existing.title,
+        metaDescription: input.metaDescription || existing.metaDescription || existing.excerpt,
+      });
+
+      if (!gateCheck.canPublish) {
+        return res.status(422).json({
+          error: 'PublicationGateBlocked',
+          message: 'Publication was blocked by the SEO & Content Quality policy.',
+          blockingReasons: gateCheck.blockingReasons,
+          gateCheck,
+        });
+      }
+    }
+
     const [updated] = await db.update(schema.articles)
       .set(updateData)
       .where(eq(schema.articles.id, id))
@@ -385,6 +435,12 @@ router.put('/:id', authenticate, async (req: AuthRequest, res, next) => {
       changeSummary: req.body.changeSummary || 'Updated article content',
       userId: req.user!.userId,
     });
+
+    if (updated.status === 'published') {
+      publicationGateService.handlePostPublication(updated.id, updated.slug).catch((err) => {
+        console.error('[Post-Publication SEO Pipeline Error]:', err);
+      });
+    }
 
     res.json(updated);
   } catch (err) {

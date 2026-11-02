@@ -290,6 +290,33 @@ cron.schedule('*/3 * * * *', async () => {
     }
   });
 
+// 5. Cron Task: Scheduled Weekly SEO Site Audit (Sunday at 02:00 AM)
+cron.schedule('0 2 * * 0', async () => {
+  if (config.automation.emergencyKillSwitch) return;
+  console.log('[Worker Cron] Triggering scheduled weekly SEO audit...');
+  try {
+    const { seoCrawlerService } = await import('./services/seo/crawler.js');
+    await seoCrawlerService.runSiteAudit(config.appUrl, { maxPages: 50, maxDepth: 3 });
+  } catch (err: any) {
+    console.error('[Worker Cron SEO Audit Error]:', err.message);
+  }
+});
+
+// 6. Cron Task: Daily AI Search Evaluation & Freshness Check (Daily at 04:00 AM)
+cron.schedule('0 4 * * *', async () => {
+  if (config.automation.emergencyKillSwitch) return;
+  console.log('[Worker Cron] Running daily AI search citation tracker & freshness review cycle...');
+  try {
+    const { aiSearchTrackerService } = await import('./services/seo/ai-search-tracker-service.js');
+    const trackers = await aiSearchTrackerService.getTrackers();
+    for (const t of trackers.slice(0, 3)) {
+      await aiSearchTrackerService.evaluateSearchPrompt(t.promptQuery, t.id);
+    }
+  } catch (err: any) {
+    console.warn('[Worker Cron AI Citation Warning]:', err.message);
+  }
+});
+
 // Keep process active
 process.on('SIGTERM', () => {
   console.log('[Worker] Stopping cron schedules gracefully...');

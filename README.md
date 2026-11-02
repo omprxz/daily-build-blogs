@@ -42,9 +42,50 @@ Modern content publishing platforms often force teams into an unpleasant trade-o
 - **Automated RSS Research & Deduplication:** Pre-seeded with 10 real-world engineering feeds (Google AI, OpenAI, Anthropic, Hugging Face, GitHub, Mozilla, The Hacker News, Ars Technica, TechCrunch, Google Developers) with SHA-256 normalized deduplication.
 - **Featured Image Processing:** Automatic 16:9 editorial artwork synthesis via Gemini Imagen 3, WebP conversion, and subtle bottom-right logo watermarking via **Sharp** (`libvips`).
 - **Local Image MCP Server (`local-image-mcp/`):** Model Context Protocol (MCP) server providing a Streamable HTTP endpoint (`/mcp`) for browser-assisted 16:9 editorial image synthesis via ChatGPT and automatic ImgBB cloud delivery.
+- **Integrated 15 SEO & AEO Tools Suite:** A comprehensive, production-grade search engine and answer engine intelligence platform natively integrated into the admin panel, AI generator, article editor, and publication pipeline. Built entirely on free, open-source libraries (Cheerio, Playwright, Schema.org), the open IndexNow protocol, existing Google Search Console/GA4 integrations, and local heuristic algorithms—with zero mandatory paid SEO subscriptions.
+- **Pre-Publication SEO & AEO Quality Gate:** Enforces editorial standards before content goes live. Runs real-time checks across On-Page SEO, Content Quality & Fact Verification, AEO Readiness, Schema JSON-LD validity, and contextual linking with configurable policy modes (`warning_only`, `approval_required`, `block_publication`).
 - **Google Search Console & GA4 Integration:** Built-in OAuth 2.0 integration correlating organic search clicks, impressions, and Core Web Vitals into joint AI performance insight reports, defaulting to a rolling 24-hour reporting interval across all property analytics views.
 - **Editorial Studio & AI Title Generation:** Article creator and editor with customizable "Title Generation Instructions" field allowing editorial steering of headline tone, length constraints, focus keywords, and SEO intent across both creation and editing flows.
-- **Defense-in-Depth Security:** AES-256-GCM encryption for stored API keys, bcrypt password hashing, JWT sessions, strict HTML sanitization via `sanitize-html`, API rate limiting, and an instant **Emergency Publishing Kill Switch**.
+- **Defense-in-Depth Security:** AES-256-GCM encryption for stored API keys, bcrypt password hashing, JWT sessions, strict HTML sanitization via `sanitize-html`, SSRF protection on crawler/citation checks, API rate limiting, and an instant **Emergency Publishing Kill Switch**.
+
+---
+
+## 3. Integrated 15 SEO & AEO Tools Suite
+
+The admin panel includes 16 dedicated views accessible under **SEO & AEO Suite** (`/admin/seo`) and directly inside the article editor sidebar:
+
+| # | Tool Name | Key Functionality & Implementation | Free Technology / Source |
+|---|-----------|-------------------------------------|--------------------------|
+| 1 | **SEO Audit & Site Crawler** | Single-page and full-site crawlers checking titles, meta tags, H1 hierarchy, broken links, canonicals, robots directives, image alt text, redirect chains, and CSV report export. | Cheerio, HTTP pipeline, Playwright fallback, SSRF guard |
+| 2 | **Keyword Intelligence** | Seed keyword expansion, search intent classification (Informational, Navigational, Commercial, Transactional), question discovery, keyword clustering, and cannibalization alerts. | AI provider synthesis + First-party GSC search queries |
+| 3 | **On-Page SEO Optimizer** | Real-time draft analysis scoring title/meta lengths, Flesch-Kincaid readability, heading structure, keyword natural placement, and one-click draft fix applicator. | Custom typography algorithms + Cheerio parsing |
+| 4 | **AEO / GEO Readiness Analyzer** | Evaluates content extractability for Answer Engines (Perplexity, ChatGPT Search, Gemini). Inspects definition blocks, question headings, citation veracity, E-E-A-T signals, and AI bot crawler access (`robots.txt`). | Heuristic answer chunking algorithms + AI discovery checks |
+| 5 | **Internal Linking Intelligence** | Link graph visualization, orphan page detection, underlinked article warnings, and semantic contextual link recommendation with one-click in-content insertion. | PostgreSQL content extraction + similarity matching |
+| 6 | **Schema & Structured Data Validator** | Generates and validates Schema.org JSON-LD (`Article`, `TechArticle`, `NewsArticle`, `BreadcrumbList`, `Organization`) against Google Search Central guidelines with syntax issue flagging. | Schema.org vocabulary + Google Rich Results guidelines |
+| 7 | **Indexing & Sitemap Manager** | Generates valid XML sitemaps with meaningful `lastmod` timestamps, inspects live URL health, displays the active IndexNow key, and executes batch submissions to IndexNow (Bing, Yandex, Seznam, Naver). | XML Sitemap spec + IndexNow HTTP protocol |
+| 8 | **Ranking Opportunities & Decay** | Cross-correlates real Google Search Console clicks/impressions and GA4 engagement to flag high-impression low-CTR "striking distance" queries and decaying pages. | Google Search Console API + GA4 Data API |
+| 9 | **Duplicate Content & Cannibalization** | 4-word n-gram shingling and Jaccard similarity scanner detecting near-duplicate drafts and overlapping Search Console query cannibalization. | Jaccard similarity algorithms + GSC query mapping |
+| 10 | **Content Quality & Verification** | Factual claim, date, and statistic extractor; verifies outbound cited URLs with strict SSRF protection; identifies 404s, link rot, and promotional buzzword fluff. | Cheerio extraction + SSRF-safe HTTP verification |
+| 11 | **SERP Preview & CTR Optimizer** | Pixel-width Google desktop & mobile snippet simulation (595px boundary), live Search Console performance overlays, and AI high-CTR headline generator. | Typography font metrics + Google desktop/mobile boundaries |
+| 12 | **Topical Authority & Content Gaps** | Topic cluster mapping, internal coverage depth scoring (0–100), content gap identification from real GSC user queries, and automated editorial brief generator. | First-party GSC search demand + clustering algorithms |
+| 13 | **Content Freshness Scheduler** | Configurable category refresh intervals (e.g., 90 days), automated review queue for aging articles, and regex detection of outdated years, API versions, and pricing references. | Database review queue + background scheduler |
+| 14 | **Crawlability & Indexability Inspector** | Standalone technical inspector analyzing `robots.txt`, `X-Robots-Tag`, meta robots, canonical consistency, trailing slash normalization, and redirect hops. | Cheerio + HTTP header diagnostics |
+| 15 | **AI Search Citation Tracker** | Topic prompt monitoring across AI search providers, citation presence tracking for brand and article URLs, presence scoring, and competitor comparison. | AI provider evaluation + citation extraction |
+| 16 | **Unified SEO Overview** | Executive dashboard displaying overall crawl health, AEO readiness tier, striking distance opportunities, recent IndexNow submissions, and quick-launch tools. | Unified aggregation layer |
+
+### Pre-Publication Quality Gate & Publishing Policies
+
+In `/admin/seo?tab=settings`, administrators configure publication security policies:
+- **`warning_only` (Default):** Runs all pre-flight checks (On-Page, Quality, AEO, Schema, Linking, Duplicates). Warnings and failed checks trigger an editorial confirmation modal before saving or publishing.
+- **`approval_required`:** Articles with failed critical checks cannot be directly published without explicit administrator approval.
+- **`block_publication`:** Strictly prevents publication until fatal errors (e.g. invalid Schema syntax, broken primary sources, missing titles) are resolved.
+
+### Post-Publication Automations
+
+When an article is published or meaningfully updated:
+1. **Instant IndexNow Submission:** The URL is automatically broadcast to the IndexNow protocol (`api.indexnow.org`) notifying Bing, Yandex, Seznam, and Naver within seconds.
+2. **SEO & AEO Score Snapshots:** Real-time On-Page (`seoScore`) and AEO (`aeoScore`) scores are stored in PostgreSQL for performance tracking.
+3. **Sitemap Dynamic Update:** The public `/sitemap.xml` automatically reflects the publication with an accurate `lastmod` timestamp.
 
 ---
 

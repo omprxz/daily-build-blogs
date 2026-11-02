@@ -76,6 +76,9 @@ export const articles = pgTable('articles', {
   schemaJson: jsonb('schema_json'),
   tags: jsonb('tags').default([]), // array of tag strings
   aiMetadata: jsonb('ai_metadata').default({}), // provider, model, prompt, tokens, cost
+  seoScore: integer('seo_score').default(0).notNull(),
+  aeoScore: integer('aeo_score').default(0).notNull(),
+  lastAuditedAt: timestamp('last_audited_at'),
   publishedAt: timestamp('published_at'),
   scheduledAt: timestamp('scheduled_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -471,7 +474,147 @@ export const ga4AnalyticsCache = pgTable('ga4_analytics_cache', {
 });
 
 
-// 16. Drizzle Relations
+// 17. SEO & AEO Tool Suite Tables
+export const seoAudits = pgTable('seo_audits', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  url: text('url').notNull(),
+  auditType: varchar('audit_type', { length: 50 }).default('single_page').notNull(), // 'single_page', 'full_site'
+  status: varchar('status', { length: 50 }).default('pending').notNull(), // 'pending', 'running', 'completed', 'failed'
+  score: integer('score').default(0).notNull(),
+  pagesCrawled: integer('pages_crawled').default(0).notNull(),
+  issuesCount: jsonb('issues_count').default({ critical: 0, warning: 0, notice: 0 }).notNull(),
+  summaryJson: jsonb('summary_json').default({}).notNull(),
+  configJson: jsonb('config_json').default({}).notNull(),
+  errorMessage: text('error_message'),
+  startedAt: timestamp('started_at').defaultNow().notNull(),
+  completedAt: timestamp('completed_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const seoAuditFindings = pgTable('seo_audit_findings', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  auditId: uuid('audit_id').references(() => seoAudits.id, { onDelete: 'cascade' }).notNull(),
+  url: text('url').notNull(),
+  category: varchar('category', { length: 50 }).notNull(), // 'meta', 'headings', 'links', 'status', 'canonical', 'robots', 'images', 'content', 'schema', 'crawlability'
+  severity: varchar('severity', { length: 20 }).default('warning').notNull(), // 'critical', 'warning', 'notice'
+  ruleId: varchar('rule_id', { length: 100 }).notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  message: text('message').notNull(),
+  detailsJson: jsonb('details_json').default({}),
+  recommendation: text('recommendation').notNull(),
+  resolved: boolean('resolved').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const seoKeywordResearch = pgTable('seo_keyword_research', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  seedKeyword: varchar('seed_keyword', { length: 255 }).notNull(),
+  intent: varchar('intent', { length: 50 }).default('informational').notNull(),
+  clustersJson: jsonb('clusters_json').default([]),
+  keywordsJson: jsonb('keywords_json').default([]).notNull(),
+  contentGapsJson: jsonb('content_gaps_json').default([]),
+  mappedArticleId: uuid('mapped_article_id').references(() => articles.id, { onDelete: 'set null' }),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const seoSchemaValidations = pgTable('seo_schema_validations', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  articleId: uuid('article_id').references(() => articles.id, { onDelete: 'cascade' }),
+  url: text('url'),
+  schemaType: varchar('schema_type', { length: 50 }).notNull(),
+  jsonLd: jsonb('json_ld').notNull(),
+  isValid: boolean('is_valid').default(true).notNull(),
+  errorsJson: jsonb('errors_json').default([]),
+  warningsJson: jsonb('warnings_json').default([]),
+  consistencyIssuesJson: jsonb('consistency_issues_json').default([]),
+  validatedAt: timestamp('validated_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const seoIndexingLogs = pgTable('seo_indexing_logs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  engine: varchar('engine', { length: 50 }).notNull(), // 'indexnow', 'google_search_console', 'bing'
+  url: text('url').notNull(),
+  action: varchar('action', { length: 50 }).default('submit').notNull(), // 'submit', 'ping', 'check_status'
+  status: varchar('status', { length: 50 }).default('pending').notNull(), // 'success', 'failed', 'pending'
+  httpStatusCode: integer('http_status_code'),
+  responseBody: text('response_body'),
+  errorMessage: text('error_message'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const seoContentFreshness = pgTable('seo_content_freshness', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  articleId: uuid('article_id').references(() => articles.id, { onDelete: 'cascade' }).notNull(),
+  freshnessScore: integer('freshness_score').default(100).notNull(),
+  lastReviewedAt: timestamp('last_reviewed_at'),
+  nextReviewDue: timestamp('next_review_due'),
+  status: varchar('status', { length: 50 }).default('good').notNull(), // 'good', 'review_due', 'stale', 'refreshing'
+  detectedOutdatedJson: jsonb('detected_outdated_json').default([]),
+  aiSuggestionsJson: jsonb('ai_suggestions_json').default([]),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const seoContentVerifications = pgTable('seo_content_verifications', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  articleId: uuid('article_id').references(() => articles.id, { onDelete: 'cascade' }).notNull(),
+  claimsJson: jsonb('claims_json').default([]),
+  sourcesCheckedJson: jsonb('sources_checked_json').default([]),
+  overallQualityScore: integer('overall_quality_score').default(85).notNull(),
+  flaggedIssuesJson: jsonb('flagged_issues_json').default([]),
+  revisionSuggestionsJson: jsonb('revision_suggestions_json').default([]),
+  status: varchar('status', { length: 50 }).default('passed').notNull(), // 'passed', 'warning', 'rejected'
+  verifiedAt: timestamp('verified_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const seoAiSearchTrackers = pgTable('seo_ai_search_trackers', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  promptQuery: text('prompt_query').notNull(),
+  category: varchar('category', { length: 100 }),
+  targetBrand: varchar('target_brand', { length: 150 }).default('Daily Build').notNull(),
+  targetUrl: text('target_url'),
+  evalFrequency: varchar('eval_frequency', { length: 50 }).default('weekly').notNull(),
+  lastEvaluatedAt: timestamp('last_evaluated_at'),
+  presenceScore: integer('presence_score').default(0).notNull(),
+  latestSnapshotJson: jsonb('latest_snapshot_json').default({}),
+  historyJson: jsonb('history_json').default([]),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const seoTopicClusters = pgTable('seo_topic_clusters', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  pillarName: varchar('pillar_name', { length: 150 }).notNull(),
+  categoryId: uuid('category_id').references(() => categories.id, { onDelete: 'set null' }),
+  pillarArticleId: uuid('pillar_article_id').references(() => articles.id, { onDelete: 'set null' }),
+  subtopicsJson: jsonb('subtopics_json').default([]),
+  topicalCoverageScore: integer('topical_coverage_score').default(50).notNull(),
+  contentGapsJson: jsonb('content_gaps_json').default([]),
+  visualGraphJson: jsonb('visual_graph_json').default({}),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const seoSettings = pgTable('seo_settings', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  indexNowKey: varchar('index_now_key', { length: 100 }).notNull(),
+  autoIndexOnPublish: boolean('auto_index_on_publish').default(true).notNull(),
+  publicationPolicy: varchar('publication_policy', { length: 50 }).default('warning_only').notNull(), // 'warning_only', 'approval_required', 'block_publication'
+  auditSchedule: varchar('audit_schedule', { length: 50 }).default('weekly').notNull(),
+  freshnessThresholdDays: integer('freshness_threshold_days').default(90).notNull(),
+  bingApiKey: text('bing_api_key'),
+  customRobotsTxt: text('custom_robots_txt'),
+  settingsJson: jsonb('settings_json').default({}),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+
+// 18. Drizzle Relations
 export const articlesRelations = relations(articles, ({ one, many }) => ({
   category: one(categories, {
     fields: [articles.categoryId],

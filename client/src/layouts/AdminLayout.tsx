@@ -260,7 +260,7 @@ export const AdminLayout: React.FC = () => {
     { label: 'Visual Automation', icon: Workflow, path: '/admin/automation' },
     { label: 'Sites & Audits', icon: Globe, path: '/admin/sites' },
     { label: 'Categories & Policy', icon: Layers, path: '/admin/categories' },
-    { label: 'SEO & Internal Links', icon: Search, path: '/admin/seo' },
+    { label: 'SEO & AEO Suite', icon: Search, path: '/admin/seo', badge: '15 Tools' },
     { label: 'Newsletter', icon: Mail, path: '/admin/newsletter' },
     { label: 'Analytics & Costs', icon: BarChart3, path: '/admin/analytics' },
     { label: 'Settings & Security', icon: Settings, path: '/admin/settings' },
@@ -324,7 +324,18 @@ export const AdminLayout: React.FC = () => {
                   title={collapsed ? item.label : undefined}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span className="truncate">{item.label}</span>}
+                  {!collapsed && (
+                    <div className="flex items-center justify-between flex-1 truncate">
+                      <span className="truncate">{item.label}</span>
+                      {'badge' in item && item.badge && (
+                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold uppercase tracking-wider ${
+                          active ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground'
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </Link>
               );
             })}

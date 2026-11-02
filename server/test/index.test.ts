@@ -97,6 +97,7 @@ async function runTests() {
     siteUrl: 'https://blogs.dailybuild.tech',
     mobileLighthouse: sampleMobileAudit,
     searchConsole: benchmarkData,
+    providerSlug: 'fallback',
   });
 
   assert(['A+', 'A', 'B', 'C', 'D', 'F'].includes(aiReport.overallHealthGrade), 'Health grade must be valid letter grade');
@@ -105,6 +106,10 @@ async function runTests() {
   assert(aiReport.prioritizedRecommendations.length > 0, 'Must produce at least one recommendation');
   assert(aiReport.groundingNotice.includes('Lighthouse'), 'Grounding notice must reference data sources');
   console.log(`✓ AI Insights generation verified (Grade: ${aiReport.overallHealthGrade}, Recommendations: ${aiReport.prioritizedRecommendations.length}).`);
+
+  // Test Suite 2: 15 SEO & AEO Tools Suite
+  const { runSeoTests } = await import('./seo.test.js');
+  await runSeoTests();
 
   // Drain database connection pool gracefully
   try {

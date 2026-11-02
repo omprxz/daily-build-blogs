@@ -509,6 +509,161 @@ export async function runMigrations() {
 
       -- Remove standalone grok, claude, and custom_openai providers
       DELETE FROM ai_providers WHERE slug IN ('grok', 'claude', 'custom_openai');
+
+      -- 17. SEO & AEO Tool Suite
+      ALTER TABLE articles ADD COLUMN IF NOT EXISTS seo_score INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE articles ADD COLUMN IF NOT EXISTS aeo_score INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE articles ADD COLUMN IF NOT EXISTS last_audited_at TIMESTAMP;
+
+      CREATE TABLE IF NOT EXISTS seo_audits (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        url TEXT NOT NULL,
+        audit_type VARCHAR(50) NOT NULL DEFAULT 'single_page',
+        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+        score INTEGER NOT NULL DEFAULT 0,
+        pages_crawled INTEGER NOT NULL DEFAULT 0,
+        issues_count JSONB NOT NULL DEFAULT '{"critical": 0, "warning": 0, "notice": 0}'::jsonb,
+        summary_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+        config_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+        error_message TEXT,
+        started_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        completed_at TIMESTAMP,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS seo_audit_findings (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        audit_id UUID NOT NULL REFERENCES seo_audits(id) ON DELETE CASCADE,
+        url TEXT NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        severity VARCHAR(20) NOT NULL DEFAULT 'warning',
+        rule_id VARCHAR(100) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        details_json JSONB DEFAULT '{}'::jsonb,
+        recommendation TEXT NOT NULL,
+        resolved BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_seo_findings_audit_id ON seo_audit_findings(audit_id);
+      CREATE INDEX IF NOT EXISTS idx_seo_findings_severity ON seo_audit_findings(severity);
+
+      CREATE TABLE IF NOT EXISTS seo_keyword_research (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        seed_keyword VARCHAR(255) NOT NULL,
+        intent VARCHAR(50) NOT NULL DEFAULT 'informational',
+        clusters_json JSONB DEFAULT '[]'::jsonb,
+        keywords_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+        content_gaps_json JSONB DEFAULT '[]'::jsonb,
+        mapped_article_id UUID REFERENCES articles(id) ON DELETE SET NULL,
+        notes TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_seo_keywords_seed ON seo_keyword_research(seed_keyword);
+
+      CREATE TABLE IF NOT EXISTS seo_schema_validations (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        article_id UUID REFERENCES articles(id) ON DELETE CASCADE,
+        url TEXT,
+        schema_type VARCHAR(50) NOT NULL,
+        json_ld JSONB NOT NULL,
+        is_valid BOOLEAN NOT NULL DEFAULT TRUE,
+        errors_json JSONB DEFAULT '[]'::jsonb,
+        warnings_json JSONB DEFAULT '[]'::jsonb,
+        consistency_issues_json JSONB DEFAULT '[]'::jsonb,
+        validated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_seo_schema_article_id ON seo_schema_validations(article_id);
+
+      CREATE TABLE IF NOT EXISTS seo_indexing_logs (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        engine VARCHAR(50) NOT NULL,
+        url TEXT NOT NULL,
+        action VARCHAR(50) NOT NULL DEFAULT 'submit',
+        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+        http_status_code INTEGER,
+        response_body TEXT,
+        error_message TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_seo_indexing_logs_created_at ON seo_indexing_logs(created_at);
+
+      CREATE TABLE IF NOT EXISTS seo_content_freshness (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        article_id UUID NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+        freshness_score INTEGER NOT NULL DEFAULT 100,
+        last_reviewed_at TIMESTAMP,
+        next_review_due TIMESTAMP,
+        status VARCHAR(50) NOT NULL DEFAULT 'good',
+        detected_outdated_json JSONB DEFAULT '[]'::jsonb,
+        ai_suggestions_json JSONB DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_seo_freshness_article ON seo_content_freshness(article_id);
+
+      CREATE TABLE IF NOT EXISTS seo_content_verifications (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        article_id UUID NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+        claims_json JSONB DEFAULT '[]'::jsonb,
+        sources_checked_json JSONB DEFAULT '[]'::jsonb,
+        overall_quality_score INTEGER NOT NULL DEFAULT 85,
+        flagged_issues_json JSONB DEFAULT '[]'::jsonb,
+        revision_suggestions_json JSONB DEFAULT '[]'::jsonb,
+        status VARCHAR(50) NOT NULL DEFAULT 'passed',
+        verified_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_seo_verification_article ON seo_content_verifications(article_id);
+
+      CREATE TABLE IF NOT EXISTS seo_ai_search_trackers (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        prompt_query TEXT NOT NULL,
+        category VARCHAR(100),
+        target_brand VARCHAR(150) NOT NULL DEFAULT 'Daily Build',
+        target_url TEXT,
+        eval_frequency VARCHAR(50) NOT NULL DEFAULT 'weekly',
+        last_evaluated_at TIMESTAMP,
+        presence_score INTEGER NOT NULL DEFAULT 0,
+        latest_snapshot_json JSONB DEFAULT '{}'::jsonb,
+        history_json JSONB DEFAULT '[]'::jsonb,
+        is_active BOOLEAN NOT NULL DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS seo_topic_clusters (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        pillar_name VARCHAR(150) NOT NULL,
+        category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
+        pillar_article_id UUID REFERENCES articles(id) ON DELETE SET NULL,
+        subtopics_json JSONB DEFAULT '[]'::jsonb,
+        topical_coverage_score INTEGER NOT NULL DEFAULT 50,
+        content_gaps_json JSONB DEFAULT '[]'::jsonb,
+        visual_graph_json JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS seo_settings (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        index_now_key VARCHAR(100) NOT NULL,
+        auto_index_on_publish BOOLEAN NOT NULL DEFAULT TRUE,
+        publication_policy VARCHAR(50) NOT NULL DEFAULT 'warning_only',
+        audit_schedule VARCHAR(50) NOT NULL DEFAULT 'weekly',
+        freshness_threshold_days INTEGER NOT NULL DEFAULT 90,
+        bing_api_key TEXT,
+        custom_robots_txt TEXT,
+        settings_json JSONB DEFAULT '{}'::jsonb,
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      -- Ensure default seo_settings record exists
+      INSERT INTO seo_settings (id, index_now_key, auto_index_on_publish, publication_policy, audit_schedule, freshness_threshold_days)
+      SELECT 'a0000000-0000-0000-0000-000000000001'::uuid, 'dailybuild_indexnow_3f92b7e10c4a', TRUE, 'warning_only', 'weekly', 90
+      WHERE NOT EXISTS (SELECT 1 FROM seo_settings);
     `);
     console.log('[Migration] Database tables verified and ready.');
   } catch (err: any) {
