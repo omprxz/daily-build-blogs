@@ -139,7 +139,7 @@ export const GenerationDetailsModal: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <Badge
                           variant={job.status === 'generating' ? 'purple' : 'warning'}
-                          size="xs"
+                          size="sm"
                           className="font-mono uppercase tracking-wider"
                         >
                           <span className="flex items-center gap-1">

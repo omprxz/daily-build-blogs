@@ -93,12 +93,12 @@ const ArticleThumbnail: React.FC<ArticleThumbnailProps> = ({
           alt={alt || title}
           loading="lazy"
           onError={handleError}
-          className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-300 ease-out"
+          className="w-full h-full object-cover"
         />
 
         {/* Hover zoom icon */}
         {!isGenerating && (
-          <div className="absolute inset-0 bg-black/45 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-200 flex items-center justify-center backdrop-blur-[0.5px]">
+          <div className="absolute rounded-lg inset-0 bg-black/45 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-200 flex items-center justify-center backdrop-blur-[0.5px]">
             <ZoomIn className="w-4 h-4 text-white drop-shadow-md" />
           </div>
         )}
@@ -122,7 +122,7 @@ const ArticleThumbnail: React.FC<ArticleThumbnailProps> = ({
           }}
           className={`absolute -top-1.5 -right-1.5 z-20 p-1 rounded-full shadow-md transition-all duration-200 flex items-center justify-center cursor-pointer ${
             showProminentRegenerate
-              ? 'bg-amber-500 hover:bg-amber-600 text-white ring-2 ring-white dark:ring-slate-900 opacity-100 scale-100 animate-bounce'
+              ? 'bg-amber-500 hover:bg-amber-600 text-white ring-2 ring-white dark:ring-slate-900 opacity-100 scale-100'
               : 'bg-slate-900/90 hover:bg-primary text-slate-200 hover:text-white border border-slate-700/80 opacity-0 group-hover/thumb:opacity-100 scale-90 group-hover/thumb:scale-100'
           }`}
           title={

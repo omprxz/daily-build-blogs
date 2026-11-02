@@ -135,7 +135,7 @@ export const ThumbnailRegenerationModal: React.FC<ThumbnailRegenerationModalProp
               <Loader2 className="w-4 h-4 text-purple-600 animate-spin shrink-0" />
               <span>An image generation is already running for this article in the background.</span>
             </div>
-            <Badge variant="purple" size="xs">Running</Badge>
+            <Badge variant="purple" size="sm">Running</Badge>
           </div>
         )}
 
