@@ -49,20 +49,6 @@ export const ArticleEditor: React.FC = () => {
     }
   }, [id]);
 
-  // Synchronize featured image when background image generation completes
-  useEffect(() => {
-    const targetId = persistedId || (id && id !== 'new' ? id : null);
-    if (!targetId) return;
-
-    const finished = latestCompletedJobs[targetId];
-    if (finished && finished.resultImageUrl && featuredImage !== finished.resultImageUrl) {
-      setFeaturedImage(finished.resultImageUrl);
-      setFeaturedImageAlt(title || 'Featured Article Visual');
-      setGeneratedImagePath(finished.resultImageUrl);
-      setImageGenSuccessNotice(`Visual synthesized with ${finished.provider.toUpperCase()} (${finished.modelId})`);
-    }
-  }, [latestCompletedJobs, persistedId, id, featuredImage, title]);
-
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(Boolean(id && id !== 'new'));
   const [saving, setSaving] = useState(false);
@@ -92,6 +78,20 @@ export const ArticleEditor: React.FC = () => {
   const [customImagePrompt, setCustomImagePrompt] = useState<string>('');
   const [generatedImagePath, setGeneratedImagePath] = useState<string | null>(null);
   const [imageGenSuccessNotice, setImageGenSuccessNotice] = useState<string | null>(null);
+
+  // Synchronize featured image when background image generation completes
+  useEffect(() => {
+    const targetId = persistedId || (id && id !== 'new' ? id : null);
+    if (!targetId) return;
+
+    const finished = latestCompletedJobs[targetId];
+    if (finished && finished.resultImageUrl && featuredImage !== finished.resultImageUrl) {
+      setFeaturedImage(finished.resultImageUrl);
+      setFeaturedImageAlt(title || 'Featured Article Visual');
+      setGeneratedImagePath(finished.resultImageUrl);
+      setImageGenSuccessNotice(`Visual synthesized with ${finished.provider.toUpperCase()} (${finished.modelId})`);
+    }
+  }, [latestCompletedJobs, persistedId, id, featuredImage, title]);
 
   const getDynamicThumbnailPrompt = () => {
     const titleText = title.trim() || 'Modern Technology Innovation';
