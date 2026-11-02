@@ -11,6 +11,7 @@ import { getCategoryTheme } from '../utils/editorialPrompt.js';
 import { ScrollProgress, ScrollProgressSection } from '../components/ui/rare/scroll-progress.js';
 import { RailToc, RailTocItem } from '../components/ui/rare/rail-toc.js';
 import { EmojiReaction } from '../components/ui/rare/emoji-reaction.js';
+import { AISummarizeBar } from '../components/AISummarizeBar.js';
 
 export const ArticlePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -335,6 +336,15 @@ export const ArticlePage: React.FC = () => {
             </div>
           </div>
         </header>
+
+        {/* AI Quick Summarize Bar */}
+        <section aria-label="AI Summarization Options" className="mb-6 flex justify-center sm:justify-start">
+          <AISummarizeBar
+            articleTitle={article.title}
+            articleExcerpt={article.excerpt}
+            takeaways={article.aiMetadata?.takeaways}
+          />
+        </section>
 
         {/* 16:9 Featured Hero Media Showcase */}
         {article.featuredImage && (
